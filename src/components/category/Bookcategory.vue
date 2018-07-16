@@ -28,7 +28,8 @@ export default {
   },
   created () {
     api.getCategory().then(response => {
-      this.category = response.data
+			this.category = response.data
+			console.log(this.category)
       this.loading = false
     }).catch(err => {
       console.log(err)

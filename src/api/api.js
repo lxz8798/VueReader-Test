@@ -7,7 +7,7 @@ export default {
      * @returns {null}
      */
   getRankType () {
-    return Vue.http.get('/ranking/gender')
+    return Vue.http.get('/rank-category')
   },
 
   /**
@@ -24,14 +24,14 @@ export default {
      * http://api.zhuishushenqi.com/cats/lv2
      */
   getCategory () {
-    return Vue.http.get('/cats/lv2/statistics')
+    return Vue.http.get('/categories')
   },
 
   /**
      * 获取细分的类别
      */
   getCategoryDetail () {
-    return Vue.http.get('/cats/lv2')
+    return Vue.http.get('/sub-categories')
   },
 
   /**
@@ -42,11 +42,11 @@ export default {
      * @param {String} minor
      * @param {Number} start
      * @param {Number} limit
-     * https://api.zhuishushenqi.com/book/by-categories?gender=male&type=hot&major=%E5%A5%87%E5%B9%BB&minor=&start=0&limit=20
+     * http://novel.juhe.im/category-info?gender=male&type=hot&major=奇幻&minor=&start=0&limit=20
      */
   // todo 入参需要用es6优化
   getNovelListByCat (gender, type, major, minor = '', start = 0, limit = 20) {
-    return Vue.http.get('/book/by-categories?gender=' + gender + '&type=' + type + '&major=' + major + '&minor=' + minor + '&start=' + start + '&limit=' + limit)
+    return Vue.http.get('/category-info?gender=' + gender + '&type=' + type + '&major=' + major + '&minor=' + minor + '&start=' + start + '&limit=' + limit)
   },
 
   /**
@@ -54,16 +54,16 @@ export default {
      * @param {String} bookId 小说id
      */
   getBook (bookId) {
-    return Vue.http.get('/book/' + bookId)
+    return Vue.http.get('/book-info/' + bookId)
   },
 
   /**
      * 获取小说源(正版源)
      * @param {String} bookId 小说id
-     * 'http://api.zhuishushenqi.com/btoc?view=summary&book=548d9c17eb0337ee6df738f5'
+     * http://novel.juhe.im/book-sources?view=summary&book=567d2cb9ee0e56bc713cb2c0
      */
   getGenuineSource (bookId) {
-    return Vue.http.get('/btoc?view=summary&book=' + bookId)
+    return Vue.http.get('/book-sources?view=summary&book=' + bookId)
   },
 
   /**
@@ -72,7 +72,7 @@ export default {
      * 'http://api.zhuishushenqi.com/atoc?view=summary&book=548d9c17eb0337ee6df738f5'
      */
   getMixSource (bookId) {
-    return Vue.http.get('/atoc?view=summary&book=' + bookId)
+    return Vue.http.get('/book-sources?view=summary&book=' + bookId)
   },
 
   /**
@@ -89,16 +89,17 @@ export default {
      * @param {String} sourceId 小说源id
      */
   getChapters (sourceId) {
-    return Vue.http.get('/atoc/' + sourceId + '?view=chapters')
+    return Vue.http.get('/book-chapters/' + sourceId)
   },
 
   /**
      * 获取小说章节内容
      * @param {String} chapterUrl 章节url
      * http://chapterup.zhuishushenqi.com/chapter/http://vip.zhuishushenqi.com/chapter/5817f1161bb2ca566b0a5973?cv=1481275033588
+     * http://novel.juhe.im/chapters/http://vip.zhuishushenqi.com/chapter/5817f1161bb2ca566b0a5973?cv=1529047123910
      */
   getBookChapterContent (chapterUrl) {
-    return Vue.http.get('/getChapter?chapterUrl=' + chapterUrl)
+    return Vue.http.get('/chapters/' + chapterUrl)
   },
 
   /**
@@ -106,7 +107,7 @@ export default {
      * @returns {null}
      */
   getHotWords () {
-    return Vue.http.get('/book/search-hotwords')
+    return Vue.http.get('/search?keyword=')
   },
 
   /**
@@ -115,7 +116,7 @@ export default {
      * http://api05iye5.zhuishushenqi.com/book/auto-complete?query=%E6%96%97%E7%BD%97
      */
   autoComplete (searchWord) {
-    return Vue.http.get('/book/auto-complete?query=' + searchWord)
+    return Vue.http.get('/search?keyword=' + searchWord)
   },
 
   /**
@@ -123,13 +124,14 @@ export default {
      *  @param {String} searchWord 搜索内容
      */
   fuzzySearch (searchWord) {
-    return Vue.http.get('/book/fuzzy-search?query=' + searchWord)
+    return Vue.http.get('/search?keyword=' + searchWord)
   },
 
   /**
      * 获取小说最新章节（书架）
      * @param {Array} bookList 获取更新的小说id
      * http://api05iye5.zhuishushenqi.com/book?view=updated&id=531169b3173bfacb4904ca67,51d11e782de6405c45000068
+     * http://novel.juhe.im/chapters/http%3A%2F%2Fvip.zhuishushenqi.com%2Fchapter%2F56f8da09176d03ac1983f6d7%3Fcv%3D1486473051386
      */
   getUpdate (bookList) {
     return Vue.http.get('/book?view=updated&id=' + bookList.toString())
