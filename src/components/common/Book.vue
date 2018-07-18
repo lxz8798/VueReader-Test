@@ -83,7 +83,7 @@ export default {
     Indicator.open()
     // 获取小说详情
     api.getBook(this.$route.params.bookId).then(response => {
-      this.book = response.data
+			this.book = response.data
       this.isFollowBook()
       Indicator.close()
     }, err => {
@@ -138,7 +138,9 @@ export default {
         // 以bookId为键值，方便后续删除等操作
         localShelf[this.book._id] = {
           cover: this.book.cover,
-          title: this.book.title,
+					title: this.book.title,
+					updated: this.book.updated,
+					lastChapter: this.book.lastChapter,
           source: this.$store.state.source
         }
         util.setLocalStroageData('followBookList', localShelf)

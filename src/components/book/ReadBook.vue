@@ -135,6 +135,7 @@ export default {
   },
   methods: {
     getBookChapterContent () {
+      
       // 不同源之间的章节数量不一样，当前阅读章节与源章节取小的，避免报错
       let lastChapter = this.currentChapter >= this.bookChapter.chapters.length - 1 ? this.bookChapter.chapters.length - 1 : this.currentChapter
       Indicator.open('加载中')
@@ -212,6 +213,7 @@ export default {
       readRecord[this.$route.params.bookId] = {
         cover: this.$store.state.bookInfo.cover,
         title: this.$store.state.bookInfo.title,
+        updated: this.$store.state.bookInfo.updated,
         chapter: this.currentChapter,
         source: this.$store.state.source,
         readPos: document.getElementById('container').scrollTop
