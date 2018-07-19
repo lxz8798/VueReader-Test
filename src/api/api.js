@@ -145,17 +145,12 @@ export default {
     // })
 
     // return new Promise((resolve,reject)=>{
-      let _tempArray = {},
-          _temp = {}
+      let _tempArray = {}
       
       for (let i = 0; i < bookList.length; i++) {
         _tempArray[i] = new Promise ((resolve, rejects) => {
           resolve(Vue.http.get('/book-info/' + bookList[i]))
         })
-        // _tempArray[i] = new Promise ((resolve, rejects) => {
-        //   resolve(Vue.http.get('/book-info/' + bookList[i]))
-        // })
-        // return _tempArray[i]
       }
       return _tempArray
     // })

@@ -71,31 +71,9 @@ export default {
             that.books.push(book.data)
 
             Indicator.close()
-            return book
           })
         }
       })
-      // api.getUpdate(this.getBookList()).then(response => {
-      //   console.log(response,'response')
-      // })
-
-      // api.getUpdate(this.getBookList()).then(Response => {
-      //   console.log(Response)
-      // })
-      
-      // api.getUpdate(this.getBookList()).then(response => {
-      //   console.log(response,'response')
-      //   localShelf = util.getLocalStroageData('followBookList')
-      //   response.data.forEach((book) => {
-      //     Object.assign(book, localShelf[book._id])
-      //     book.cover = util.staticPath + book.cover
-      //     that.books.push(book)
-      //   })
-      //   Indicator.close()
-      // }).catch(err => {
-      //   console.log(err)
-      //   Indicator.close()
-      // })
     },
 
     readbook (book) {
