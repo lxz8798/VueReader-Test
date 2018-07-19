@@ -8,7 +8,8 @@
 						<img :src="book.cover">
 						<div class="info">
 							<p class="title">{{book.title}}</p>
-							<p class="updated">{{book.updated | ago}}：{{book.lastChapter}}</p>
+              <p>{{book.lastChapter}}</p>
+							<p class="updated">{{book.updated}}</p>
 						</div>
 					</div>
 					<v-touch class="del-book-btn" @tap="delBook($event,index)">删除</v-touch>
@@ -61,7 +62,19 @@ export default {
       let localShelf,
         that = this
       Indicator.open()
-      
+      api.getUpdate(this.getBookList()).then(response => {
+        for (let i in response) {
+          localShelf = util.getLocalStroageData('followBookList')
+          response[i].then(book => {
+            Object.assign(book.data, localShelf[book._id])
+            book.data.cover = util.staticPath + book.data.cover
+            that.books.push(book.data)
+
+            Indicator.close()
+            return book
+          })
+        }
+      })
       // api.getUpdate(this.getBookList()).then(response => {
       //   console.log(response,'response')
       // })
@@ -69,7 +82,7 @@ export default {
       // api.getUpdate(this.getBookList()).then(Response => {
       //   console.log(Response)
       // })
-      Indicator.close()
+      
       // api.getUpdate(this.getBookList()).then(response => {
       //   console.log(response,'response')
       //   localShelf = util.getLocalStroageData('followBookList')
@@ -157,7 +170,8 @@ export default {
 }
 
 .book-list img {
-	height: 5rem;
+	width:70px;
+  height:100px;
 	float: left;
 	margin-right: .4rem;
 }
@@ -167,7 +181,7 @@ export default {
 	flex-direction: column;
 	justify-content: center;
 	box-sizing: border-box;
-	width: 100%;
+	width: 65%;
 	height: 5rem;
 	margin-left: .6rem;
 	border-bottom: 1px solid #f2f2f2;
