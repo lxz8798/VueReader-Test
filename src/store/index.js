@@ -13,7 +13,13 @@ const state = {
   previousPosition: '书架',
   source: '', // 小说源
   backPath: {},
-  bookInfo: {}
+  bookInfo: {},
+  ePubBook:{},
+  ePubOptions:'',
+  ePubPrev:'',
+  ePubNext:'',
+  loadPath:'',
+  getToc:''
 }
 
 export default new Vuex.Store({

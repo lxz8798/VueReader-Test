@@ -1,5 +1,9 @@
 <template>
 	<div>
+    <div @click="ePubPrev()">上一页</div>
+    <div id="ePubArea"></div>
+    <div @click="ePubNext()">下一页</div>
+    
 		<mt-button type="primary" class="add-book" v-if="!books.length" @click="$emit('addBook','分类')">添加小说</mt-button>
 		<ul class="book-shelf" v-if="books.length">
 			<v-touch tag="li" class="book-list-wrap" v-for="(book, index) in books" :key="index" @swipeleft="showDelBookBtn" @swiperight="hideDelBookBtn">
@@ -23,7 +27,7 @@
 import api from '@/api/api'
 import moment from 'moment'
 import util from '@/utils/util'
-import { SET_CURRENT_SOURCE, SET_READ_BOOK } from '@/store/mutationsType'
+import { SET_EPUB_BOOK,SET_CURRENT_SOURCE, SET_READ_BOOK } from '@/store/mutationsType'
 import { Indicator } from 'mint-ui'
 
 moment.locale('zh-cn')
@@ -36,8 +40,8 @@ export default {
   },
   filters: {
     /**
-         * 使用moment格式化时间
-         */
+    * 使用moment格式化时间
+    */
     ago (time) {
       return moment(time).fromNow()
     }
@@ -45,10 +49,62 @@ export default {
   created () {
     this.getBookUpdate()
   },
+  mounted () {
+    this.getePub()
+    this.getTocFn()
+    this.epubLoad()
+  },
   methods: {
     /**
-         * 返回追更新的书本id
-         */
+     * load
+     */
+    epubLoad () {
+      let _Book = ePub("../../../static/epub/test.epub", {})
+    },
+    /**
+     * 获取epub目录
+     * @author 李啸竹
+     */
+    getTocFn () {
+      let _that = this,
+          _tempStore = this.$store
+
+      _tempStore.state.ePubBook.getToc().then(res => {
+        console.log(res)
+      })
+
+    },
+    /**
+     * 下一页
+     * @author 李啸竹
+     */
+    ePubNext () {
+      this.$store.state.ePubBook.nextPage()
+    },
+    /**
+     * 上一页
+     * @author 李啸竹
+     */
+    ePubPrev () {
+      this.$store.state.ePubBook.prevPage()
+    },
+    /**
+     * 拿到epub渲染
+     * @author 李啸竹
+     */
+    getePub () {
+      let _that = this,
+          _tempStore = this.$store
+          
+      _that.$store.commit(SET_EPUB_BOOK,'http://cabpv2.api.kingchannels.cn/files/upload/000/santi.epub',{restore:true});
+      _tempStore.state.ePubBook.renderTo("ePubArea", {width: 800, height: 1200});
+
+      
+    },
+    /**
+    * 返回追更新的书本id
+    * @author 李啸竹
+    */
     getBookList () {
       let localShelf = util.getLocalStroageData('followBookList')
       let bookListArray = []

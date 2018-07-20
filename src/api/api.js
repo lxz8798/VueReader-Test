@@ -1,17 +1,25 @@
 import Vue from 'vue'
 import { resolve } from 'url';
 import { rejects } from 'assert';
+import { SET_EPUB_PATH } from '../store/mutationsType';
 
 export default {
-
+  
   /**
-     * 获取所有的排行榜类型
-     * @returns {null}
-     */
+  * 获取所有的排行榜类型
+  * @returns {null}
+  */
   getRankType () {
-    return Vue.http.get('/rank-category')
+    return Vue.http.get('/rank-category/')
   },
-
+  /**
+   * 访问epub
+   * @return {_ePubBook} 渲染到"ePubArea"
+   * @author 李啸竹
+   */
+  getEpub () {
+    
+  },
   /**
      * 根据id获取排行榜
      * @returns {String} id为周榜id，月榜id，总榜id
@@ -131,20 +139,11 @@ export default {
   /**
      * 获取小说最新章节（书架）
      * @param {Array} bookList 获取更新的小说id
+     * @author 李啸竹
      * http://api05iye5.zhuishushenqi.com/book?view=updated&id=531169b3173bfacb4904ca67,51d11e782de6405c45000068
      * http://novel.juhe.im/chapters/http%3A%2F%2Fvip.zhuishushenqi.com%2Fchapter%2F56f8da09176d03ac1983f6d7%3Fcv%3D1486473051386
      */
   async getUpdate (bookList) {
-    // return Vue.http.get('/book-info/' + bookList[1])
-    // return new Promise((resolve,reject) => {
-    //   resolve(() => {
-    //     bookList.map(item => {
-    //       return Vue.http.get('/book-info/' + item)
-    //     })
-    //   })
-    // })
-
-    // return new Promise((resolve,reject)=>{
       let _tempArray = {}
       
       for (let i = 0; i < bookList.length; i++) {
@@ -152,9 +151,7 @@ export default {
           resolve(Vue.http.get('/book-info/' + bookList[i]))
         })
       }
-      return _tempArray
-    // })
-   
+      return _tempArray   
   }
 
 }

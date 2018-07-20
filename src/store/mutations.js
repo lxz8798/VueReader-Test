@@ -5,7 +5,12 @@ import {
   SET_SEC_PATH,
   SET_THIRD_PATH,
   SET_HEAD_TITLE,
-  SET_READ_BOOK
+  SET_READ_BOOK,
+  SET_EPUB_BOOK,
+  SET_EPUB_PREV,
+  SET_EPUB_NEXT,
+  EPUB_LOAD,
+  GET_EPUB_TOC
 } from './mutationsType'
 
 export default {
@@ -32,5 +37,21 @@ export default {
   },
   [SET_READ_BOOK] (state, book) {
     state.bookInfo = book
+  },
+  [SET_EPUB_BOOK] (state, ePubBookPath, ePubOptions) {
+    state.ePubOptions = ePubOptions
+    state.ePubBook = ePub(ePubBookPath,ePubOptions)
+  },
+  [SET_EPUB_PREV] (state, ePubPrev) {
+    state.ePubPrev = ePubPrev
+  },
+  [SET_EPUB_NEXT] (state, ePubNext) {
+    state.ePubNext = ePubNext
+  },
+  [EPUB_LOAD] (state, loadPath) {
+    state.loadPath = loadPath
+  },
+  [GET_EPUB_TOC] (state, getToc) {
+    state.getToc = getToc
   }
 }

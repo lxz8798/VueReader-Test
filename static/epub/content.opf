@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+  <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>The Dark Forest</dc:title>
+    <dc:date></dc:date>
+    <meta name="calibre:title_sort" content="The Dark Forest"/>
+    <dc:identifier id="uuid_id" opf:scheme="uuid">a43fd2f3-8778-445c-9e76-f540b13e9376</dc:identifier>
+    <dc:identifier opf:scheme="calibre"></dc:identifier>
+    <dc:contributor opf:role="bkp"></dc:contributor>
+    <meta name="calibre:timestamp" content=""/>
+    <dc:creator opf:file-as="Cixin Liu" opf:role="aut">Cixin Liu</dc:creator>
+    <meta name="cover" content="cover"/>
+    <dc:language>en</dc:language>
+  </metadata>
+  <manifest>
+    <item href="cover.jpeg" id="cover" media-type="image/jpeg"/>
+    <item href="OEBPS/Fonts/font00357.ttf" id="item25" media-type="application/x-font-ttf"/>
+    <item href="OEBPS/Fonts/font00358.ttf" id="item26" media-type="application/x-font-ttf"/>
+    <item href="OEBPS/Fonts/font00359.ttf" id="item27" media-type="application/x-font-ttf"/>
+    <item href="OEBPS/Fonts/font00360.ttf" id="item28" media-type="application/x-font-ttf"/>
+    <item href="OEBPS/Images/image00361.jpeg" id="item29" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00362.jpeg" id="item30" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00363.jpeg" id="item31" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00364.jpeg" id="item32" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00365.jpeg" id="item33" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00366.jpeg" id="item34" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00367.jpeg" id="item35" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00368.jpeg" id="item36" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00369.jpeg" id="item37" media-type="image/jpeg"/>
+    <item href="OEBPS/Images/image00370.jpeg" id="item38" media-type="image/jpeg"/>
+    <item href="OEBPS/Text/part0000.xhtml" id="x_tit" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0001.xhtml" id="x_mini_toc" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0002.xhtml" id="x_copyrightnotice" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0003.xhtml" id="x_dramatispersonae" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0004.xhtml" id="x_prologue" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0005.xhtml" id="x_part1" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0006_split_000.xhtml" id="x_chapter12" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0006_split_001.xhtml" id="x_chapter11" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0007.xhtml" id="x_part2" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0008.xhtml" id="x_chapter2" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0009.xhtml" id="x_chapter3" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0010.xhtml" id="x_chapter4" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0011.xhtml" id="x_part3" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0012_split_000.xhtml" id="x_chapter52" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0012_split_001.xhtml" id="x_chapter51" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0013.xhtml" id="x_chapter6" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0014.xhtml" id="x_chapter7" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0015.xhtml" id="x_abouttheauthor" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0016.xhtml" id="x_aboutthetrans" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0017.xhtml" id="x_adcard" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0018.xhtml" id="x_newsletter" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0019.xhtml" id="x_torad" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0020.xhtml" id="x_contents" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0021.xhtml" id="x_copyright" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_000.xhtml" id="x_notes26" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_001.xhtml" id="x_notes25" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_002.xhtml" id="x_notes24" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_003.xhtml" id="x_notes23" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_004.xhtml" id="x_notes22" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_005.xhtml" id="x_notes21" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_006.xhtml" id="x_notes20" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_007.xhtml" id="x_notes19" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_008.xhtml" id="x_notes18" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_009.xhtml" id="x_notes17" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_010.xhtml" id="x_notes16" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_011.xhtml" id="x_notes15" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_012.xhtml" id="x_notes14" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_013.xhtml" id="x_notes13" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_014.xhtml" id="x_notes12" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_015.xhtml" id="x_notes11" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_016.xhtml" id="x_notes10" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_017.xhtml" id="x_notes9" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_018.xhtml" id="x_notes8" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_019.xhtml" id="x_notes7" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_020.xhtml" id="x_notes6" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_021.xhtml" id="x_notes5" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_022.xhtml" id="x_notes4" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_023.xhtml" id="x_notes3" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_024.xhtml" id="x_notes2" media-type="application/xhtml+xml"/>
+    <item href="OEBPS/Text/part0022_split_025.xhtml" id="x_notes1" media-type="application/xhtml+xml"/>
+    <item href="page_styles.css" id="page_css" media-type="text/css"/>
+    <item href="stylesheet.css" id="css" media-type="text/css"/>
+    <item href="titlepage.xhtml" id="titlepage" media-type="application/xhtml+xml"/>
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+  </manifest>
+  <spine toc="ncx" page-progression-direction="ltr">
+    <itemref idref="titlepage"/>
+    <itemref idref="x_tit"/>
+    <itemref idref="x_mini_toc"/>
+    <itemref idref="x_copyrightnotice"/>
+    <itemref idref="x_dramatispersonae"/>
+    <itemref idref="x_prologue"/>
+    <itemref idref="x_part1"/>
+    <itemref idref="x_chapter12"/>
+    <itemref idref="x_chapter11"/>
+    <itemref idref="x_part2"/>
+    <itemref idref="x_chapter2"/>
+    <itemref idref="x_chapter3"/>
+    <itemref idref="x_chapter4"/>
+    <itemref idref="x_part3"/>
+    <itemref idref="x_chapter52"/>
+    <itemref idref="x_chapter51"/>
+    <itemref idref="x_chapter6"/>
+    <itemref idref="x_chapter7"/>
+    <itemref idref="x_abouttheauthor"/>
+    <itemref idref="x_aboutthetrans"/>
+    <itemref idref="x_adcard"/>
+    <itemref idref="x_newsletter"/>
+    <itemref idref="x_torad"/>
+    <itemref idref="x_contents" linear="no"/>
+    <itemref idref="x_copyright"/>
+    <itemref idref="x_notes26"/>
+    <itemref idref="x_notes25"/>
+    <itemref idref="x_notes24"/>
+    <itemref idref="x_notes23"/>
+    <itemref idref="x_notes22"/>
+    <itemref idref="x_notes21"/>
+    <itemref idref="x_notes20"/>
+    <itemref idref="x_notes19"/>
+    <itemref idref="x_notes18"/>
+    <itemref idref="x_notes17"/>
+    <itemref idref="x_notes16"/>
+    <itemref idref="x_notes15"/>
+    <itemref idref="x_notes14"/>
+    <itemref idref="x_notes13"/>
+    <itemref idref="x_notes12"/>
+    <itemref idref="x_notes11"/>
+    <itemref idref="x_notes10"/>
+    <itemref idref="x_notes9"/>
+    <itemref idref="x_notes8"/>
+    <itemref idref="x_notes7"/>
+    <itemref idref="x_notes6"/>
+    <itemref idref="x_notes5"/>
+    <itemref idref="x_notes4"/>
+    <itemref idref="x_notes3"/>
+    <itemref idref="x_notes2"/>
+    <itemref idref="x_notes1"/>
+  </spine>
+  <guide>
+    <reference href="titlepage.xhtml" title="Cover" type="cover"/>
+    <reference href="OEBPS/Text/part0020.xhtml" title="Table of Contents" type="toc"/>
+  </guide>
+</package>
