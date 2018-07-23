@@ -1,10 +1,13 @@
 <template>
 	<div>
-    <div @click="ePubPrev()">上一页</div>
     <div id="ePubArea"></div>
-    <div @click="ePubNext()">下一页</div>
-    
-		<mt-button type="primary" class="add-book" v-if="!books.length" @click="$emit('addBook','分类')">添加小说</mt-button>
+    <div class="epub-btn-wrap">
+      <div id="ePubPrev">上一页</div>
+      <div id="ePubNext">下一页</div>
+    </div>
+
+    <!-- 我的书架(原) -->
+		<!-- <mt-button type="primary" class="add-book" v-if="!books.length" @click="$emit('addBook','分类')">添加小说</mt-button>
 		<ul class="book-shelf" v-if="books.length">
 			<v-touch tag="li" class="book-list-wrap" v-for="(book, index) in books" :key="index" @swipeleft="showDelBookBtn" @swiperight="hideDelBookBtn">
 				<v-touch class="book-list" @tap="readbook(book)">
@@ -19,7 +22,7 @@
 					<v-touch class="del-book-btn" @tap="delBook($event,index)">删除</v-touch>
 				</v-touch>
 			</v-touch>
-		</ul>
+		</ul> -->
 	</div>
 </template>
 
@@ -51,7 +54,6 @@ export default {
   },
   mounted () {
     this.getePub()
-    // this.getTocFn()
     this.epubLoad()
   },
   methods: {
@@ -59,71 +61,56 @@ export default {
      * load
      */
     epubLoad () {
-      let _that,_book,_rendition,_displayed
+      
+      let _that,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_toc
+     
       _book = ePub("../../../static/epub/test.epub")
+
       _rendition = _book.renderTo("ePubArea",{
-        width:"80%",
-        height:400
+        width: "100vw",
+        height: 600
       })
-      
-      console.log(_book)
-    },
-    /**
-     * 获取epub目录
-     * @author 李啸竹
-     */
-    getTocFn () {
-      // let _temp = ePub('../../../static/epub/test.epub')
-      // let _ePub = _temp.renderTo("ePubArea", {width: 800, height: 1200});
-      // chapter2.xhtml#A1e1689fb-c547-496f-8c05-f8be721e2265
-      let _that,_book,_rendition,_displayed
-      
-      _that = this
-      // a = document.getElementById('ePubArea')
-      _book = ePub('http://demo.cabpv2.api.kingchannels.cn/files/upload/test.epub')
-      _rendition = _book.renderTo("ePubArea", {
-        width: "80%", 
-        height: 300
-      });
+
       _displayed = _rendition.display();
 
-      _book.ready.then(() => {
-        let key = _book.key()+'-locations';
-        let stored = localStorage.getItem(key);
-        if (stored) {
-          return _book.locations.load(stored);
+      _next = document.getElementById("ePubNext");
+      _next.addEventListener("click", function(e){
+        _rendition.next();
+      }, false);
+
+      _prev = document.getElementById("ePubPrev");
+      _prev.addEventListener("click", function(e){
+        _rendition.prev();
+      }, false);
+      
+      _book.ready.then(res => {
+        Indicator.close()
+        _key = _book.key()+'-locations';
+        _stored = localStorage.getItem(_key);
+        
+        if (_stored) {
+				 return _book.locations.load(_stored);
         } else {
-          // Or generate the locations on the fly
-          // Can pass an option number of chars to break sections by
-          // default is 150 chars
           return _book.locations.generate(1600);
         }
       })
       .then(locations => {
-        localStorage.setItem(_book.key()+'-locations', _book.locations.save());
+        // console.log(locations,'locations')
       })
-      console.log(_book)
-      // Book.ready.then((res) => {
-      //   Book.getRange("epubcfi(/6/14[xchapter_001]!/4/2,/2/2/2[c001s0000]/1:0,/8/2[c001p0003]/1:663)").then(function(range) {
-      //     let text = range.toString()
-      //     console.log(res);
-      //   });
-      // })
-      
     },
     /**
      * 下一页
      * @author 李啸竹
      */
     ePubNext () {
-      this.$store.state.ePubBook.nextPage()
+      // this.$store.state.ePubBook.nextPage()
     },
     /**
      * 上一页
      * @author 李啸竹
      */
     ePubPrev () {
-      this.$store.state.ePubBook.prevPage()
+      // this.$store.state.ePubBook.prevPage()
     },
     /**
      * 拿到epub渲染
@@ -131,11 +118,8 @@ export default {
      */
     getePub () {
       let _that,_book,_rendition
-          
       // _that.$store.commit(SET_EPUB_BOOK,'http://cabpv2.api.kingchannels.cn/files/upload/000/santi.epub',{restore:true});
       // _tempStore.state.ePubBook.renderTo("ePubArea", {width: 80, height: 120});
-
-      
     },
     /**
     * 返回追更新的书本id
@@ -204,7 +188,24 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="less" scoped>
+div#ePubArea {
+  position: relative;
+  z-index: 1;
+}
+div.epub-btn-wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  position: relative;
+  z-index: 99;
+  div#ePubPrev,div#ePubNext {
+
+  }
+}
+
 .add-book {
 	position: absolute;
 	top: 50%;

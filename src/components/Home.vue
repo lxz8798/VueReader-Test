@@ -5,19 +5,19 @@
 				<mt-header fixed :title="selected"></mt-header>
 				<Bookshelf class="tab-container" @addBook="changeSelected"></Bookshelf>
 			</mt-tab-container-item>
-			<mt-tab-container-item id="分类">
+			<mt-tab-container-item id="背景">
 				<mt-header fixed :title="selected"></mt-header>
 				<keep-alive include="Bookshelf">
 					<Bookcategory class="tab-container"></Bookcategory>
 				</keep-alive>
 			</mt-tab-container-item>
-			<mt-tab-container-item id="排行">
+			<mt-tab-container-item id="字体">
 				<mt-header fixed :title="selected"></mt-header>
 				<keep-alive include="Rank">
 					<Ranklist class="tab-container"></Ranklist>
 				</keep-alive>
 			</mt-tab-container-item>
-			<mt-tab-container-item id="搜索">
+			<mt-tab-container-item id="我的">
 				<Search></Search>
 			</mt-tab-container-item>
 		</mt-tab-container>
@@ -25,14 +25,14 @@
 			<mt-tab-item id="书架">
 				<img slot="icon" src="../assets/book.svg"> 书架
 			</mt-tab-item>
-			<mt-tab-item id="分类">
-				<img slot="icon" src="../assets/category.svg"> 分类
+			<mt-tab-item id="背景">
+				<img slot="icon" src="../assets/setting.svg"> 背景
 			</mt-tab-item>
-			<mt-tab-item id="排行">
-				<img slot="icon" src="../assets/rank.svg"> 排行
+			<mt-tab-item id="字体">
+				<img slot="icon" src="../assets/font.svg"> 字体
 			</mt-tab-item>
-			<mt-tab-item id="搜索">
-				<img slot="icon" src="../assets/search.svg">搜索
+			<mt-tab-item id="我的">
+				<img slot="icon" src="../assets/my.svg"> 我的
 			</mt-tab-item>
 		</mt-tabbar>
 	</div>
