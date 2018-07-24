@@ -2,8 +2,11 @@
 	<div>
     <div id="ePubArea"></div>
     <div class="epub-btn-wrap">
-      <div id="ePubPrev">上一页</div>
-      <div id="ePubNext">下一页</div>
+      <div id="ePubPrev"><img slot="icon" src="../../../src/assets/left.svg"></div>
+      <div id="ePubNext"><img slot="icon" src="../../../src/assets/right.svg"></div>
+    </div>
+    <div class="toc-wrap">
+      <ul id="toc"></ul>
     </div>
 
     <!-- 我的书架(原) -->
@@ -62,13 +65,13 @@ export default {
      */
     epubLoad () {
       
-      let _that,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_toc
+      let _that,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_ul,_toc,_docfrag
      
       _book = ePub("../../../static/epub/test.epub")
 
       _rendition = _book.renderTo("ePubArea",{
         width: "100vw",
-        height: 600
+        height: "94vh"
       })
 
       _displayed = _rendition.display();
@@ -87,7 +90,7 @@ export default {
         Indicator.close()
         _key = _book.key()+'-locations';
         _stored = localStorage.getItem(_key);
-        
+        // console.log(res,'res')
         if (_stored) {
 				 return _book.locations.load(_stored);
         } else {
@@ -97,6 +100,39 @@ export default {
       .then(locations => {
         // console.log(locations,'locations')
       })
+      //样式
+      _rendition.on("rendered", function(section){
+        // var current = _book.navigation && _book.navigation.get(section.href);
+        // console.log(_book.navigation,'current')
+      })
+      //目录
+      _book.loaded.navigation.then(getToc => {
+
+        let _item,_link,_url
+
+        _ul = document.getElementById('toc')
+        _docfrag = document.createDocumentFragment()
+        
+        getToc.toc.forEach((chapter,index) => {
+          
+          _item = document.createElement("li")
+          _link = document.createElement("a")
+          _link.id = "chap-" + chapter.id
+          _link.textContent = chapter.label
+          _link.href = chapter.href
+          _item.appendChild(_link)
+          _docfrag.appendChild(_item)
+
+          _link.onclick = () => {
+            _url = _link.getAttribute("href");
+            _rendition.display(_url)
+            return false
+          }
+        })
+      })
+
+      // _ul.appendChild(_docfrag);
+      // console.log(_book,'_book')
     },
     /**
      * 下一页
@@ -189,20 +225,45 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
+div#toc {
+  position: relative;
+  top:0;
+  left:0;
+  z-index: 99;
+  border:10px solid yellow;
+}
 div#ePubArea {
   position: relative;
-  z-index: 1;
+  border:1px solid red;
 }
 div.epub-btn-wrap {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-
   position: relative;
-  z-index: 99;
+  top:0;
+  left:0;
+  z-index: 1;
+  
   div#ePubPrev,div#ePubNext {
+    background:rgba(0, 0, 0, .1);
+    width:25px;
+    height: 125px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
+    img {
+      width: 15px;
+      height: 15px;
+    }
+  }
+  div#ePubPrev {
+    position: fixed;
+    top:45%;
+    left:0;
+  }
+  div#ePubNext {
+    position: fixed;
+    top:45%;
+    right:0;
   }
 }
 

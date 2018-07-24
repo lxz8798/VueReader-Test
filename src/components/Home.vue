@@ -21,7 +21,8 @@
 				<Search></Search>
 			</mt-tab-container-item>
 		</mt-tab-container>
-		<mt-tabbar v-model="selected" :fixed="true" :value="selected">
+		<!-- 原footer 现隐藏 -->
+		<!-- <mt-tabbar v-model="selected" :fixed="true" :value="selected">
 			<mt-tab-item id="书架">
 				<img slot="icon" src="../assets/book.svg"> 书架
 			</mt-tab-item>
@@ -34,7 +35,7 @@
 			<mt-tab-item id="我的">
 				<img slot="icon" src="../assets/my.svg"> 我的
 			</mt-tab-item>
-		</mt-tabbar>
+		</mt-tabbar> -->
 	</div>
 </template>
 
