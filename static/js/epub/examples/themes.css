@@ -1,6 +1,6 @@
 .dark {
 	background: #000;
-	color: #fff
+	color: #fff;
 }
 
 .dark {
@@ -8,7 +8,11 @@
 	color: #000;
 }
 
-.tan {
-	background: tan;
+.center {
+	background: red;
 	color: #ccc;
+	font-size: 18px;
+}
+.center img {
+	width:100%;
 }

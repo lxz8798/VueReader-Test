@@ -33,7 +33,7 @@
       };
     };
   </script>
-  <script src="https://cdn.hypothes.is/hypothesis"></script>
+  <!-- <script src="https://cdn.hypothes.is/hypothesis"></script> -->
 
   <style type="text/css">
     body {
@@ -196,7 +196,7 @@
     var url = params && params.get("url") && decodeURIComponent(params.get("url"));
 
     // Load the opf
-    var book = ePub('../../../epub/test.epub');
+    var book = ePub('http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub');
     var rendition = book.renderTo("viewer", {
       flow: "scrolled-doc",
       ignoreClass: "annotator-hl"

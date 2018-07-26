@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="epub-index-wrap">
     <div id="ePubArea"></div>
     <div class="epub-btn-wrap">
       <div id="ePubPrev"><img slot="icon" src="../../../src/assets/left.svg"></div>
@@ -8,7 +8,6 @@
     <div class="toc-wrap">
       <ul id="toc"></ul>
     </div>
-
     <!-- 我的书架(原) -->
 		<!-- <mt-button type="primary" class="add-book" v-if="!books.length" @click="$emit('addBook','分类')">添加小说</mt-button>
 		<ul class="book-shelf" v-if="books.length">
@@ -58,8 +57,16 @@ export default {
   mounted () {
     this.getePub()
     this.epubLoad()
+    this.clickHidden();
   },
   methods: {
+    clickHidden(){
+      let _header,_ul,_epubBox
+      // _epubBox = document.getElementById('ePubArea')
+      _ul = document.getElementById('toc')
+      
+      $('#ePubArea').swipe()
+    },
     /**
      * load
      */
@@ -67,11 +74,10 @@ export default {
       
       let _that,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_ul,_toc,_docfrag
      
-      _book = ePub("../../../static/epub/test.epub")
+      _book = ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub")
 
       _rendition = _book.renderTo("ePubArea",{
-        width: "100vw",
-        height: "94vh"
+        width: "100vw"
       })
 
       _displayed = _rendition.display();
@@ -100,6 +106,10 @@ export default {
       .then(locations => {
         // console.log(locations,'locations')
       })
+  
+      // _rendition.themes.register("toc-wrap", "http://demo.cabpv2.web.kingchannels.cn/theme/epub.css");
+      // _rendition.themes.select("toc-wrap");
+
       //样式
       _rendition.on("rendered", function(section){
         // var current = _book.navigation && _book.navigation.get(section.href);
@@ -107,31 +117,46 @@ export default {
       })
       //目录
       _book.loaded.navigation.then(getToc => {
-
-        let _item,_link,_url
-
-        _ul = document.getElementById('toc')
-        _docfrag = document.createDocumentFragment()
+          
+        let _ul = document.getElementById('toc'),
+            _docfrag = document.createDocumentFragment()
         
         getToc.toc.forEach((chapter,index) => {
-          
-          _item = document.createElement("li")
+          //新建li标签
+          let _item = document.createElement("li"),
+          //新建a标签
           _link = document.createElement("a")
+          //给a标签添加id名
           _link.id = "chap-" + chapter.id
+          //给a标签添加label
           _link.textContent = chapter.label
+          //把chapter的链接赋值给a标签
           _link.href = chapter.href
+          //添加到li里
           _item.appendChild(_link)
           _docfrag.appendChild(_item)
 
-          _link.onclick = () => {
-            _url = _link.getAttribute("href");
+          _link.onclick = function () {
+            let _url = _link.getAttribute("href");
             _rendition.display(_url)
             return false
           }
         })
+        _ul.appendChild(_docfrag)
       })
-
-      // _ul.appendChild(_docfrag);
+      
+      _rendition.themes.default({
+        img:{
+          'width':'100% !important'
+        },
+        h2: {
+        'font-size': '32px',
+        color: 'purple'
+        },
+        p: {
+          "margin": '10px'
+        }
+      })
       // console.log(_book,'_book')
     },
     /**
@@ -225,120 +250,135 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
-div#toc {
-  position: relative;
-  top:0;
-  left:0;
-  z-index: 99;
-  border:10px solid yellow;
-}
-div#ePubArea {
-  position: relative;
-  border:1px solid red;
-}
-div.epub-btn-wrap {
-  position: relative;
-  top:0;
-  left:0;
-  z-index: 1;
+div.epub-index-wrap {
   
-  div#ePubPrev,div#ePubNext {
-    background:rgba(0, 0, 0, .1);
-    width:25px;
-    height: 125px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    img {
-      width: 15px;
-      height: 15px;
+  div.toc-wrap {
+    position: fixed;
+    top:0;
+    right:0;
+    z-index: 99;
+    width:45%;
+    height: 100%;
+    padding:5%;
+    background: rgba(255, 255, 255, .8);
+    ul#toc {
+      font-size: 14px;
+      height: inherit;
     }
   }
-  div#ePubPrev {
+
+  div#ePubArea {
     position: fixed;
-    top:45%;
+    top:0;
     left:0;
+    .clickHidden {
+      display:none;
+    } 
   }
-  div#ePubNext {
+  div.epub-btn-wrap {
     position: fixed;
-    top:45%;
-    right:0;
+    top:0;
+    left:0;
+    z-index: 1;
+    
+    div#ePubPrev,div#ePubNext {
+      background:rgba(0, 0, 0, .1);
+      width:25px;
+      height: 125px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        width: 15px;
+        height: 15px;
+      }
+    }
+    div#ePubPrev {
+      position: fixed;
+      top:45%;
+      left:0;
+    }
+    div#ePubNext {
+      position: fixed;
+      top:45%;
+      right:0;
+    }
   }
-}
 
-.add-book {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
+  .add-book {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 
-.add-book:focus {
-	outline: none;
-}
+  .add-book:focus {
+    outline: none;
+  }
 
-.book-shelf {
-	width: 100vw;
-	overflow: hidden;
-	box-sizing: border-box;
-	padding: .5rem 0 0 .5rem;
-}
+  .book-shelf {
+    width: 100vw;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: .5rem 0 0 .5rem;
+  }
 
-.book-list-wrap {
-	position: relative;
-	height: 5rem;
-	margin-bottom: .2rem;
-}
+  .book-list-wrap {
+    position: relative;
+    height: 5rem;
+    margin-bottom: .2rem;
+  }
 
-.book-list {
-	position: absolute;
-	left: 0;
-	width: 140vw;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	margin-bottom: .2rem;
-}
+  .book-list {
+    position: absolute;
+    left: 0;
+    width: 140vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: .2rem;
+  }
 
-.book-list img {
-	width:70px;
-  height:100px;
-	float: left;
-	margin-right: .4rem;
-}
+  .book-list img {
+    width:70px;
+    height:100px;
+    float: left;
+    margin-right: .4rem;
+  }
 
-.info {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	box-sizing: border-box;
-	width: 65%;
-	height: 5rem;
-	margin-left: .6rem;
-	border-bottom: 1px solid #f2f2f2;
-}
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 65%;
+    height: 5rem;
+    margin-left: .6rem;
+    border-bottom: 1px solid #f2f2f2;
+  }
 
-.info p {
-	margin-top: .2rem;
-	margin-bottom: .2rem;
-}
+  .info p {
+    margin-top: .2rem;
+    margin-bottom: .2rem;
+  }
 
-.updated {
-	color: #6d6666;
-	font-size: .8rem;
-}
+  .updated {
+    color: #6d6666;
+    font-size: .8rem;
+  }
 
-.del-book-btn {
-	color: #fff;
-	background: red;
-	width: 40vw;
-	line-height: 5rem;
-	text-align: center;
-}
+  .del-book-btn {
+    color: #fff;
+    background: red;
+    width: 40vw;
+    line-height: 5rem;
+    text-align: center;
+  }
 
-.read-book-history {
-	display: flex;
-	width: 100vw;
+  .read-book-history {
+    display: flex;
+    width: 100vw;
+  }
 }
 </style>
