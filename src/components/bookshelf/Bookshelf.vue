@@ -5,9 +5,10 @@
       <div id="ePubPrev"><img slot="icon" src="../../../src/assets/left.svg"></div>
       <div id="ePubNext"><img slot="icon" src="../../../src/assets/right.svg"></div>
     </div>
-    <div class="toc-wrap">
+    	
+    <v-touch class="toc-wrap">
       <ul id="toc"></ul>
-    </div>
+    </v-touch>
     <!-- 我的书架(原) -->
 		<!-- <mt-button type="primary" class="add-book" v-if="!books.length" @click="$emit('addBook','分类')">添加小说</mt-button>
 		<ul class="book-shelf" v-if="books.length">
@@ -65,32 +66,39 @@ export default {
       // _epubBox = document.getElementById('ePubArea')
       _ul = document.getElementById('toc')
       
-      $('#ePubArea').swipe()
     },
     /**
      * load
      */
-    epubLoad () {
+    async epubLoad () {
       
-      let _that,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_ul,_toc,_docfrag
-     
-      _book = ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub")
-
-      _rendition = _book.renderTo("ePubArea",{
-        width: "100vw"
-      })
-
+      let _that,_Store,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_ul,_toc,_docfrag
+      //本地
+      // _book = new Promise((resolve,reject) => {
+      //   resolve(ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"))
+      // })
+      // .then(ePubBook => {
+      //   this.$store.commit(SET_EPUB_BOOK,ePubBook)
+      //   _rendition = this.$store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
+      //   _displayed = _rendition.display();
+      // })
+      this.$store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
+      _rendition = this.$store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _displayed = _rendition.display();
+      // console.log(_book)
+      // _rendition = _book.renderTo("ePubArea",{width: "100vw"})
+      // _displayed = _rendition.display();
+      // console.log(_book)
 
-      _next = document.getElementById("ePubNext");
-      _next.addEventListener("click", function(e){
-        _rendition.next();
-      }, false);
+      // _next = document.getElementById("ePubNext");
+      // _next.addEventListener("click", function(e){
+      //   _rendition.next();
+      // }, false);
 
-      _prev = document.getElementById("ePubPrev");
-      _prev.addEventListener("click", function(e){
-        _rendition.prev();
-      }, false);
+      // _prev = document.getElementById("ePubPrev");
+      // _prev.addEventListener("click", function(e){
+      //   _rendition.prev();
+      // }, false);
       
       _book.ready.then(res => {
         Indicator.close()
@@ -164,14 +172,14 @@ export default {
      * @author 李啸竹
      */
     ePubNext () {
-      // this.$store.state.ePubBook.nextPage()
+      this.$store.state.ePubBook.prev()
     },
     /**
      * 上一页
      * @author 李啸竹
      */
     ePubPrev () {
-      // this.$store.state.ePubBook.prevPage()
+      this.$store.state.ePubBook.next()
     },
     /**
      * 拿到epub渲染

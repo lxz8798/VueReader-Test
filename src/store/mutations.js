@@ -38,9 +38,9 @@ export default {
   [SET_READ_BOOK] (state, book) {
     state.bookInfo = book
   },
-  [SET_EPUB_BOOK] (state, ePubBookPath, ePubOptions) {
-    state.ePubOptions = ePubOptions
-    state.ePubBook = ePub(ePubBookPath,ePubOptions)
+  [SET_EPUB_BOOK] (state, ePubBookPath) {
+    // state.ePubOptions = ePubOptions
+    state.ePubBook = ePub(ePubBookPath)
   },
   [SET_EPUB_PREV] (state, ePubPrev) {
     state.ePubPrev = ePubPrev
