@@ -2,8 +2,8 @@
 	<div class="epub-index-wrap">
     <div id="ePubArea"></div>
     <div class="epub-btn-wrap">
-      <div id="ePubPrev"><img slot="icon" src="../../../src/assets/left.svg"></div>
-      <div id="ePubNext"><img slot="icon" src="../../../src/assets/right.svg"></div>
+      <div id="ePubPrev" @click="ePubPrev()"><img slot="icon" src="../../../src/assets/left.svg"></div>
+      <div id="ePubNext" @click="ePubNext()"><img slot="icon" src="../../../src/assets/right.svg"></div>
     </div>
     	
     <v-touch class="toc-wrap">
@@ -41,7 +41,9 @@ export default {
   name: 'Bookshelf',
   data () {
     return {
-      books: []
+      books: [],
+      rendition:{},
+      displayed:''
     }
   },
   filters: {
@@ -56,75 +58,52 @@ export default {
     this.getBookUpdate()
   },
   mounted () {
-    this.getePub()
     this.epubLoad()
     this.clickHidden();
   },
   methods: {
     clickHidden(){
       let _header,_ul,_epubBox
-      // _epubBox = document.getElementById('ePubArea')
+      
       _ul = document.getElementById('toc')
       
     },
     /**
      * load
      */
-    async epubLoad () {
+    epubLoad () {
       
-      let _that,_Store,_book,_rendition,_displayed,_prev,_next,_cfi,_key,_stored,_ul,_toc,_docfrag
-      //本地
-      // _book = new Promise((resolve,reject) => {
-      //   resolve(ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"))
-      // })
-      // .then(ePubBook => {
-      //   this.$store.commit(SET_EPUB_BOOK,ePubBook)
-      //   _rendition = this.$store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
-      //   _displayed = _rendition.display();
-      // })
-      this.$store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _rendition = this.$store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
-      _displayed = _rendition.display();
-      // console.log(_book)
-      // _rendition = _book.renderTo("ePubArea",{width: "100vw"})
-      // _displayed = _rendition.display();
-      // console.log(_book)
-
-      // _next = document.getElementById("ePubNext");
-      // _next.addEventListener("click", function(e){
-      //   _rendition.next();
-      // }, false);
-
-      // _prev = document.getElementById("ePubPrev");
-      // _prev.addEventListener("click", function(e){
-      //   _rendition.prev();
-      // }, false);
+      let _that,_Store,_key,_stored,_ul
       
-      _book.ready.then(res => {
+      _that = this
+      _Store = _that.$store
+
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
+      _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
+      _that.displayed = _that.rendition.display()
+      
+      _Store.state.ePubBook.ready.then(res => {
         Indicator.close()
-        _key = _book.key()+'-locations';
+        _key = _Store.state.ePubBook.key()+'-locations';
         _stored = localStorage.getItem(_key);
         // console.log(res,'res')
         if (_stored) {
-				 return _book.locations.load(_stored);
+				 return _Store.state.ePubBook.locations.load(_stored);
         } else {
-          return _book.locations.generate(1600);
+          return _Store.state.ePubBook.locations.generate(1600);
         }
       })
       .then(locations => {
         // console.log(locations,'locations')
       })
-  
-      // _rendition.themes.register("toc-wrap", "http://demo.cabpv2.web.kingchannels.cn/theme/epub.css");
-      // _rendition.themes.select("toc-wrap");
 
-      //样式
-      _rendition.on("rendered", function(section){
-        // var current = _book.navigation && _book.navigation.get(section.href);
-        // console.log(_book.navigation,'current')
+      //rendered
+      _that.rendition.on("rendered", function(section){
+        // var current = _Store.state.ePubBook.navigation && _Store.state.ePubBook.navigation.get(section.href);
+        // console.log(_Store.state.ePubBook.navigation,'current')
       })
       //目录
-      _book.loaded.navigation.then(getToc => {
+      _Store.state.ePubBook.loaded.navigation.then(getToc => {
           
         let _ul = document.getElementById('toc'),
             _docfrag = document.createDocumentFragment()
@@ -146,14 +125,14 @@ export default {
 
           _link.onclick = function () {
             let _url = _link.getAttribute("href");
-            _rendition.display(_url)
+            _that.rendition.display(_url)
             return false
           }
         })
         _ul.appendChild(_docfrag)
       })
       
-      _rendition.themes.default({
+      _that.rendition.themes.default({
         img:{
           'width':'100% !important'
         },
@@ -165,30 +144,21 @@ export default {
           "margin": '10px'
         }
       })
-      // console.log(_book,'_book')
+      // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
     },
     /**
      * 下一页
      * @author 李啸竹
      */
-    ePubNext () {
-      this.$store.state.ePubBook.prev()
+    ePubNext () {     
+      this.rendition.next()
     },
     /**
      * 上一页
      * @author 李啸竹
      */
     ePubPrev () {
-      this.$store.state.ePubBook.next()
-    },
-    /**
-     * 拿到epub渲染
-     * @author 李啸竹
-     */
-    getePub () {
-      let _that,_book,_rendition
-      // _that.$store.commit(SET_EPUB_BOOK,'http://cabpv2.api.kingchannels.cn/files/upload/000/santi.epub',{restore:true});
-      // _tempStore.state.ePubBook.renderTo("ePubArea", {width: 80, height: 120});
+      this.rendition.prev();
     },
     /**
     * 返回追更新的书本id
