@@ -1,14 +1,16 @@
 <template>
 	<div class="epub-index-wrap">
-    <div id="ePubArea"></div>
-    <div class="epub-btn-wrap">
-      <div id="ePubPrev" @click="ePubPrev()"><img slot="icon" src="../../../src/assets/left.svg"></div>
-      <div id="ePubNext" @click="ePubNext()"><img slot="icon" src="../../../src/assets/right.svg"></div>
+    <div id="touch-wrap">
+        <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()"></v-touch>
+        <v-touch class="c" id="touch-center" @tap="ifClickHidden()"></v-touch>
+        <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()"></v-touch>
     </div>
-    	
-    <v-touch class="toc-wrap">
+    <div id="ePubArea"></div>
+    
+    
+    <div id="toc-wrap">
       <ul id="toc"></ul>
-    </v-touch>
+    </div>
     <!-- 我的书架(原) -->
 		<!-- <mt-button type="primary" class="add-book" v-if="!books.length" @click="$emit('addBook','分类')">添加小说</mt-button>
 		<ul class="book-shelf" v-if="books.length">
@@ -33,6 +35,7 @@
 import api from '@/api/api'
 import moment from 'moment'
 import util from '@/utils/util'
+import aes from '@/utils/aes'
 import { SET_EPUB_BOOK,SET_CURRENT_SOURCE, SET_READ_BOOK } from '@/store/mutationsType'
 import { Indicator } from 'mint-ui'
 
@@ -43,7 +46,9 @@ export default {
     return {
       books: [],
       rendition:{},
-      displayed:''
+      ifHiddenFlag:true,
+      displayed:'',
+      epubText:''
     }
   },
   filters: {
@@ -59,17 +64,34 @@ export default {
   },
   mounted () {
     this.epubLoad()
-    this.clickHidden();
+    // this.testAES()
+    // this.clickHidden();
   },
   methods: {
-    clickHidden(){
-      let _header,_ul,_epubBox
-      
-      _ul = document.getElementById('toc')
+    ifClickHidden(){
+      let _that,_ul,_header,_ePubPrev,_ePubNext
+
+      _that = this
+      _that.ifHiddenFlag = !_that.ifHiddenFlag
+
+      _ul = document.getElementById('toc-wrap')
+      _header = document.getElementsByClassName('mint-header')[0]
+      _ePubNext = document.getElementById('ePubNext')
+      _ePubPrev = document.getElementById('ePubPrev')
+
+      if (_that.ifHiddenFlag) {
+        _ul.classList.add('boxHidden')
+        _header.style.transform = "translateY(-100%)"
+        _header.style.transition = "all .3s ease-out"
+      } else {
+        _ul.classList.remove('boxHidden')
+        _header.style.transform = "translateY(0)"
+        _header.style.transition = "all .3s ease-in"
+      }
       
     },
     /**
-     * load
+     * 载入 epub
      */
     epubLoad () {
       
@@ -78,10 +100,20 @@ export default {
       _that = this
       _Store = _that.$store
 
+      // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
       _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
+
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _that.displayed = _that.rendition.display()
       
+      // book.ready.then(function(){
+      //   book.getRange("epubcfi(/6/14[xchapter_001]!/4/2,/2/2/2[c001s0000]/1:0,/8/2[c001p0003]/1:663)").then(function(range) {
+      //     let text = range.toString()
+      //     console.log(text);
+      //     $viewer.textContent = text;
+      //   });
+      // });
+
       _Store.state.ePubBook.ready.then(res => {
         Indicator.close()
         _key = _Store.state.ePubBook.key()+'-locations';
@@ -93,22 +125,24 @@ export default {
           return _Store.state.ePubBook.locations.generate(1600);
         }
       })
-      .then(locations => {
-        // console.log(locations,'locations')
+      .then(locationsCfi => {
+        // console.log(locationsCfi,'locationsCfi')
       })
 
-      //rendered
-      _that.rendition.on("rendered", function(section){
-        // var current = _Store.state.ePubBook.navigation && _Store.state.ePubBook.navigation.get(section.href);
-        // console.log(_Store.state.ePubBook.navigation,'current')
-      })
+      // _that.rendition.on("relocated", function(location){
+      //   console.log(location,'asdc');
+      // });
+      // _Store.state.ePubBook.loaded.navigation.then(function(toc){
+      //   console.log(toc)
+      // })
       //目录
       _Store.state.ePubBook.loaded.navigation.then(getToc => {
-          
+         
         let _ul = document.getElementById('toc'),
             _docfrag = document.createDocumentFragment()
-        
+        // console.log(getToc.parse(),'getToc.get()')
         getToc.toc.forEach((chapter,index) => {
+          console.log(chapter.href,'console.log(chapter)') 
           //新建li标签
           let _item = document.createElement("li"),
           //新建a标签
@@ -131,7 +165,7 @@ export default {
         })
         _ul.appendChild(_docfrag)
       })
-      
+      //默认样式
       _that.rendition.themes.default({
         img:{
           'width':'100% !important'
@@ -145,6 +179,31 @@ export default {
         }
       })
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
+    },
+    testAES () {
+      let _that = this
+      let _tempBox = document.getElementById('ePubArea')
+      let _openEpub = ePub("http://demo.cabpv2.api.kingchannels.cn/files/encrypted/231/2f2c6e2b526d43c5ae27a76af53fa701_0_654760_encrypted.epub")
+      let _render = _openEpub.renderTo("ePubArea")
+      // _openEpub.open('chapter14.xhtml#Abd397ad0-50ec-467f-875e-fde4fb79e527')
+      _render.display()
+      // console.log(_openEpub)
+      _openEpub.ready.then(function(res){
+        console.log(res)
+        // _openEpub.getRange("epubcfi(/6/2[chapter14]!/4,/592/1:95,/668/1:16)").then(function(range) {
+        //   _that.epubText = range.toString()
+        //   console.log(_that.epubText,'asdc');
+        //   _tempBox.textContent = _that.epubText;
+        // });
+      });
+      // _render.hooks.content.register(function(contents, view) {
+      //   console.log(view,'contents')
+      // })
+      // let a = aes.encrypt(this.$store.state.ePubBook,'AZy*$8Fto6ImXMuN')
+      let b = aes.decrypt(_that.epubText,'AZy*$8Fto6ImXMuN')
+
+      // console.log('加密：',a)
+      console.log('解密：',b)
     },
     /**
      * 下一页
@@ -229,8 +288,16 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 div.epub-index-wrap {
-  
-  div.toc-wrap {
+  .headerHidden {
+    background: #000;
+    // transform: translateY(100%);
+    // transition: all .3s ease-out;
+  }
+  div.boxHidden {
+    transform: translateX(100%);
+    transition: all .3s ease-out;
+  }
+  div#toc-wrap {
     position: fixed;
     top:0;
     right:0;
@@ -238,21 +305,50 @@ div.epub-index-wrap {
     width:45%;
     height: 100%;
     padding:5%;
-    background: rgba(255, 255, 255, .8);
+    background: rgba(255, 255, 255, .9);
+
+    transition: all .3s ease-in;
     ul#toc {
       font-size: 14px;
       height: inherit;
     }
   }
+  div#touch-wrap {
+    position: fixed;
+    top:0;
+    height: 0;
+    width:100vw;
+    height: 100vh;
+    z-index: 99;
+    
+    display: flex;
+    flex-direction: row;
 
+    div.l {
+      width:25vw;
+      height: inherit;
+    }
+    div.c {
+      width:50vw;
+      height: inherit;
+    }
+    div.r {
+      width:25vw;
+      height: inherit;
+    }
+    
+  }
   div#ePubArea {
     position: fixed;
     top:0;
     left:0;
+    width:100%;
+    height: 100%;
     .clickHidden {
       display:none;
     } 
   }
+  
   div.epub-btn-wrap {
     position: fixed;
     top:0;
@@ -274,12 +370,12 @@ div.epub-index-wrap {
     }
     div#ePubPrev {
       position: fixed;
-      top:45%;
+      top:40%;
       left:0;
     }
     div#ePubNext {
       position: fixed;
-      top:45%;
+      top:40%;
       right:0;
     }
   }

@@ -9,6 +9,7 @@ import store from './store'
 import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import vuescroll from 'vue-scroll'
+// import cryptoJS from 'crypto-js'
 
 Vue.use(vuescroll)
 VueTouch.config.swipe = {
@@ -19,6 +20,8 @@ Vue.use(VueTouch, {
   name: 'v-touch'
 })
 Vue.use(MintUI)
+// Vue.use(cryptoJS)
+
 Vue.config.productionTip = false
 Vue.use(Ajax, {
   // baseURL: 'http://65.49.197.99:3000/'
