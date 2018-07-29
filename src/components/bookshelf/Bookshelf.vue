@@ -101,18 +101,27 @@ export default {
       _Store = _that.$store
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/一级加密.epub')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _that.displayed = _that.rendition.display()
       
-      // book.ready.then(function(){
-      //   book.getRange("epubcfi(/6/14[xchapter_001]!/4/2,/2/2/2[c001s0000]/1:0,/8/2[c001p0003]/1:663)").then(function(range) {
-      //     let text = range.toString()
-      //     console.log(text);
-      //     $viewer.textContent = text;
-      //   });
-      // });
+      _Store.state.ePubBook.ready.then(books => {
+        // let meta = _Store.state.ePubBook.package.metadata; // Metadata from the package json
+        // let toc = _Store.state.ePubBook.navigation.toc; // Table of Contents
+        // let landmarks = _Store.state.ePubBook.navigation.landmarks; // landmarks
+        // let spine = _Store.state.ePubBook.spine; // landmarks
+        // let cover = _Store.state.ePubBook.cover; // landmarks
+        // let resources = _Store.state.ePubBook.resources; // landmarks
+        // let pageList = _Store.state.ePubBook.pageList; // page list (if present)
+
+        _Store.state.ePubBook.loaded.manifest.then((manifest) => { console.log(manifest) });
+        _Store.state.ePubBook.loaded.spine.then((spine) => { console.log(spine) });
+        _Store.state.ePubBook.loaded.metadata.then((metadata) => { console.log(metadata) });
+        _Store.state.ePubBook.loaded.cover.then((cover) => { console.log(cover) });
+        _Store.state.ePubBook.loaded.navigation.then((navigation) => { console.log(navigation) });
+        _Store.state.ePubBook.loaded.resources.then((resources) => { console.log(resources) });
+      })
 
       _Store.state.ePubBook.ready.then(res => {
         Indicator.close()
@@ -142,7 +151,7 @@ export default {
             _docfrag = document.createDocumentFragment()
         // console.log(getToc.parse(),'getToc.get()')
         getToc.toc.forEach((chapter,index) => {
-          console.log(chapter.href,'console.log(chapter)') 
+          console.log(chapter,'console.log(chapter)') 
           //新建li标签
           let _item = document.createElement("li"),
           //新建a标签
@@ -156,7 +165,6 @@ export default {
           //添加到li里
           _item.appendChild(_link)
           _docfrag.appendChild(_item)
-
           _link.onclick = function () {
             let _url = _link.getAttribute("href");
             _that.rendition.display(_url)
