@@ -101,27 +101,39 @@ export default {
       _Store = _that.$store
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/一级加密.epub')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _that.displayed = _that.rendition.display()
-      
-      _Store.state.ePubBook.ready.then(books => {
-        // let meta = _Store.state.ePubBook.package.metadata; // Metadata from the package json
-        // let toc = _Store.state.ePubBook.navigation.toc; // Table of Contents
-        // let landmarks = _Store.state.ePubBook.navigation.landmarks; // landmarks
-        // let spine = _Store.state.ePubBook.spine; // landmarks
-        // let cover = _Store.state.ePubBook.cover; // landmarks
-        // let resources = _Store.state.ePubBook.resources; // landmarks
-        // let pageList = _Store.state.ePubBook.pageList; // page list (if present)
 
-        _Store.state.ePubBook.loaded.manifest.then((manifest) => { console.log(manifest) });
-        _Store.state.ePubBook.loaded.spine.then((spine) => { console.log(spine) });
-        _Store.state.ePubBook.loaded.metadata.then((metadata) => { console.log(metadata) });
-        _Store.state.ePubBook.loaded.cover.then((cover) => { console.log(cover) });
-        _Store.state.ePubBook.loaded.navigation.then((navigation) => { console.log(navigation) });
-        _Store.state.ePubBook.loaded.resources.then((resources) => { console.log(resources) });
-      })
+      // book.spine.hooks.serialize // Section is being converted to text
+      // book.spine.hooks.content // Section has been loaded and parsed
+      // rendition.hooks.render // Section is rendered to the screen
+      // rendition.hooks.content // Section contents have been loaded
+      // rendition.hooks.unloaded // Section contents are being unloaded
+
+      _that.rendition.hooks.content.register(function(contents){
+        let _tempHTML = document.getElementById('ePubArea')[0]
+
+        console.log(_tempHTML,contents.content.innerHTML,'_tempHTML')
+      });
+      
+      // _Store.state.ePubBook.ready.then(books => {
+      //   let meta = _Store.state.ePubBook.package.metadata; // Metadata from the package json
+      //   let toc = _Store.state.ePubBook.navigation.toc; // Table of Contents
+      //   let landmarks = _Store.state.ePubBook.navigation.landmarks; // landmarks
+      //   let spine = _Store.state.ePubBook.spine; // landmarks
+      //   let cover = _Store.state.ePubBook.cover; // landmarks
+      //   let resources = _Store.state.ePubBook.resources; // landmarks
+      //   let pageList = _Store.state.ePubBook.pageList; // page list (if present)
+
+      //   _Store.state.ePubBook.loaded.manifest.then((manifest) => { console.log(manifest) });
+      //   _Store.state.ePubBook.loaded.spine.then((spine) => { console.log(spine) });
+      //   _Store.state.ePubBook.loaded.metadata.then((metadata) => { console.log(metadata) });
+      //   _Store.state.ePubBook.loaded.cover.then((cover) => { console.log(cover) });
+      //   _Store.state.ePubBook.loaded.navigation.then((navigation) => { console.log(navigation) });
+      //   _Store.state.ePubBook.loaded.resources.then((resources) => { console.log(resources) });
+      // })
 
       _Store.state.ePubBook.ready.then(res => {
         Indicator.close()
@@ -204,9 +216,6 @@ export default {
         //   _tempBox.textContent = _that.epubText;
         // });
       });
-      // _render.hooks.content.register(function(contents, view) {
-      //   console.log(view,'contents')
-      // })
       // let a = aes.encrypt(this.$store.state.ePubBook,'AZy*$8Fto6ImXMuN')
       let b = aes.decrypt(_that.epubText,'AZy*$8Fto6ImXMuN')
 
