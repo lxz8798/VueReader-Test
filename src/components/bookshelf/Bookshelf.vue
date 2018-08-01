@@ -63,8 +63,8 @@ export default {
     this.getBookUpdate()
   },
   mounted () {
-    this.epubLoad()
-    // this.testAES()
+    // this.epubLoad()
+    this.testAES()
     // this.clickHidden();
   },
   methods: {
@@ -101,22 +101,24 @@ export default {
       _Store = _that.$store
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/一次加密1/OPS/fb.opf')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
-      _that.displayed = _that.rendition.display()
-
+      _that.displayed = _that.rendition.display('chapter14.xhtml')
+      _that.displayed.then(res => {
+        console.log(res.contents.innerHTML)
+      })
       // book.spine.hooks.serialize // Section is being converted to text
       // book.spine.hooks.content // Section has been loaded and parsed
       // rendition.hooks.render // Section is rendered to the screen
       // rendition.hooks.content // Section contents have been loaded
       // rendition.hooks.unloaded // Section contents are being unloaded
 
-      _that.rendition.hooks.content.register(function(contents){
-        let _tempHTML = document.getElementById('ePubArea')[0]
-
-        console.log(_tempHTML,contents.content.innerHTML,'_tempHTML')
-      });
+      // _that.rendition.hooks.render.register(function(contents){
+      //   // let _tempHTML = document.getElementById('ePubArea')[0]
+      //   // _that.displayed = _that.rendition.display('chapter14.xhtml#Ac44c5814-9e83-47e0-b00f-03c913cab8b9')
+      //   console.log(contents,'_tempHTML')
+      // });
       
       // _Store.state.ePubBook.ready.then(books => {
       //   let meta = _Store.state.ePubBook.package.metadata; // Metadata from the package json
@@ -201,26 +203,29 @@ export default {
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
     },
     testAES () {
-      let _that = this
-      let _tempBox = document.getElementById('ePubArea')
-      let _openEpub = ePub("http://demo.cabpv2.api.kingchannels.cn/files/encrypted/231/2f2c6e2b526d43c5ae27a76af53fa701_0_654760_encrypted.epub")
-      let _render = _openEpub.renderTo("ePubArea")
-      // _openEpub.open('chapter14.xhtml#Abd397ad0-50ec-467f-875e-fde4fb79e527')
-      _render.display()
-      // console.log(_openEpub)
-      _openEpub.ready.then(function(res){
-        console.log(res)
-        // _openEpub.getRange("epubcfi(/6/2[chapter14]!/4,/592/1:95,/668/1:16)").then(function(range) {
-        //   _that.epubText = range.toString()
-        //   console.log(_that.epubText,'asdc');
-        //   _tempBox.textContent = _that.epubText;
-        // });
-      });
-      // let a = aes.encrypt(this.$store.state.ePubBook,'AZy*$8Fto6ImXMuN')
-      let b = aes.decrypt(_that.epubText,'AZy*$8Fto6ImXMuN')
-
-      // console.log('加密：',a)
-      console.log('解密：',b)
+      var file = 'http://demo.cabpv2.api.kingchannels.cn/files/test/一次加密1/OPS/fb.opf'
+      var reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      console.log(reader)
+      // reader.onload = function (f) {
+      //   console.log(f,'f')
+      //   var result = document.getElementById('ePubArea')
+      //   console.log(result)
+      // }
+      // let req = new XMLHttpRequest();
+      // req.open('GET','http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub',true);
+      // req.responseType = 'blob';
+      // req.onload = () => {
+      //   let _render = new FileReader();
+      //   _render.readAsArrayBuffer(requset.response)
+      //   console.log(_render.readAsArrayBuffer(requset.response),'_render.readAsArrayBuffer(requset.response)')
+      //   _render.onload = (e) => {
+      //     let DAT_data = e.traget.result;
+      //     console.log("DAT_data:" + DAT_data);
+      //   }
+      // }
+      // // console.log(req,'req')
+      // // return req;
     },
     /**
      * 下一页
