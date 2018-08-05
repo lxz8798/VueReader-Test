@@ -63,8 +63,8 @@ export default {
     this.getBookUpdate()
   },
   mounted () {
-    // this.epubLoad()
-    this.testAES()
+    this.epubLoad()
+    // this.testAES()
     // this.clickHidden();
   },
   methods: {
@@ -95,18 +95,24 @@ export default {
      */
     epubLoad () {
       
-      let _that,_Store,_key,_stored,_ul
+      let _that,_Store,_key,_stored,_ul,_Uint8Array
       
       _that = this
       _Store = _that.$store
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/一次加密1/OPS/fb.opf')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/一次加密1.epub')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
-      _that.displayed = _that.rendition.display('chapter14.xhtml')
-      _that.displayed.then(res => {
-        console.log(res.contents.innerHTML)
+      _that.displayed = _that.rendition.display()
+
+      _Store.state.ePubBook.ready.then(res => {
+        if (_Store.state.ePubBook.archive) {
+          _Uint8Array = _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
+          console.log(_Uint8Array,'yes')
+        } else {
+          console.log('no')
+        }
       })
       // book.spine.hooks.serialize // Section is being converted to text
       // book.spine.hooks.content // Section has been loaded and parsed
