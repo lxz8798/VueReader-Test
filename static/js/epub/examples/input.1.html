@@ -25,17 +25,16 @@
 
   var inputElement = document.getElementById("input");
 
-  // 监听上传事件
   inputElement.addEventListener('change', function (e) {
-      // var file = e.target.files[0];
-      var file = e.target.files[0];
-      console.log(e,'file')
-      if (window.FileReader) {
-          var reader = new FileReader();
-          reader.onload = openBook;
-          reader.readAsArrayBuffer(file);
-      }
-  });
+        var file = e.target.files[0];
+       
+        if (window.FileReader) {
+            var reader = new FileReader();
+            reader.onload = openBook;
+            reader.readAsArrayBuffer(file);
+            
+        }
+    });
 
   function openBook(e){
     var bookData = e.target.result;

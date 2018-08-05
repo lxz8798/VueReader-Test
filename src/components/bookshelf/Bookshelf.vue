@@ -209,29 +209,17 @@ export default {
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
     },
     testAES () {
-      var file = 'http://demo.cabpv2.api.kingchannels.cn/files/test/一次加密1/OPS/fb.opf'
-      var reader = new FileReader();
-      reader.readAsArrayBuffer(file);
-      console.log(reader)
-      // reader.onload = function (f) {
-      //   console.log(f,'f')
-      //   var result = document.getElementById('ePubArea')
-      //   console.log(result)
-      // }
-      // let req = new XMLHttpRequest();
-      // req.open('GET','http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub',true);
-      // req.responseType = 'blob';
-      // req.onload = () => {
-      //   let _render = new FileReader();
-      //   _render.readAsArrayBuffer(requset.response)
-      //   console.log(_render.readAsArrayBuffer(requset.response),'_render.readAsArrayBuffer(requset.response)')
-      //   _render.onload = (e) => {
-      //     let DAT_data = e.traget.result;
-      //     console.log("DAT_data:" + DAT_data);
-      //   }
-      // }
-      // // console.log(req,'req')
-      // // return req;
+      var book = ePub('http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
+      var zip = new JSZip();
+      let temp = zip.file('../../../static/epub/aes-test.epub')
+      console.log(temp,'zip')
+      console.log(book,'book')
+      // console.log(book.archive,zip["OPS/chapter14.xhtml"].name)
+      if (book.archived) {
+        console.log('存在')
+      } else {
+        console.log('不存在')
+      }
     },
     /**
      * 下一页
