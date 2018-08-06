@@ -11,9 +11,11 @@ export default {
     },
 
     decrypt (word, keyStr) {
-        keyStr = keyStr ? keyStr : 'abcdefgabcdefg12'
-        let key = CryptoJS.enc.Utf8.parse(keyStr)
-        let decrypt = CryptoJS.AES.decrypt(word, key, {mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+        // keyStr = keyStr ? keyStr : 'abcdefgabcdefg12'
+        // let key = CryptoJS.enc.Utf8.parse(keyStr)
+        // console.log(keyStr)
+        let decrypt = CryptoJS.AES.decrypt(word, keyStr, {mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+        console.log(decrypt)
         return CryptoJS.enc.Utf8.stringify(decrypt).toString();
     }
 }

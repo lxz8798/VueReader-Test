@@ -68,14 +68,7 @@ export default {
     // this.clickHidden();
   },
   methods: {
-    // bookDecrypt (cipherText, key, iv) {
-    //     return  cryptoJS.AES.decrypt({ ciphertext: cipherText }, key, {
-    //         iv: iv,
-    //         padding: cryptoJS.pad.Pkcs7,
-    //         mode: cryptoJS.mode.CBC
-
-    //     });
-    // },
+    
     ifClickHidden(){
       let _that,_ul,_header,_ePubPrev,_ePubNext
 
@@ -116,10 +109,11 @@ export default {
 
       _Store.state.ePubBook.ready.then(res => {
         if (_Store.state.ePubBook.archive) {
-          console.log(_Store.state.ePubBook.archive,'_Store.state.ePubBook.archive')
-          // _Uint8Array = _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
-          // this.aes.decrypt(_Uint8Array,'AZy*$8Fto6ImXMuN')
-          // console.log(_Uint8Array,'yes')
+          // console.log(_Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent,'_Store.state.ePubBook.archive')
+          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent.toString()
+         
+          aes.decrypt(_Uint8Array,'AZy*$8Fto6ImXMuN')
+          // console.log(_Uint8Array.buffer,'yes')
         } else {
           console.log('no')
         }
@@ -218,18 +212,15 @@ export default {
       })
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
     },
+    decryption(data,key) {
+        key = cryptoJS.enc.Utf8.parse(keyStr)
+        let decrypt = cryptoJS.AES.decrypt(word, key, {mode:cryptoJS.mode.ECB,padding:cryptoJS.pad.Pkcs7})
+        
+        console.log(data)
+        return cryptoJS.enc.Utf8.stringify(decrypt).toString();
+    },
     testAES () {
-      var book = ePub('http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      var zip = new JSZip();
-      let temp = zip.file('../../../static/epub/aes-test.epub')
-      console.log(temp,'zip')
-      console.log(book,'book')
-      // console.log(book.archive,zip["OPS/chapter14.xhtml"].name)
-      if (book.archived) {
-        console.log('存在')
-      } else {
-        console.log('不存在')
-      }
+      
     },
     /**
      * 下一页
