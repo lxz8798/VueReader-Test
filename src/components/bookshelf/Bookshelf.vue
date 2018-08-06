@@ -68,6 +68,14 @@ export default {
     // this.clickHidden();
   },
   methods: {
+    // bookDecrypt (cipherText, key, iv) {
+    //     return  cryptoJS.AES.decrypt({ ciphertext: cipherText }, key, {
+    //         iv: iv,
+    //         padding: cryptoJS.pad.Pkcs7,
+    //         mode: cryptoJS.mode.CBC
+
+    //     });
+    // },
     ifClickHidden(){
       let _that,_ul,_header,_ePubPrev,_ePubNext
 
@@ -108,8 +116,10 @@ export default {
 
       _Store.state.ePubBook.ready.then(res => {
         if (_Store.state.ePubBook.archive) {
-          _Uint8Array = _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
-          console.log(_Uint8Array,'yes')
+          console.log(_Store.state.ePubBook.archive,'_Store.state.ePubBook.archive')
+          // _Uint8Array = _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
+          // this.aes.decrypt(_Uint8Array,'AZy*$8Fto6ImXMuN')
+          // console.log(_Uint8Array,'yes')
         } else {
           console.log('no')
         }
