@@ -102,7 +102,7 @@ export default {
       _Store = _that.$store
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/一次加密1.epub')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _that.displayed = _that.rendition.display()
@@ -110,10 +110,10 @@ export default {
       _Store.state.ePubBook.ready.then(res => {
         if (_Store.state.ePubBook.archive) {
           // console.log(_Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent,'_Store.state.ePubBook.archive')
-          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent.toString()
+          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
          
-          aes.decrypt(_Uint8Array,'AZy*$8Fto6ImXMuN')
-          // console.log(_Uint8Array.buffer,'yes')
+          // aes.decrypt(_Uint8Array,'AZy*$8Fto6ImXMuN')
+          console.log(_Uint8Array.buffer,'yes')
         } else {
           console.log('no')
         }
