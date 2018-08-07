@@ -110,10 +110,10 @@ export default {
       _Store.state.ePubBook.ready.then(res => {
         if (_Store.state.ePubBook.archive) {
           // console.log(_Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent,'_Store.state.ePubBook.archive')
-          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
-         
-          // aes.decrypt(_Uint8Array,'AZy*$8Fto6ImXMuN')
-          console.log(_Uint8Array.buffer,'yes')
+          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent.buffer
+         let _temp = new Int8Array(_Uint8Array)
+          aes.decrypt(_temp.toString(),'AZy*$8Fto6ImXMuN')
+          // console.log(_temp,'yes')
         } else {
           console.log('no')
         }

@@ -14,6 +14,7 @@ export default {
         // keyStr = keyStr ? keyStr : 'abcdefgabcdefg12'
         // let key = CryptoJS.enc.Utf8.parse(keyStr)
         // console.log(keyStr)
+        // let wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
         let decrypt = CryptoJS.AES.decrypt(word, keyStr, {mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
         console.log(decrypt)
         return CryptoJS.enc.Utf8.stringify(decrypt).toString();
