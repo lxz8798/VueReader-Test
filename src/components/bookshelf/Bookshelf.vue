@@ -91,6 +91,7 @@ export default {
       }
       
     },
+    
     /**
      * 载入 epub
      */
@@ -101,34 +102,42 @@ export default {
       _that = this
       _Store = _that.$store
 
+      // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _that.displayed = _that.rendition.display()
 
+      // _that.rendition.hooks.render.register(contents => { 
+        
+      //   // let _tempHTML = document.getElementById('ePubArea')[0]
+      //   // _that.displayed = _that.rendition.display('chapter14.xhtml#Ac44c5814-9e83-47e0-b00f-03c913cab8b9')
+      //   console.log(contents)
+      // });
+      
       _Store.state.ePubBook.ready.then(res => {
+        
         if (_Store.state.ePubBook.archive) {
           // console.log(_Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent,'_Store.state.ePubBook.archive')
-          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent.buffer
-         let _temp = new Int8Array(_Uint8Array)
-          aes.decrypt(_temp.toString(),'AZy*$8Fto6ImXMuN')
-          // console.log(_temp,'yes')
-        } else {
-          console.log('no')
+          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
+          let _temp = new Int8Array(_Uint8Array)
+          let _temp2 = aes.encrypt(_temp)
+          // let _temp3 = aes.decrypt(_Uint8Array,'^4fSY0aUwPl8%Buv')
+          // let _temp4 = aes.Uint8ArrayToString(_temp3)
+          // console.log(_Uint8Array,'_Uint8Array')
+          // console.log(_temp,'Int8Array')
+          console.log(_temp2,'encrypt')
+          // console.log(_temp3,'decrypt')
+          // console.log(_temp4,'Uint8ArrayToString')
         }
       })
+
       // book.spine.hooks.serialize // Section is being converted to text
       // book.spine.hooks.content // Section has been loaded and parsed
       // rendition.hooks.render // Section is rendered to the screen
       // rendition.hooks.content // Section contents have been loaded
       // rendition.hooks.unloaded // Section contents are being unloaded
-
-      // _that.rendition.hooks.render.register(function(contents){
-      //   // let _tempHTML = document.getElementById('ePubArea')[0]
-      //   // _that.displayed = _that.rendition.display('chapter14.xhtml#Ac44c5814-9e83-47e0-b00f-03c913cab8b9')
-      //   console.log(contents,'_tempHTML')
-      // });
       
       // _Store.state.ePubBook.ready.then(books => {
       //   let meta = _Store.state.ePubBook.package.metadata; // Metadata from the package json
@@ -211,13 +220,6 @@ export default {
         }
       })
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
-    },
-    decryption(data,key) {
-        key = cryptoJS.enc.Utf8.parse(keyStr)
-        let decrypt = cryptoJS.AES.decrypt(word, key, {mode:cryptoJS.mode.ECB,padding:cryptoJS.pad.Pkcs7})
-        
-        console.log(data)
-        return cryptoJS.enc.Utf8.stringify(decrypt).toString();
     },
     testAES () {
       

@@ -2,21 +2,26 @@ import Vue from 'vue'
 import CryptoJS from 'crypto-js'
 
 export default {
-    encrypt (word, keyStr) {
-        keyStr = keyStr ? keyStr : 'abcdefgabcdefg12'
-        let key = CryptoJS.enc.Utf8.parse(keyStr)
+    //本地加密
+    encrypt (word) {
         let srcs = CryptoJS.enc.Utf8.parse(word)
-        let encrypted = CryptoJS.AES.encrypt(srcs, key, {mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-        return encrypted.toString();
-    },
-
+        // let encrypted = CryptoJS.AES.encrypt(srcs, key, {mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.ZeroPadding})
+        // console.log(srcs,'srcs')
+        return srcs.toString();
+    },    
     decrypt (word, keyStr) {
-        // keyStr = keyStr ? keyStr : 'abcdefgabcdefg12'
-        // let key = CryptoJS.enc.Utf8.parse(keyStr)
-        // console.log(keyStr)
-        // let wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
-        let decrypt = CryptoJS.AES.decrypt(word, keyStr, {mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-        console.log(decrypt)
+        let key = CryptoJS.enc.Utf8.parse(keyStr);
+        let decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.ZeroPadding})
+        // console.log(word,'baseResult')
+        // console.log(wordArr,'CryptoJS.enc.Utf8.stringify(decrypt).toString()')
         return CryptoJS.enc.Utf8.stringify(decrypt).toString();
-    }
+    },
+    Uint8ArrayToString(fileData){
+        var dataString = "";
+        for (var i = 0; i < fileData.length; i++) {
+            dataString += String.fromCharCode(fileData[i]);
+        }
+        
+        return dataString
+    },
 }
