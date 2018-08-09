@@ -115,21 +115,28 @@ export default {
       //   // _that.displayed = _that.rendition.display('chapter14.xhtml#Ac44c5814-9e83-47e0-b00f-03c913cab8b9')
       //   console.log(contents)
       // });
-      
+
+      // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
       _Store.state.ePubBook.ready.then(res => {
         
         if (_Store.state.ePubBook.archive) {
-          // console.log(_Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent,'_Store.state.ePubBook.archive')
-          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
-          let _temp = new Int8Array(_Uint8Array)
-          let _temp2 = aes.encrypt(_temp)
-          // let _temp3 = aes.decrypt(_Uint8Array,'^4fSY0aUwPl8%Buv')
-          // let _temp4 = aes.Uint8ArrayToString(_temp3)
+          
+          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent.buffer
+          // let _temp = new Int8Array(_Uint8Array)
+          let _temp = new Uint16Array([19280, 1027, 20, 0, 8, 34951, 18806, 24943, 11435, 22, 0, 20, 0, 8, 0, 26989, 25965, 31092, 25968, 11339, 51240, 19657, 11342, 52425])
+          // _temp2通过解析方法转成WordArray,返回未命名的words
+          let _temp4 = aes.Uint8ArrayToString(_temp)
+          // _temp2通过CryptoJS转WordArray,返回WordArray.init的words
+          // let _temp2 = aes.encrypt(_temp,"^4fSY0aUwPl8%Buv")
+          // 通过encript转成base64
+          // let _temp2 = aes.encrypt('我去我去框架在klsadddddddlckasklcd<html><div>sadncakjcn</div><html>','^4fSY0aUwPl8%Buv')
+          // 通过btoa转成base64，这是还是2进制
+          // let _temp3 = aes.decrypt(_temp2,'^4fSY0aUwPl8%Buv')
           // console.log(_Uint8Array,'_Uint8Array')
-          // console.log(_temp,'Int8Array')
-          console.log(_temp2,'encrypt')
+          console.log(_temp,'Int8Array')
+          // console.log(_temp2,'encrypt')
+          console.log(_temp4,'Int8parse')
           // console.log(_temp3,'decrypt')
-          // console.log(_temp4,'Uint8ArrayToString')
         }
       })
 
