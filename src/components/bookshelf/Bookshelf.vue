@@ -63,8 +63,8 @@ export default {
     this.getBookUpdate()
   },
   mounted () {
-    this.epubLoad()
-    // this.testAES()
+    // this.epubLoad()
+    this.testAES()
     // this.clickHidden();
   },
   methods: {
@@ -104,7 +104,7 @@ export default {
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
+      _Store.commit(SET_EPUB_BOOK,'../../../static/epub/chapter14.xhtml')
 
       _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
       _that.displayed = _that.rendition.display()
@@ -117,26 +117,33 @@ export default {
       // });
 
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
-      _Store.state.ePubBook.ready.then(res => {
+
+      _Store.state.ePubBook.ready.then(res => {    
         
         if (_Store.state.ePubBook.archive) {
           
-          _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent.buffer
+          
+          // _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
           // let _temp = new Int8Array(_Uint8Array)
-          let _temp = new Uint16Array([19280, 1027, 20, 0, 8, 34951, 18806, 24943, 11435, 22, 0, 20, 0, 8, 0, 26989, 25965, 31092, 25968, 11339, 51240, 19657, 11342, 52425])
+          // let _temp = aes.str2ab('asdcsacdasd斯柯达基本茜茜在斯柯达棋斯柯达')
+          // let _tempArray = new Uint8Array(_temp)
+          // console.log(_Uint8Array,'_temp')
+          // console.log(_Uint8Array[2],'_tempTest')
           // _temp2通过解析方法转成WordArray,返回未命名的words
-          let _temp4 = aes.Uint8ArrayToString(_temp)
+          // let _temp4 = aes.Uint8ArrayToString(_temp)
           // _temp2通过CryptoJS转WordArray,返回WordArray.init的words
-          // let _temp2 = aes.encrypt(_temp,"^4fSY0aUwPl8%Buv")
+          // let _temp2 = aes.encrypt(_tempArray,"^4fSY0aUwPl8%Buv")
           // 通过encript转成base64
-          // let _temp2 = aes.encrypt('我去我去框架在klsadddddddlckasklcd<html><div>sadncakjcn</div><html>','^4fSY0aUwPl8%Buv')
+          // let _temp2 = aes.encrypt(_temp,'^4fSY0aUwPl8%Buv')
           // 通过btoa转成base64，这是还是2进制
           // let _temp3 = aes.decrypt(_temp2,'^4fSY0aUwPl8%Buv')
           // console.log(_Uint8Array,'_Uint8Array')
-          console.log(_temp,'Int8Array')
-          // console.log(_temp2,'encrypt')
-          console.log(_temp4,'Int8parse')
+          // console.log(_temp2,'Int8Array')
+          // console.log(_temp,'encrypt')
+          // console.log(_temp4,'Int8parse')
           // console.log(_temp3,'decrypt')
+          // console.log(window.atob(_temp3),'decrypt')
+          // console.log(aes.ab2str(_temp),'aes.ab2str')
         }
       })
 
@@ -229,7 +236,9 @@ export default {
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
     },
     testAES () {
-      
+      let zip = new JSZip()
+      zip.file("../../../static/epub/chapter14.xhtml");
+      console.log(zip,'zip')
     },
     /**
      * 下一页
