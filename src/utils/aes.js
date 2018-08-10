@@ -68,6 +68,7 @@ export default {
         // return srcs
     },    
     decrypt (word,keyword) {
+        // let word = CryptoJS.enc.Utf8.parse(text)
         //把key转换成WordArray
         let key = CryptoJS.enc.Utf8.parse(keyword);
         //对word进行解密（此时密文是WordArray）
@@ -75,9 +76,9 @@ export default {
         // let dcBase64String = decrypt.toString(CryptoJS.enc.Utf8)
         // let dcArrayBuffer
         // decrypt = CryptoJS.enc.Utf8.stringify(decrypt).toString();
-        // console.log(word,'baseResult')
+        console.log(decrypt,'baseResult')
         // console.log(wordArr,'CryptoJS.enc.Utf8.stringify(decrypt).toString()')
-        return CryptoJS.enc.Base64.stringify(decrypt)
-        // return decrypt
+        return CryptoJS.enc.Utf8.stringify(decrypt).toString()
+        // return decryptKey
     }
 }

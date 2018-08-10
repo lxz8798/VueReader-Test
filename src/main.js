@@ -21,7 +21,6 @@ Vue.use(VueTouch, {
 })
 Vue.use(MintUI)
 // Vue.use(cryptoJS)
-
 Vue.config.productionTip = false
 Vue.use(Ajax, {
   // baseURL: 'http://65.49.197.99:3000/'
