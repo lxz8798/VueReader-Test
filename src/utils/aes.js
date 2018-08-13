@@ -80,9 +80,8 @@ export default {
         // let dcBase64String = decrypt.toString(CryptoJS.enc.Utf8)
         // let dcArrayBuffer
         // decrypt = CryptoJS.enc.Utf8.stringify(decrypt).toString();
-        console.log(decrypt,'baseResult')
         // console.log(wordArr,'CryptoJS.enc.Utf8.stringify(decrypt).toString()')
-        return CryptoJS.enc.Utf8.stringify(decrypt).toString()
-        // return decryptKey
+        // return CryptoJS.enc.Utf8.stringify(decrypt).toString()
+        return CryptoJS.enc.Utf8.stringify(decrypt)
     }
 }

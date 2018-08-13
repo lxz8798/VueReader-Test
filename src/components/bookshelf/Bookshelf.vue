@@ -194,10 +194,20 @@ export default {
         if (_Store.state.ePubBook.archive) {
          
           let epubZip = _Store.state.ePubBook.archive.zip
-
-          let _epubXHTML = epubZip.folder("OPS").file("chapter15.xhtml").async('uint8array')
+          let _deviceKey,_tempUint8,_u8Decrypt
+          let _epubXHTML = epubZip.folder("OPS").file("chapter14.xhtml").async('uint8array')
           _epubXHTML.then(u8 => {
-            console.log(u8,'u8')
+
+            _tempUint8 = window.btoa(String.fromCharCode.apply(null, u8))
+            
+            _deviceKey = '^4fSY0aUwPl8%Buv'
+
+            _u8Decrypt = aes.decrypt(_tempUint8,_deviceKey)
+
+            _that.rendition.display(u8)
+
+            console.log(_u8Decrypt,'_u8Decrypt')
+
           })
           
           // _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
