@@ -2,6 +2,16 @@ import Vue from 'vue'
 import CryptoJS from 'crypto-js'
 
 export default {
+    //转换成base64
+    arrayBufferToBase64( buffer ) {
+        var binary = '';
+        var bytes = new Uint8Array( buffer );
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode( bytes[ i ] );
+        }
+        return window.btoa( binary );
+    },
     //将ArrayBuffer转换成字符串
     ab2str(buf) {
         return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -14,12 +24,6 @@ export default {
              bufView[i] = str.charCodeAt(i);
         }
         return buf;
-    },
-    //base64转码
-    b64EncodeUnicode(str) {
-        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-            return String.fromCharCode('0x' + p1);
-        }));
     },
     //Uint转字符
     Uint8ArrayToString(fileData){
