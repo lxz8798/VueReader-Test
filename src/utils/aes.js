@@ -16,14 +16,16 @@ export default {
     ab2str(buf) {
         return String.fromCharCode.apply(null, new Uint16Array(buf));
     },
-    //字符串转换成ArrayBuffer
-    str2ab(str) {
-        var buf = new ArrayBuffer(str.length*2); // 每个字符占用2个字节
-        var bufView = new Uint16Array(buf);
-        for (var i=0, strLen=str.length; i<strLen; i++) {
-             bufView[i] = str.charCodeAt(i);
+    //wordArray换成Uint8Array
+    stringify(wordArray) {
+        var words = wordArray.words;
+        var sigBytes = wordArray.sigBytes;
+        var u8 = new Uint8Array(sigBytes);
+        for (var i = 0; i < sigBytes; i++) {
+            var byte = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+            u8[i]=byte;
         }
-        return buf;
+        return u8;
     },
     //Uint转字符
     Uint8ArrayToString(fileData){
@@ -70,7 +72,7 @@ export default {
         return encrypted.toString()
         //不使用toString返回的是WordArray
         // return srcs
-    },    
+    },   
     decrypt (word,keyword) {
         // let word = CryptoJS.enc.Utf8.parse(text)
         //把key转换成WordArray
@@ -82,6 +84,6 @@ export default {
         // decrypt = CryptoJS.enc.Utf8.stringify(decrypt).toString();
         // console.log(wordArr,'CryptoJS.enc.Utf8.stringify(decrypt).toString()')
         // return CryptoJS.enc.Utf8.stringify(decrypt).toString()
-        return CryptoJS.enc.Utf8.stringify(decrypt)
+        return CryptoJS.enc.Utf8.stringify(decrypt).toString()
     }
 }

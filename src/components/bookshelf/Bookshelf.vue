@@ -65,8 +65,8 @@ export default {
     this.getBookUpdate()
   },
   mounted () {
-    // this.ePubStream()
-    this.epubLoad()
+    this.ePubStream()
+    // this.epubLoad()
     // this.testAES()
     // this.clickHidden();
   },
@@ -117,7 +117,42 @@ export default {
           })        
         },
         success:function(data){
-          
+          let epubUrl,zip,book,render,ePubKey,decryptObj,devicekey,getEpubU8,encryptu8,decryptu8,epubLocation
+
+          // 从返回结果里得到epub地址
+          // epubUrl = data.Data.Url
+          // 测试Epub地址
+          epubUrl = 'http://demo.cabpv2.api.kingchannels.cn/files/test/test.epub'
+          // 声明一个新的zip
+          zip = new JSZip()
+          // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
+          book = new ePub(epubUrl,{ replacements: "blob" })
+          // 拿到加密的key字符串
+          ePubKey = data.Data.Key
+          // devicekey
+          devicekey = 'tb)DPkFKpWJ5H7uL'
+          // 真实解密得到的key
+          // decryptObj = aes.decrypt(ePubKey,devicekey)
+          // 模拟密钥
+          decryptObj = '^4fSY0aUwPl8%Buv'
+          // console.log(decryptObj1,decryptObj2,'解密key得到的结果')
+          //判断档案是否存在
+          book.opened.then(content => {
+            if (content.archive) {
+              getEpubU8 = content.archive.zip.folder("OPS").file("chapter14.xhtml").async('uint8array')
+              getEpubU8.then(u8 => {
+                encryptu8 = window.btoa(String.fromCharCode.apply(null, u8))
+                // console.log(encryptu8,'解密前的u8转成的base64')
+                decryptu8 = aes.decrypt(encryptu8,decryptObj)
+                // console.log(decryptu8,'解密返回的结果')
+              })
+            }
+          })
+
+          // 渲染到DOM并执行
+          // render = book.renderTo("ePubArea",{width: "100vw"}) 
+          render.display()
+
           // key的key
           // let deviceKey = 'tb)DPkFKpWJ5H7uL'
           // word的key
@@ -175,9 +210,9 @@ export default {
 
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
       // _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub')
-      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/test/test.epub')
+      _Store.commit(SET_EPUB_BOOK,'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
 
-      _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"})
+      
       
 
       // _that.rendition.hooks.render.register(contents => { 
@@ -189,27 +224,67 @@ export default {
 
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
 
+
       _Store.state.ePubBook.ready.then(res => {    
         
         if (_Store.state.ePubBook.archive) {
          
           let epubZip = _Store.state.ePubBook.archive.zip
-          let _deviceKey,_tempUint8,_u8Decrypt
+          let _deviceKey,_tempUint8,_u8Decrypt,_getU8
           let _epubXHTML = epubZip.folder("OPS").file("chapter14.xhtml").async('uint8array')
+
           _epubXHTML.then(u8 => {
+              
+            if (u8) {
+              _tempUint8 = window.btoa(String.fromCharCode.apply(null, u8))
+          
+              _deviceKey = '^4fSY0aUwPl8%Buv'
 
-            _tempUint8 = window.btoa(String.fromCharCode.apply(null, u8))
+              _u8Decrypt = aes.decrypt(_tempUint8,_deviceKey)
+
+              // wrodArray to Uint8Array
+              _getU8 = aes.stringify(_u8Decrypt)
+            }
             
-            _deviceKey = '^4fSY0aUwPl8%Buv'
+            //未解密直接渲染u8流程
+            // _that.rendition.display(u8)
 
-            _u8Decrypt = aes.decrypt(_tempUint8,_deviceKey)
+            // console.log(u8)
 
-            _that.rendition.display(u8)
-
-            console.log(_u8Decrypt,'_u8Decrypt')
+            //正确得到解密的流文件
 
           })
-          
+
+          //渲染对象
+          _that.rendition = _Store.state.ePubBook.renderTo("ePubArea",{width: "100vw"}) 
+
+          //渲染时做些什么事
+          // _that.rendition.hooks.content.register((contents,view) => {
+          //   console.log(contents)
+          //   let body = document.getElementsByTagName(html)
+            
+          //   // let _tempHTML = document.getElementById('ePubArea')[0]
+          //   // _that.displayed = _that.rendition.display('chapter14.xhtml#Ac44c5814-9e83-47e0-b00f-03c913cab8b9')
+          // });
+
+          _that.rendition.display()
+
+          // 默认使用什么样式，主要是处理图版显示超出版边的问题
+          // _that.rendition.themes.default({
+          //   img:{
+          //     'width':'100% !important'
+          //   },
+          //   h2: {
+          //   'font-size': '32px',
+          //   color: 'purple'
+          //   },
+          //   p: {
+          //     "margin": '10px'
+          //   }
+          // })
+
+          // console.log(_u8Decrypt)
+
           // _Uint8Array =  _Store.state.ePubBook.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent
           
           // let _temp = [41,229,74,98,28]
@@ -269,9 +344,9 @@ export default {
           return _Store.state.ePubBook.locations.generate(1600);
         }
       })
-      .then(locationsCfi => {
-        // console.log(locationsCfi,'locationsCfi')
-      })
+      // .then(locationsCfi => {
+      //   // console.log(locationsCfi,'locationsCfi')
+      // })
 
       // _that.rendition.on("relocated", function(location){
       //   console.log(location,'asdc');
@@ -309,18 +384,7 @@ export default {
         _ul.appendChild(_docfrag)
       })
       //默认样式
-      _that.rendition.themes.default({
-        img:{
-          'width':'100% !important'
-        },
-        h2: {
-        'font-size': '32px',
-        color: 'purple'
-        },
-        p: {
-          "margin": '10px'
-        }
-      })
+      
       // console.log(_Store.state.ePubBook,'_Store.state.ePubBook')
     },
     testAES () {
