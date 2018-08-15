@@ -22,7 +22,7 @@
     var currentSection;
     var currentSectionIndex = 6;
 
-    var book = ePub("../../../epub/test.epub");
+    var book = ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub");
     book.loaded.navigation.then(function(toc){
       var $select = document.getElementById("toc"),
           docfrag = document.createDocumentFragment();
