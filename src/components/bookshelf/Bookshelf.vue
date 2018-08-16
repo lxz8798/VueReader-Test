@@ -165,7 +165,7 @@ export default {
               console.log($iframe,'$iframe')
 
               rendition.display()
-
+              
               // console.log(ready,'ready')
               // console.log(book.rendition,'rendition')
             })
