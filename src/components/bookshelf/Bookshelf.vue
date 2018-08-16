@@ -165,7 +165,7 @@ export default {
               console.log($iframe,'$iframe')
 
               rendition.display()
-              
+
               // console.log(ready,'ready')
               // console.log(book.rendition,'rendition')
             })
@@ -179,10 +179,6 @@ export default {
 
           // rendition.display()
           // console.log(section,'section')
-
-          // // 渲染到DOM并执行
-          // render = book.renderTo("ePubArea",{width: "100vw"}) 
-          // render.display()
 
           // if (content.archive) {
           //   getEpubU8 = content.archive.zip.folder("OPS").file("chapter14.xhtml").async('uint8array')
