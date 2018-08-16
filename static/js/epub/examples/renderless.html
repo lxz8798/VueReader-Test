@@ -23,6 +23,7 @@
     var currentSectionIndex = 6;
 
     var book = ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub");
+    
     book.loaded.navigation.then(function(toc){
       var $select = document.getElementById("toc"),
           docfrag = document.createDocumentFragment();
@@ -34,7 +35,7 @@
 
         docfrag.appendChild(option);
       });
-
+      
       $select.appendChild(docfrag);
 
       $select.onchange = function(){
@@ -57,7 +58,7 @@
         var displayed = display(currentSectionIndex-1);
         if(displayed) currentSectionIndex--;
       }, false);
-
+      
       function display(item){
         var section = book.spine.get(item);
         if(section) {
@@ -69,7 +70,6 @@
         }
         return section;
       }
-
     });
   </script>
 

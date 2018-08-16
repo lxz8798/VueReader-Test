@@ -118,12 +118,13 @@ export default {
         },
         success:function(data){
           
-          let epubUrl,zip,book,rendition,ePubKey,decryptObj,devicekey
+          let $el,$iframe,epubUrl,zip,book,rendition,ePubKey,decryptObj,devicekey,getEpubU8,encryptu8,decryptu8,beforeChangeHtml
 
+          $el = document.getElementById("ePubArea")        
           // 从返回结果里得到epub地址
-          // epubUrl = data.Data.Url
+          epubUrl = data.Data.Url
           // 测试Epub地址
-          epubUrl = 'http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub'
+          epubUrl = 'http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub'
           // 声明一个新的zip
           zip = new JSZip()
           // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
@@ -139,49 +140,47 @@ export default {
           // console.log(decryptObj1,decryptObj2,'解密key得到的结果')
 
           // 打开图书时判断档案是否存在
-
           book.opened.then(content => {
-            var getEpubU8,encryptu8,decryptu8,beforeChangeHtml
 
             if (content.archive) {
               getEpubU8 = content.archive.zip.folder("OPS").file("chapter14.xhtml").async('uint8array')
             }
 
-            // 解密处理
+            content.ready.then(ready => {
 
-            beforeChangeHtml = getEpubU8.then(u8 => {
-              encryptu8 = window.btoa(String.fromCharCode.apply(null, u8))
-              // console.log(encryptu8,'解密前的u8转成的base64')
-              decryptu8 = aes.decrypt(encryptu8,decryptObj)
-              // console.log(decryptu8,'解密返回的结果')
+              // 解密处理
+              beforeChangeHtml = getEpubU8.then(u8 => {
+                encryptu8 = window.btoa(String.fromCharCode.apply(null, u8))
+                // console.log(encryptu8,'解密前的u8转成的base64')
+                decryptu8 = aes.decrypt(encryptu8,decryptObj)
+                // console.log(decryptu8,'解密返回的结果')
+                
+                return decryptu8
+              })
 
-              let epubarea = document.getElementById("ePubArea")
-              
-              epubarea.innerHTML = decryptu8
-              console.log(decryptu8)
-              return decryptu8
+              rendition = content.renderTo($el,{width: "100vw"})
+
+              $iframe = $el.getElementsByTagName('iframe')              
+
+              console.log($iframe,'$iframe')
+
+              rendition.display()
+
+              // console.log(ready,'ready')
+              // console.log(book.rendition,'rendition')
             })
-
-            // content.ready.then(ready => {
-            //   let readyContent = content.rendition.hooks.content
-            //   let readyDisplay = content.rendition.hooks.display
-            //   let readyRender = content.rendition.hooks.render.context
-            //   // let epubarea = document.getElementById("ePubArea")
-              
-            //   // epubeaea.innerHTML = decryptu8
-            //   // console.log(epubeaea,'尝试修改的渲染对象')
-            // })
             
             // console.log(content,'content')
 
-            rendition = content.renderTo("ePubArea",{width: "100vw"})
-            rendition.display()
+            
           })
 
-          
+          // rendition = book.renderTo("ePubArea",{width: "100vw"})
 
+          // rendition.display()
+          // console.log(section,'section')
 
-          // 渲染到DOM并执行
+          // // 渲染到DOM并执行
           // render = book.renderTo("ePubArea",{width: "100vw"}) 
           // render.display()
 

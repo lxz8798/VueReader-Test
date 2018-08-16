@@ -395,7 +395,6 @@ var IframeView = function () {
 				this.iframe.contentDocument.write(contents);
 				this.iframe.contentDocument.close();
 			}
-
 			return loaded;
 		}
 	}, {
