@@ -23,7 +23,8 @@
 import api from "@/api/api";
 import moment from "moment";
 import util from "@/utils/util";
-import aes from "@/utils/aes";
+import aes from "../../../static/js/aes";
+
 import {
   SET_EPUB_BOOK,
   SET_CURRENT_SOURCE,
@@ -40,6 +41,7 @@ export default {
       rendition: {},
       ifHiddenFlag: true,
       displayed: "",
+      decryptAfterToU8:[],
       epubText: ""
     };
   },
@@ -85,7 +87,7 @@ export default {
       // this.$http.get('http://124.204.40.3:50696/content/authorize')
       // this.$http.get('http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
       // url ="http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
-
+      
       $.ajax({
         type: "post",
         url: "http://124.204.40.3:50696/content/authorize",
@@ -108,17 +110,19 @@ export default {
           let $el,
             $iframe,
             _epubUrl,
-            _zip,
+            zip,
             _book,
             _displayed,
             _ePubKey,
             _decryptObj,
             _devicekey,
-            _getEpubU8,
+            _getSpine,
+            _getEpubFolder,
+            _getEpubFiles,
             _encryptu8,
             _decryptu8,
-            _decryptAfterToU8,
             _beforeChangeHtml;
+          
           
           Indicator.close();
           // 临时关闭加载动画
@@ -127,9 +131,11 @@ export default {
           // _epubUrl = data.Data.Url;
           // 测试Epub地址
           _epubUrl =
-            "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub";
-          // 声明一个新的_zip
-          _zip = new JSZip();
+            // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub";
+            "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
+            // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
+          // 声明一个新的zip
+          
           // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
           _book = new ePub(_epubUrl, { replacements: "blob" });
           // 拿到加密的key字符串
@@ -141,61 +147,52 @@ export default {
           // 模拟密钥
           _decryptObj = "^4fSY0aUwPl8%Buv";
           // console.log(_decryptObj1,_decryptObj2,'解密key得到的结果')
-          console.log(this.rendition, "this.rendition first");
-          
-          console.log(_book.spine,'_book.spine')
 
           _book.ready.then(content => {
-            console.log(content,'content')
+            // var _decryptAfterToU8
             // 打开图书时判断档案是否存在，且拿到u8
             if (_book.archive) {
-              _getEpubU8 = _book.archive.zip
-                .folder("OPS")
-                .file("chapter14.xhtml")
-                .async("uint8array");
-            }
-
-            // 对u8进行解密 转换等操作
-            _beforeChangeHtml = _getEpubU8.then(u8 => {
               
-              _encryptu8 = window.btoa(String.fromCharCode.apply(null, u8));
-              // console.log(_encryptu8,'解密前的u8转成的base64')
-              _decryptu8 = aes.decrypt(_encryptu8, _decryptObj);
-              // console.log(_decryptu8,'解密返回的结果')
-              _decryptAfterToU8 = aes.stringify(_decryptu8);
-              // u8 = _decryptAfterToU8
-              // _book.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent = _decryptAfterToU8
-              // console.log(_decryptAfterToU8)
-              // console.log(_getEpubU8,'_getEpubU8')
-              // console.log(_decryptAfterToU8,'_decryptAfterToU8')
+              // 遍历测试
+                let epubCanonical,epuCfiBase,epubHref,epubUrl
+                // 拿到spine下的所有xhtml
+                _getSpine = _book.spine.items
+                
+                // 遍历赋值
+                for (let i in _getSpine) {
+                  epubCanonical = _getSpine[i].canonical
+                  epuCfiBase = _getSpine[i].cfiBase
+                  epubHref = _getSpine[i].href
+                  epubUrl = _getSpine[i].url
+                }
+                // 把epub资源赋值给对象                
+                _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async('uint8array');
+                
+                // _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async("uint8array")
+                _getEpubFiles.then(u8 => {
+                  console.log(_book.archive.zip.folder("OPS").file(epubHref)._data.compressedContent,'_data.compressedContent')
+                  console.log(u8,'得到的u8')
+                  // 对u8进行解密 转换等操作
+                  _beforeChangeHtml = _getEpubFiles.then(u8 => {
+                    
+                    _encryptu8 = window.btoa(String.fromCharCode.apply(null, u8));
+                    // console.log(_encryptu8,'解密前的u8转成的base64')
+                    _decryptu8 = aes.decrypt(_encryptu8, _decryptObj);
+                    // console.log(_decryptu8,'解密返回的结果')
+                    this.decryptAfterToU8 = aes.stringify(_decryptu8);
+                    // console.log(this.decryptAfterToU8.toString(),'jszip.CompressedObject()')
+                    // wordarray 转成 uint8array
+                    // return this.decryptAfterToU8
+                    // _book.open(this.decryptAfterToU8)
 
-              // return _decryptu8;
-            });
+                    // this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
+                    // this.rendition.display()
+                  })
+                })
+                
+                // console.log(epubCanonical,epuCfiBase,epubHref,epubUrl)
 
-            //   this.rendition.hooks.render.register(view => {
-            //     console.log(_book.archive, "_book.archive");
-            //     if (_book.archive) {
-            //       _getEpubU8 = _book.archive.zip
-            //         .folder("OPS")
-            //         .file("chapter14.xhtml")
-            //         .async("uint8array");
-            //     }
-
-            //     _beforeChangeHtml = _getEpubU8.then(u8 => {
-            //       _encryptu8 = window.btoa(String.fromCharCode.apply(null, u8));
-            //       // console.log(_encryptu8,'解密前的u8转成的base64')
-            //       _decryptu8 = aes.decrypt(_encryptu8, _decryptObj);
-            //       // console.log(_decryptu8,'解密返回的结果')
-            //       _decryptAfterToU8 = aes.stringify(_decryptu8);
-            //       // u8 = _decryptAfterToU8
-            //       // _book.archive.zip.files["OPS/chapter14.xhtml"]._data.compressedContent = _decryptAfterToU8
-
-            //       // console.log(_getEpubU8,'_getEpubU8')
-            //       // console.log(_decryptAfterToU8,'_decryptAfterToU8')
-
-            //       // return _decryptu8;
-            //     });
-            //   });
+            }
           });
 
           // 渲染时修改页面内容
@@ -243,7 +240,7 @@ export default {
           this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
           this.rendition.display()
 
-          console.log(this.rendition, "this.rendition final");
+          // console.log(this.rendition, "this.rendition final");
         }
       });
     },
