@@ -131,8 +131,8 @@ export default {
           // _epubUrl = data.Data.Url;
           // 测试Epub地址
           _epubUrl =
-            // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub";
-            "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
+            "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub";
+            // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
           // 声明一个新的zip
           
@@ -170,7 +170,7 @@ export default {
                 
                 // _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async("uint8array")
                 _getEpubFiles.then(u8 => {
-                  console.log(_book.archive.zip.folder("OPS").file(epubHref)._data.compressedContent,'_data.compressedContent')
+                  console.log(_book.archive.zip.folder("OPS").file(epubHref),'_data.compressedContent')
                   console.log(u8,'得到的u8')
                   // 对u8进行解密 转换等操作
                   _beforeChangeHtml = _getEpubFiles.then(u8 => {
