@@ -152,19 +152,16 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          * @return {GenericWorker} the worker.
          */
         getContentWorker: function () {
-          
+          // console.log(this.compressedContent,'this.compressedContent')
           var worker = new DataWorker(external.Promise.resolve(this.compressedContent))
             .pipe(this.compression.uncompressWorker())
             .pipe(new DataLengthProbe("data_length"));
-          
           var that = this;
           worker.on("end", function () {
             if (this.streamInfo['data_length'] !== that.uncompressedSize) {
               throw new Error("Bug : uncompressed data size mismatch");
             }
           });
-
-          console.log(this.compression.uncompressWorker(),'this.compression.uncompressWorker()')
           return worker;
         },
         
@@ -401,6 +398,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           raw: true,
           level: this._pakoOptions.level || -1 // default compression
         });
+       
         var self = this;
         this._pako.onData = function (data) {
           self.push({
@@ -1140,7 +1138,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             
             for (var i = 0; i < files.length; i++) {
               var input = files[i];
-
               // 得到epub内部所有资源的文件流
               // console.log(input.decompressed.compressedContent)
 
@@ -1364,7 +1361,19 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        * @param {Object} originalOptions the options of the file
        * @return {Object} the new file.
        */
+
+      // 提出加密的前5~6位二进制并赋值
+      const ifEncry = {
+        ifEncryxml:[60,63,120,109,103],
+        ifEncryXML:[60,63,88,77,76],
+        ifEncryhtml:[60,63,104,116,109,108],
+        ifEncryHTML:[60,63,72,84,77,76]
+      }
+      var {ifEncryxml,ifEncryXML,ifEncryhtml,ifEncryHTML} = ifEncry
+      
       var fileAdd = function (name, data, originalOptions) {
+      
+        
         // be sure sub folders exist
         var dataType = utils.getTypeOf(data),
           parent;
@@ -1378,7 +1387,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         o.date = o.date || new Date();
         if (o.compression !== null) {
           o.compression = o.compression.toUpperCase();
-        }
+        } 
 
         if (typeof o.unixPermissions === "string") {
           o.unixPermissions = parseInt(o.unixPermissions, 8);
@@ -1421,18 +1430,24 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          */
 
         var zipObjectContent = null;
+        // 新的获取流的判断，拿u8替换掉数据流
         if (data instanceof CompressedObject || data instanceof GenericWorker) {
-          zipObjectContent = data;
-        } else if (nodejsUtils.isNode && nodejsUtils.isStream(data)) {
-          zipObjectContent = new NodejsStreamInputAdapter(name, data);
-        } else {
-          zipObjectContent = utils.prepareContent(name, data, o.binary, o.optimizedBinaryString, o.base64);
+          zipObjectContent = data
+          // this.files[name] = object;
+          // console.log(object)
         }
-
+        // 原始获取流的判断
+        // if (data instanceof CompressedObject || data instanceof GenericWorker) {
+        //   zipObjectContent = data;
+        // } else if (nodejsUtils.isNode && nodejsUtils.isStream(data)) {
+        //   zipObjectContent = new NodejsStreamInputAdapter(name, data);
+        // } else {
+        //   zipObjectContent = utils.prepareContent(name, data, o.binary, o.optimizedBinaryString, o.base64);
+        // }
+        // 原始的获取流并渲染
         var object = new ZipObject(name, zipObjectContent, o);
         this.files[name] = object;
-        
-        // console.log(this.files[name],'epub里面所有的file对象')
+        console.log(object,'****************************************************************************************************************')
         /*
         TODO: we can't throw an exception because we have async promises
         (we can have a promise of a Date() for example) but returning a
@@ -4109,10 +4124,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         this._dataBinary = options.binary;
         // keep only the compression
         this.options = {
-          // compression: options.compression,
-          // compressionOptions: options.compressionOptions
-          compression: "STORE",
-          compressionOptions: null
+          compression: options.compression,
+          compressionOptions: options.compressionOptions
+          // compression: "STORE",
+          // compressionOptions: null
         };
       };
 
@@ -4134,7 +4149,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               outputType = "string";
             }
             result = this._decompressWorker();
-
             var isUnicodeString = !this._dataBinary;
 
             if (isUnicodeString && !askUnicodeString) {
@@ -4158,9 +4172,9 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          * @return Promise the promise of the result.
          */
         async: function (type, onUpdate) {
+          
           return this.internalStream(type).accumulate(onUpdate);
         },
-
         /**
          * Prepare the content as a nodejs stream.
          * @param {String} type the type of each chunk.

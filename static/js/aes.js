@@ -84,7 +84,6 @@ export default {
         // decrypt = CryptoJS.enc.Utf8.stringify(decrypt).toString();
         // console.log(wordArr,'CryptoJS.enc.Utf8.stringify(decrypt).toString()')
         // return CryptoJS.enc.Utf8.stringify(decrypt).toString()
-        console.log(decrypt(),'asdcalkdcnasjkdnckasjdncjkasdnjkc')
         return decrypt
     }
 }

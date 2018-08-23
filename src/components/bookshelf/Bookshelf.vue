@@ -157,7 +157,6 @@ export default {
                 let epubCanonical,epuCfiBase,epubHref,epubUrl
                 // 拿到spine下的所有xhtml
                 _getSpine = _book.spine.items
-                
                 // 遍历赋值
                 for (let i in _getSpine) {
                   epubCanonical = _getSpine[i].canonical
@@ -167,11 +166,11 @@ export default {
                 }
                 // 把epub资源赋值给对象                
                 _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async('uint8array');
-                
+                // console.log(_book.archive,'_book.archive')
                 // _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async("uint8array")
                 _getEpubFiles.then(u8 => {
-                  console.log(_book.archive.zip.folder("OPS").file(epubHref),'_data.compressedContent')
-                  console.log(u8,'得到的u8')
+                  // console.log(_book.archive.zip.folder("OPS").file(epubHref),'_data.compressedContent')
+                  // console.log(u8,'得到正确的uint8array')
                   // 对u8进行解密 转换等操作
                   _beforeChangeHtml = _getEpubFiles.then(u8 => {
                     
