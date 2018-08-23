@@ -77,7 +77,7 @@ export default {
         // let word = CryptoJS.enc.Utf8.parse(text)
         //把key转换成WordArray
         let key = CryptoJS.enc.Utf8.parse(keyword);
-        //对word进行解密（此时密文是WordArray）
+        // 对word进行解密（此时密文是WordArray，传入的word是base64）
         let decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
         // let dcBase64String = decrypt.toString(CryptoJS.enc.Utf8)
         // let dcArrayBuffer

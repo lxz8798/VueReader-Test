@@ -1370,9 +1370,13 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         ifEncryHTML:[60,63,72,84,77,76]
       }
       var {ifEncryxml,ifEncryXML,ifEncryhtml,ifEncryHTML} = ifEncry
-      
+      var _epubBookInfo,_decrypt,_newData
+
+      _epubBookInfo = JSON.parse(localStorage.epubBookInfo)
+
+      console.log(_epubBookInfo,'_epubBookInfo')
+
       var fileAdd = function (name, data, originalOptions) {
-      
         
         // be sure sub folders exist
         var dataType = utils.getTypeOf(data),
@@ -1435,6 +1439,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           zipObjectContent = data
           // this.files[name] = object;
           // console.log(object)
+          // _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
         }
         // 原始获取流的判断
         // if (data instanceof CompressedObject || data instanceof GenericWorker) {
@@ -1446,8 +1451,14 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         // }
         // 原始的获取流并渲染
         var object = new ZipObject(name, zipObjectContent, o);
+        // 压缩过的流
         this.files[name] = object;
-        console.log(object,'****************************************************************************************************************')
+        console.log(this.files[name],'this.files[name]')
+        // 拦截data并处理生成新的data
+        _newData = this.files[name].async('uint8array')
+        _newData.then(data => {
+          return data
+        })
         /*
         TODO: we can't throw an exception because we have async promises
         (we can have a promise of a Date() for example) but returning a
@@ -1487,6 +1498,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         if (path.slice(-1) !== "/") {
           path += "/"; // IE doesn't like substr(-1)
         }
+        
         return path;
       };
 
@@ -1502,7 +1514,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         createFolders = (typeof createFolders !== 'undefined') ? createFolders : defaults.createFolders;
 
         name = forceTrailingSlash(name);
-
+        
         // Does this folder already exist?
         if (!this.files[name]) {
           fileAdd.call(this, name, null, {
@@ -1654,6 +1666,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             var kids = this.filter(function (relativePath, file) {
               return file.name.slice(0, name.length) === name;
             });
+            console.log(kids,'kids')
             for (var i = 0; i < kids.length; i++) {
               delete this.files[kids[i].name];
             }
@@ -2162,6 +2175,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        * @constructor
        * @param {Promise} dataP the promise of the data to split
        */
+      
       function DataWorker(dataP) {
         GenericWorker.call(this, "DataWorker");
         var self = this;
@@ -2172,7 +2186,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         this.type = "";
 
         this._tickScheduled = false;
-
         dataP.then(function (data) {
           self.dataIsReady = true;
           self.data = data;
@@ -2184,8 +2197,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         }, function (e) {
           self.error(e);
         });
-      }
 
+        console.log(dataP,'dataP')
+      }
+      
       utils.inherits(DataWorker, GenericWorker);
 
       /**

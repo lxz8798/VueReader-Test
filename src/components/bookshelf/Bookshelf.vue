@@ -134,8 +134,11 @@ export default {
             "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub";
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
-          // 声明一个新的zip
-          
+          // bookInfo
+          localStorage.epubBookInfo = JSON.stringify({
+            devicekey: "tb)DPkFKpWJ5H7uL",
+            decryptObj: "^4fSY0aUwPl8%Buv"
+          })
           // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
           _book = new ePub(_epubUrl, { replacements: "blob" });
           // 拿到加密的key字符串
