@@ -135,10 +135,14 @@ export default {
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
           // bookInfo
-          localStorage.epubBookInfo = JSON.stringify({
-            devicekey: "tb)DPkFKpWJ5H7uL",
-            decryptObj: "^4fSY0aUwPl8%Buv"
-          })
+          
+          if (!localStorage.epubBookInfo) {
+            localStorage.epubBookInfo = JSON.stringify({
+              devicekey: "tb)DPkFKpWJ5H7uL",
+              decryptObj: "^4fSY0aUwPl8%Buv"
+            })
+          }
+          
           // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
           _book = new ePub(_epubUrl, { replacements: "blob" });
           // 拿到加密的key字符串
@@ -151,51 +155,51 @@ export default {
           _decryptObj = "^4fSY0aUwPl8%Buv";
           // console.log(_decryptObj1,_decryptObj2,'解密key得到的结果')
 
-          _book.ready.then(content => {
-            // var _decryptAfterToU8
-            // 打开图书时判断档案是否存在，且拿到u8
-            if (_book.archive) {
+          // _book.ready.then(content => {
+          //   // var _decryptAfterToU8
+          //   // 打开图书时判断档案是否存在，且拿到u8
+          //   if (_book.archive) {
               
-              // 遍历测试
-                let epubCanonical,epuCfiBase,epubHref,epubUrl
-                // 拿到spine下的所有xhtml
-                _getSpine = _book.spine.items
-                // 遍历赋值
-                for (let i in _getSpine) {
-                  epubCanonical = _getSpine[i].canonical
-                  epuCfiBase = _getSpine[i].cfiBase
-                  epubHref = _getSpine[i].href
-                  epubUrl = _getSpine[i].url
-                }
-                // 把epub资源赋值给对象                
-                _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async('uint8array');
-                // console.log(_book.archive,'_book.archive')
-                // _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async("uint8array")
-                _getEpubFiles.then(u8 => {
-                  // console.log(_book.archive.zip.folder("OPS").file(epubHref),'_data.compressedContent')
-                  // console.log(u8,'得到正确的uint8array')
-                  // 对u8进行解密 转换等操作
-                  _beforeChangeHtml = _getEpubFiles.then(u8 => {
+          //     // 遍历测试
+          //       let epubCanonical,epuCfiBase,epubHref,epubUrl
+          //       // 拿到spine下的所有xhtml
+          //       _getSpine = _book.spine.items
+          //       // 遍历赋值
+          //       for (let i in _getSpine) {
+          //         epubCanonical = _getSpine[i].canonical
+          //         epuCfiBase = _getSpine[i].cfiBase
+          //         epubHref = _getSpine[i].href
+          //         epubUrl = _getSpine[i].url
+          //       }
+          //       // 把epub资源赋值给对象                
+          //       _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async('uint8array');
+          //       // console.log(_book.archive,'_book.archive')
+          //       // _getEpubFiles = _book.archive.zip.folder("OPS").file(epubHref).async("uint8array")
+          //       _getEpubFiles.then(u8 => {
+          //         // console.log(_book.archive.zip.folder("OPS").file(epubHref),'_data.compressedContent')
+          //         // console.log(u8,'得到正确的uint8array')
+          //         // 对u8进行解密 转换等操作
+          //         _beforeChangeHtml = _getEpubFiles.then(u8 => {
                     
-                    _encryptu8 = window.btoa(String.fromCharCode.apply(null, u8));
-                    // console.log(_encryptu8,'解密前的u8转成的base64')
-                    _decryptu8 = aes.decrypt(_encryptu8, _decryptObj);
-                    // console.log(_decryptu8,'解密返回的结果')
-                    this.decryptAfterToU8 = aes.stringify(_decryptu8);
-                    // console.log(this.decryptAfterToU8.toString(),'jszip.CompressedObject()')
-                    // wordarray 转成 uint8array
-                    // return this.decryptAfterToU8
-                    // _book.open(this.decryptAfterToU8)
+          //           _encryptu8 = window.btoa(String.fromCharCode.apply(null, u8));
+          //           // console.log(_encryptu8,'解密前的u8转成的base64')
+          //           _decryptu8 = aes.decrypt(_encryptu8, _decryptObj);
+          //           // console.log(_decryptu8,'解密返回的结果')
+          //           this.decryptAfterToU8 = aes.stringify(_decryptu8);
+          //           // console.log(this.decryptAfterToU8.toString(),'jszip.CompressedObject()')
+          //           // wordarray 转成 uint8array
+          //           // return this.decryptAfterToU8
+          //           // _book.open(this.decryptAfterToU8)
 
-                    // this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
-                    // this.rendition.display()
-                  })
-                })
+          //           // this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
+          //           // this.rendition.display()
+          //         })
+          //       })
                 
-                // console.log(epubCanonical,epuCfiBase,epubHref,epubUrl)
+          //       // console.log(epubCanonical,epuCfiBase,epubHref,epubUrl)
 
-            }
-          });
+          //   }
+          // });
 
           // 渲染时修改页面内容
           // this.rendition.hooks.content.register(contents => {
@@ -208,36 +212,36 @@ export default {
 
 
           // ul 侧边栏
-          _book.loaded.navigation.then(getToc => {
+          // _book.loaded.navigation.then(getToc => {
 
-            let _ul, _url, _docfrag, _item, _link;
+          //   let _ul, _url, _docfrag, _item, _link;
 
-            _ul = document.getElementById("toc");
-            _docfrag = document.createDocumentFragment();
+          //   _ul = document.getElementById("toc");
+          //   _docfrag = document.createDocumentFragment();
 
-            // console.log(getToc.parse(),'getToc.get()')
-            getToc.toc.forEach((chapter, index) => {
-              //新建li标签
-              (_item = document.createElement("li")),
-                //新建a标签
-                (_link = document.createElement("a"));
-              //给a标签添加id名
-              _link.id = "chap-" + chapter.id;
-              //给a标签添加label
-              _link.textContent = chapter.label;
-              //把chapter的链接赋值给a标签
-              _link.href = chapter.href;
-              //添加到li里
-              _item.appendChild(_link);
-              _docfrag.appendChild(_item);
-              _link.onclick = function() {
-                let _url = _link.getAttribute("href");
-                this.rendition.display(_url);
-                return false;
-              };
-            });
-            _ul.appendChild(_docfrag);
-          });
+          //   // console.log(getToc.parse(),'getToc.get()')
+          //   getToc.toc.forEach((chapter, index) => {
+          //     //新建li标签
+          //     (_item = document.createElement("li")),
+          //       //新建a标签
+          //       (_link = document.createElement("a"));
+          //     //给a标签添加id名
+          //     _link.id = "chap-" + chapter.id;
+          //     //给a标签添加label
+          //     _link.textContent = chapter.label;
+          //     //把chapter的链接赋值给a标签
+          //     _link.href = chapter.href;
+          //     //添加到li里
+          //     _item.appendChild(_link);
+          //     _docfrag.appendChild(_item);
+          //     _link.onclick = function() {
+          //       let _url = _link.getAttribute("href");
+          //       this.rendition.display(_url);
+          //       return false;
+          //     };
+          //   });
+          //   _ul.appendChild(_docfrag);
+          // });
 
           this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
           this.rendition.display()

@@ -122,7 +122,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
     }, { "./support": 30, "./utils": 32 }], 2: [function (require, module, exports) {
       'use strict';
-
+      
       var external = require("./external");
       var DataWorker = require('./stream/DataWorker');
       var DataLengthProbe = require('./stream/DataLengthProbe');
@@ -139,6 +139,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        * @param {String|ArrayBuffer|Uint8Array|Buffer} data the compressed data.
        */
       function CompressedObject(compressedSize, uncompressedSize, crc32, compression, data) {
+        
         this.compressedSize = compressedSize;
         this.uncompressedSize = uncompressedSize;
         this.crc32 = crc32;
@@ -152,7 +153,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          * @return {GenericWorker} the worker.
          */
         getContentWorker: function () {
-          // console.log(this.compressedContent,'this.compressedContent')
+          
           var worker = new DataWorker(external.Promise.resolve(this.compressedContent))
             .pipe(this.compression.uncompressWorker())
             .pipe(new DataLengthProbe("data_length"));
@@ -1131,21 +1132,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             return external.Promise.all(promises);
           }).then(function addFiles(results) {
             var zipEntries = results.shift();
-            console.log(zipEntries,'这里是展开epub，得到所有文件对象')
             var files = zipEntries.files;
-            console.log(files,'上一步后得到所有的files对象')
-            console.log(files[2].decompressed.compressedContent, '得到的xhtml文件流')
             
             for (var i = 0; i < files.length; i++) {
               var input = files[i];
-              // 得到epub内部所有资源的文件流
-              // console.log(input.decompressed.compressedContent)
-
-              //把key转换成WordArray
-              // let key = CryptoJS.enc.Utf8.parse(keyword);
-
-              //对word进行解密（此时密文是WordArray）
-              // let decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
               zip.file(input.fileNameStr, input.decompressed, {
                 binary: true,
                 optimizedBinaryString: true,
@@ -1362,31 +1352,14 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        * @return {Object} the new file.
        */
 
-      // 提出加密的前5~6位二进制并赋值
-      const ifEncry = {
-        ifEncryxml:[60,63,120,109,103],
-        ifEncryXML:[60,63,88,77,76],
-        ifEncryhtml:[60,63,104,116,109,108],
-        ifEncryHTML:[60,63,72,84,77,76]
-      }
-      var {ifEncryxml,ifEncryXML,ifEncryhtml,ifEncryHTML} = ifEncry
-      var _epubBookInfo,_decrypt,_newData
-
-      _epubBookInfo = JSON.parse(localStorage.epubBookInfo)
-
-      console.log(_epubBookInfo,'_epubBookInfo')
-
       var fileAdd = function (name, data, originalOptions) {
         
         // be sure sub folders exist
         var dataType = utils.getTypeOf(data),
           parent;
-
-
         /*
          * Correct options.
          */
-
         var o = utils.extend(originalOptions || {}, defaults);
         o.date = o.date || new Date();
         if (o.compression !== null) {
@@ -1434,38 +1407,19 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          */
 
         var zipObjectContent = null;
-        // 新的获取流的判断，拿u8替换掉数据流
         if (data instanceof CompressedObject || data instanceof GenericWorker) {
           zipObjectContent = data
-          // this.files[name] = object;
-          // console.log(object)
-          // _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
         }
-        // 原始获取流的判断
-        // if (data instanceof CompressedObject || data instanceof GenericWorker) {
-        //   zipObjectContent = data;
-        // } else if (nodejsUtils.isNode && nodejsUtils.isStream(data)) {
-        //   zipObjectContent = new NodejsStreamInputAdapter(name, data);
-        // } else {
-        //   zipObjectContent = utils.prepareContent(name, data, o.binary, o.optimizedBinaryString, o.base64);
-        // }
-        // 原始的获取流并渲染
         var object = new ZipObject(name, zipObjectContent, o);
-        // 压缩过的流
         this.files[name] = object;
-        console.log(this.files[name],'this.files[name]')
-        // 拦截data并处理生成新的data
-        _newData = this.files[name].async('uint8array')
-        _newData.then(data => {
-          return data
-        })
+                
         /*
         TODO: we can't throw an exception because we have async promises
         (we can have a promise of a Date() for example) but returning a
         promise is useless because file(name, data) returns the JSZip
         object for chaining. Should we break that to allow the user
         to catch the error ?
-    
+        
         return external.Promise.resolve(zipObjectContent)
         .then(function () {
             return object;
@@ -1593,6 +1547,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          * a file (when searching by string) or an array of files (when searching by regex).
          */
         file: function (name, data, o) {
+
           if (arguments.length === 1) {
             if (isRegExp(name)) {
               var regexp = name;
@@ -2187,18 +2142,19 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
         this._tickScheduled = false;
         dataP.then(function (data) {
+          
           self.dataIsReady = true;
           self.data = data;
           self.max = data && data.length || 0;
           self.type = utils.getTypeOf(data);
+          
           if (!self.isPaused) {
             self._tickAndRepeat();
           }
         }, function (e) {
           self.error(e);
         });
-
-        console.log(dataP,'dataP')
+        
       }
       
       utils.inherits(DataWorker, GenericWorker);
@@ -2578,6 +2534,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           case "base64":
             return base64.encode(content);
           default:
+
             return utils.transformTo(type, content);
         }
       }
@@ -2612,7 +2569,98 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             throw new Error("concat : unsupported type '" + type + "'");
         }
       }
+      // uin8array 转成 array
+      function uint8ArrayToArray(uint8Array) {
+        var array = [];
 
+        for (var i = 0; i < uint8Array.byteLength; i++) {
+          array[i] = uint8Array[i];
+        }
+
+        return array;
+      }
+      // uint8array 转 字符串
+      function Utf8ArrayToStr(array) {
+          var out, i, len, c;
+          var char2, char3;
+      
+          out = "";
+          len = array.length;
+          i = 0;
+          while(i < len) {
+          c = array[i++];
+          switch(c >> 4)
+          { 
+            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+              // 0xxxxxxx
+              out += String.fromCharCode(c);
+              break;
+            case 12: case 13:
+              // 110x xxxx   10xx xxxx
+              char2 = array[i++];
+              out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+              break;
+            case 14:
+              // 1110 xxxx  10xx xxxx  10xx xxxx
+              char2 = array[i++];
+              char3 = array[i++];
+              out += String.fromCharCode(((c & 0x0F) << 12) |
+                            ((char2 & 0x3F) << 6) |
+                            ((char3 & 0x3F) << 0));
+              break;
+          }
+          }
+      
+          return out;
+        }
+        
+        // baset64 转 arraybuffer
+        function base64ToArrayBuffer (base64) {
+          var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+          var lookup = new Uint8Array(256);
+          for (var i = 0; i < chars.length; i++) {
+            lookup[chars.charCodeAt(i)] = i;
+          }
+
+          var bufferLength = base64.length * 0.75,
+          len = base64.length, i, p = 0,
+          encoded1, encoded2, encoded3, encoded4;
+      
+          if (base64[base64.length - 1] === "=") {
+            bufferLength--;
+            if (base64[base64.length - 2] === "=") {
+              bufferLength--;
+            }
+          }
+      
+          var arraybuffer = new ArrayBuffer(bufferLength),
+          bytes = new Uint8Array(arraybuffer);
+      
+          for (i = 0; i < len; i+=4) {
+            encoded1 = lookup[base64.charCodeAt(i)];
+            encoded2 = lookup[base64.charCodeAt(i+1)];
+            encoded3 = lookup[base64.charCodeAt(i+2)];
+            encoded4 = lookup[base64.charCodeAt(i+3)];
+      
+            bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+            bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+            bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+          }
+      
+          return arraybuffer;
+      }
+      //wordArray换成Uint8Array
+      function stringify (wordArray) {
+          var words = wordArray.words;
+          var sigBytes = wordArray.sigBytes;
+          var u8 = new Uint8Array(sigBytes);
+          for (var i = 0; i < sigBytes; i++) {
+              var byte = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+              u8[i]=byte;
+          }
+          return u8;
+      }
       /**
        * Listen a StreamHelper, accumulate its content and concatenate it into a
        * complete block.
@@ -2623,6 +2671,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        * @return Promise the promise for the accumulation.
        */
       function accumulate(helper, updateCallback) {
+        
         return new external.Promise(function (resolve, reject) {
           var dataArray = [];
           var chunkType = helper._internalType,
@@ -2634,6 +2683,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               if (updateCallback) {
                 updateCallback(meta);
               }
+              
             })
             .on('error', function (err) {
               dataArray = [];
@@ -2641,9 +2691,102 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             })
             .on('end', function () {
               try {
+                // 原始流及字符串
                 var result = transformZipOutput(resultType, concat(chunkType, dataArray), mimeType);
+                // console.log(result,'result')
+                // 转成u8
+                // var toU8 = new Uint8Array(result)
+                // console.log(toU8,'解密之前的u8')
+                // 提出加密的前5~6位二进制并赋值
+                const ifEncry = {
+                  ifEncryxml:[60,63,120,109,103],
+                  ifEncryXML:[60,63,88,77,76],
+                  ifEncryhtml:[60,63,104,116,109,108],
+                  ifEncryHTML:[60,63,72,84,77,76]
+                }
+                // 解构
+                var {ifEncryxml,ifEncryXML,ifEncryhtml,ifEncryHTML} = ifEncry
+                // 常用对象
+                var _epubBookInfo,_decrypt,_newData,_getU8,_toChar,word,key
+                // 获取devicekey,decryptObj
+                _epubBookInfo = JSON.parse(localStorage.epubBookInfo)
+                // // 将word转成base64,并且编码中文，避免乱码
+                // word = window.btoa(String.fromCharCode.apply(null, toU8))
+                // // 将key转成wordarray
+                // key = CryptoJS.enc.Utf8.parse(_epubBookInfo.decryptObj)
+                // 解密
+                // _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                // try {
+                //   var x=concat(chunkType, dataArray);
+                  //console.log(x,'x')
+                  //result = transformZipOutput(resultType, x, mimeType)
+                  // 解密
+                  // _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                  //  _newData = stringify(_decrypt)
+                  // result = transformZipOutput(resultType, _newData, mimeType);
+
+                  //var inputType = exports.getTypeOf(input);
+                  // console.log(_decrypt,'_decrypt')
+                  // 置空
+                  //dataArray = [];
+                  // 转成U8
+                  //_getU8 = stringify(_decrypt)
+                  // console.log(Array.isArray(_getU8),'_getU8')
+                  // dataArray = new Uint8Array(_getU8);
+                  // console.log(dataArray.length)
+                  
+                  // if (result.length==78352) {
+                  //   // 将word转成base64,并且编码中文，避免乱码
+                  //   word = window.btoa(String.fromCharCode.apply(null, toU8))
+                  //   // console.log(word,'word')
+                  //   // 将key转成wordarray
+                  //   key = CryptoJS.enc.Utf8.parse(_epubBookInfo.decryptObj)
+                  //   // 解密 wordarray
+                  //   _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                  //   // console.log(_decrypt,'_decrypt')
+                  //   // 转成u8
+                  //   _newData = _decrypt.toString(CryptoJS.enc.Base64);
+
+                  //   let temp3 = base64ToArrayBuffer(_newData)
+                  //   // console.log(temp3,'temp3')
+                  //   let temp4 = Utf8ArrayToStr(new Uint8Array(temp3))
+                  //   // console.log(temp4,'temp4')
+                    
+                  //   // console.log(_newData,'_newData')
+                  //   // _toChar = CryptoJS.enc.Utf8.stringify(_decrypt).toString()
+                  //   // console.log(_toChar,'_toChar')
+                  //   //console.log(typeof _newData,'typeof _newData')
+                  //   // console.log(typeof x,'typeof x')
+                  //   // 组建
+                  //   // console.log(resultType,'resultType')
+                  //   // console.log(mimeType,'mimeType')
+                  //   result = transformZipOutput(resultType, new Uint8Array(temp3), mimeType);
+                  //   // let temp = Utf8ArrayToStr(x)
+                  //   console.log(result,'result')
+                  // } else {
+                  //   // let temp2 = Utf8ArrayToStr(toU8)
+                  //   // console.log(temp2,'temp2')
+                  //   // console.log(result.length,'result.length')
+                  // }
+
+                  // console.log(dataArray,'dataArray')
+                  // _toChar = CryptoJS.enc.Utf8.stringify(_decrypt).toString()
+                  // console.log(_toChar)
+                  // console.log(_getU8,'_getU8')
+                  // result = transformZipOutput(resultType, concat(chunkType, dataArray), mimeType)
+                  // console.log(result,'result')
+                // } catch {
+                  
+                // }
+                // 转成字符串，查看是否乱码
+                
+                // 解密后的结果
+                // _newData = stringify(_decrypt)
+                // console.log(_newData,'_newData')
+                // 在执行一遍 result
                 resolve(result);
               } catch (e) {
+                console.log(e,'e');
                 reject(e);
               }
               dataArray = [];
@@ -3010,7 +3153,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       Utf8DecodeWorker.prototype.processChunk = function (chunk) {
 
         var data = utils.transformTo(support.uint8array ? "uint8array" : "array", chunk.data);
-
         // 1st step, re-use what's left of the previous chunk
         if (this.leftOver && this.leftOver.length) {
           if (support.uint8array) {
@@ -3035,7 +3177,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             this.leftOver = data.slice(nextBoundary, data.length);
           }
         }
-
+        
         this.push({
           data: exports.utf8decode(usableData),
           meta: chunk.meta
@@ -3504,7 +3646,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
         // if inputData is already a promise, this flatten it.
         var promise = external.Promise.resolve(inputData).then(function (data) {
-
+          
           var isBlob = support.blob && (data instanceof Blob || ['[object File]', '[object Blob]'].indexOf(Object.prototype.toString.call(data)) !== -1);
           
           if (isBlob && typeof FileReader !== "undefined") {
@@ -3519,7 +3661,9 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               };
               reader.readAsArrayBuffer(data);
             });
+            
           } else {
+            
             return data;
           }
         });
@@ -4128,6 +4272,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        * @param {Object} options the options of the file
        */
       var ZipObject = function (name, data, options) {
+        
         this.name = name;
         this.dir = options.dir;
         this.date = options.date;
@@ -4147,6 +4292,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       };
 
       ZipObject.prototype = {
+        
         /**
          * Create an internal stream for the content of this object.
          * @param {String} type the type of each chunk.
@@ -4779,9 +4925,11 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
       Promise.resolve = resolve;
       function resolve(value) {
+        //console.log(value,'INTERNALINTERNALINTERNAL')
         if (value instanceof this) {
           return value;
         }
+        
         return handlers.resolve(new this(INTERNAL), value);
       }
 
