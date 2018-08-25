@@ -10553,6 +10553,7 @@ var Book = function () {
 
 			this.spine.hooks.serialize.register(function (output, section) {
 				section.output = _this9.resources.substitute(output, section.url);
+				console.log(output,'output')
 			});
 
 			return this.resources.replacements().then(function () {
@@ -16016,6 +16017,7 @@ var Archive = function () {
 			} else if ((0, _core.isXml)(type)) {
 				r = (0, _core.parse)(response, "text/xml");
 			} else if (type == "xhtml") {
+				//console.log(response,'response')
 				r = (0, _core.parse)(response, "application/xhtml+xml");
 			} else if (type == "html" || type == "htm") {
 				r = (0, _core.parse)(response, "text/html");

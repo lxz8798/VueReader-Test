@@ -780,7 +780,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         var currentFilePercent = chunk.meta.percent || 0;
         var entriesCount = this.entriesCount;
         var remainingFiles = this._sources.length;
-
+        
         if (this.accumulate) {
           this.contentBuffer.push(chunk);
         } else {
@@ -1411,6 +1411,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           zipObjectContent = data
         }
         var object = new ZipObject(name, zipObjectContent, o);
+        
         this.files[name] = object;
                 
         /*
@@ -1466,7 +1467,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        */
       var folderAdd = function (name, createFolders) {
         createFolders = (typeof createFolders !== 'undefined') ? createFolders : defaults.createFolders;
-
+        
         name = forceTrailingSlash(name);
         
         // Does this folder already exist?
@@ -1621,7 +1622,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             var kids = this.filter(function (relativePath, file) {
               return file.name.slice(0, name.length) === name;
             });
-            console.log(kids,'kids')
             for (var i = 0; i < kids.length; i++) {
               delete this.files[kids[i].name];
             }
@@ -2534,41 +2534,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           case "base64":
             return base64.encode(content);
           default:
-
             return utils.transformTo(type, content);
         }
       }
-
-      /**
-       * Concatenate an array of data of the given type.
-       * @param {String} type the type of the data in the given array.
-       * @param {Array} dataArray the array containing the data chunks to concatenate
-       * @return {String|Uint8Array|Buffer} the concatenated data
-       * @throws Error if the asked type is unsupported
-       */
-      function concat(type, dataArray) {
-        var i, index = 0, res = null, totalLength = 0;
-        for (i = 0; i < dataArray.length; i++) {
-          totalLength += dataArray[i].length;
-        }
-        switch (type) {
-          case "string":
-            return dataArray.join("");
-          case "array":
-            return Array.prototype.concat.apply([], dataArray);
-          case "uint8array":
-            res = new Uint8Array(totalLength);
-            for (i = 0; i < dataArray.length; i++) {
-              res.set(dataArray[i], index);
-              index += dataArray[i].length;
-            }
-            return res;
-          case "nodebuffer":
-            return Buffer.concat(dataArray);
-          default:
-            throw new Error("concat : unsupported type '" + type + "'");
-        }
-      }
+      
       // uin8array 转成 array
       function uint8ArrayToArray(uint8Array) {
         var array = [];
@@ -2662,6 +2631,83 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           return u8;
       }
       /**
+       * Concatenate an array of data of the given type.
+       * @param {String} type the type of the data in the given array.
+       * @param {Array} dataArray the array containing the data chunks to concatenate
+       * @return {String|Uint8Array|Buffer} the concatenated data
+       * @throws Error if the asked type is unsupported
+       */
+      function concat(type, dataArray) {
+        var i, index = 0, res = null, totalLength = 0;
+        for (i = 0; i < dataArray.length; i++) {
+          totalLength += dataArray[i].length;
+        }
+        switch (type) {
+          case "string":
+            return dataArray.join("");
+          case "array":
+            return Array.prototype.concat.apply([], dataArray);
+          case "uint8array":
+            try {
+              res = new Uint8Array(totalLength);
+              // console.log(res,'刚进入逻辑未经过处理的res')
+              for (i = 0; i < dataArray.length; i++) {
+                res.set(dataArray[i], index);
+                index += dataArray[i].length;
+              }
+              // console.log(res,'进入逻辑经过处理的res')              
+              // 如有必要可以转成u8，默认是不需要的
+              // var toU8 = new Uint8Array(result)
+              // 提出加密的前5~6位二进制并赋值
+              const ifEncry = {
+                ifEncryxml:[60,63,120,109,103],
+                ifEncryXML:[60,63,88,77,76],
+                ifEncryhtml:[60,63,104,116,109,108],
+                ifEncryHTML:[60,63,72,84,77,76]
+              }
+              // 解构
+              var {ifEncryxml,ifEncryXML,ifEncryhtml,ifEncryHTML} = ifEncry
+              // 常用对象
+              var _epubBookInfo,_decrypt,_ifAesArray,ifAesObj,_conut,_newData,_getU8,_toChar,word,key
+              // 条件初始化
+              _ifAesArray = []
+              // 判断需要处理的对象是否加密状态
+              if (res.length === 78352)  {
+                // 获取devicekey,decryptObj
+                _epubBookInfo = JSON.parse(localStorage.epubBookInfo)
+                // 将word 转成base64
+                word = window.btoa(String.fromCharCode.apply(null, res))
+                // 将key转成wordarray
+                key = CryptoJS.enc.Utf8.parse(_epubBookInfo.decryptObj)
+                // 解密
+                _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                // 转成U8
+                _getU8 = stringify(_decrypt)
+                // 先把符合标准的res置空
+                _ifAesArray = _getU8
+                // 然后重新赋值解密以后的u8
+                
+              }
+              _newData = concat()
+              // console.log(_getU8,'解密后的u8')
+              // 对res进行重新赋值
+              // console.log(res,'return之前的res')
+              // res = _getU8
+              // console.log(res,'return之后的res')
+            } catch (err) {
+              if (err) {
+                console.log(err.message)
+              }
+            }
+            // console.log(res,'重新赋值并return之前的res')
+            return res;
+          case "nodebuffer":
+            return Buffer.concat(dataArray);
+          default:
+            throw new Error("concat : unsupported type '" + type + "'");
+        }
+      }
+      /**
        * Listen a StreamHelper, accumulate its content and concatenate it into a
        * complete block.
        * @param {StreamHelper} helper the helper to use.
@@ -2683,7 +2729,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               if (updateCallback) {
                 updateCallback(meta);
               }
-              
             })
             .on('error', function (err) {
               dataArray = [];
@@ -2693,29 +2738,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               try {
                 // 原始流及字符串
                 var result = transformZipOutput(resultType, concat(chunkType, dataArray), mimeType);
-                // console.log(result,'result')
-                // 转成u8
-                // var toU8 = new Uint8Array(result)
-                // console.log(toU8,'解密之前的u8')
-                // 提出加密的前5~6位二进制并赋值
-                const ifEncry = {
-                  ifEncryxml:[60,63,120,109,103],
-                  ifEncryXML:[60,63,88,77,76],
-                  ifEncryhtml:[60,63,104,116,109,108],
-                  ifEncryHTML:[60,63,72,84,77,76]
-                }
-                // 解构
-                var {ifEncryxml,ifEncryXML,ifEncryhtml,ifEncryHTML} = ifEncry
-                // 常用对象
-                var _epubBookInfo,_decrypt,_newData,_getU8,_toChar,word,key
-                // 获取devicekey,decryptObj
-                _epubBookInfo = JSON.parse(localStorage.epubBookInfo)
                 // // 将word转成base64,并且编码中文，避免乱码
-                // word = window.btoa(String.fromCharCode.apply(null, toU8))
-                // // 将key转成wordarray
-                // key = CryptoJS.enc.Utf8.parse(_epubBookInfo.decryptObj)
-                // 解密
-                // _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                
                 // try {
                 //   var x=concat(chunkType, dataArray);
                   //console.log(x,'x')
@@ -2734,7 +2758,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                   // console.log(Array.isArray(_getU8),'_getU8')
                   // dataArray = new Uint8Array(_getU8);
                   // console.log(dataArray.length)
-                  
+                  // console.log(result.length==78352,'result.length==78352')
                   // if (result.length==78352) {
                   //   // 将word转成base64,并且编码中文，避免乱码
                   //   word = window.btoa(String.fromCharCode.apply(null, toU8))
@@ -2744,12 +2768,12 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                   //   // 解密 wordarray
                   //   _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
                   //   // console.log(_decrypt,'_decrypt')
-                  //   // 转成u8
+                  //   // 转成base64
                   //   _newData = _decrypt.toString(CryptoJS.enc.Base64);
-
+                  //   // 转成array buffer
                   //   let temp3 = base64ToArrayBuffer(_newData)
                   //   // console.log(temp3,'temp3')
-                  //   let temp4 = Utf8ArrayToStr(new Uint8Array(temp3))
+                  //   // let temp4 = Utf8ArrayToStr(new Uint8Array(temp3))
                   //   // console.log(temp4,'temp4')
                     
                   //   // console.log(_newData,'_newData')
@@ -2760,7 +2784,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                   //   // 组建
                   //   // console.log(resultType,'resultType')
                   //   // console.log(mimeType,'mimeType')
-                  //   result = transformZipOutput(resultType, new Uint8Array(temp3), mimeType);
+                  //   result=new Uint8Array(temp3)
+                  //   //result = transformZipOutput(resultType, new Uint8Array(temp3), mimeType);
                   //   // let temp = Utf8ArrayToStr(x)
                   //   console.log(result,'result')
                   // } else {
@@ -2786,7 +2811,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 // 在执行一遍 result
                 resolve(result);
               } catch (e) {
-                console.log(e,'e');
+                // console.log(e,'e');
                 reject(e);
               }
               dataArray = [];
@@ -3535,6 +3560,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         exports.checkSupport(outputType);
         var inputType = exports.getTypeOf(input);
         var result = transform[inputType][outputType](input);
+        //console.log(result,'result')
         return result;
       };
 
@@ -4310,6 +4336,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               outputType = "string";
             }
             result = this._decompressWorker();
+            
             var isUnicodeString = !this._dataBinary;
 
             if (isUnicodeString && !askUnicodeString) {
@@ -4333,7 +4360,6 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          * @return Promise the promise of the result.
          */
         async: function (type, onUpdate) {
-          
           return this.internalStream(type).accumulate(onUpdate);
         },
         /**
