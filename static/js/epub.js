@@ -10553,7 +10553,6 @@ var Book = function () {
 
 			this.spine.hooks.serialize.register(function (output, section) {
 				section.output = _this9.resources.substitute(output, section.url);
-				console.log(output,'output')
 			});
 
 			return this.resources.replacements().then(function () {
@@ -15955,6 +15954,7 @@ var Archive = function () {
 	}, {
 		key: "openUrl",
 		value: function openUrl(zipUrl, isBase64) {
+			console.log(zipUrl);
 			return (0, _request2.default)(zipUrl, "binary").then(function (data) {
 				return this.zip.loadAsync(data, { "base64": isBase64 });
 			}.bind(this));
@@ -16038,6 +16038,7 @@ var Archive = function () {
 	}, {
 		key: "getBlob",
 		value: function getBlob(url, mimeType) {
+			// console.log(url);
 			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
 			var entry = this.zip.file(decodededUrl);
 
@@ -16060,12 +16061,62 @@ var Archive = function () {
 		key: "getText",
 		value: function getText(url, encoding) {
 			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+			// console.log(decodededUrl,'333333333');
 			var entry = this.zip.file(decodededUrl);
-
 			if (entry) {
-				return entry.async("string").then(function (text) {
-					return text;
-				});
+				// 提出加密的前5~6位二进制并赋值
+				const ifEncry = {
+					normalxml:[60,63,120,109,103],
+					normalXML:[60,63,88,77,76],
+					normalhtml:[60,63,104,116,109,108],
+					normalHTML:[60,63,72,84,77,76]
+				}
+				// 解构
+				var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
+				// 常用对象
+				var _epubBookInfo,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
+				// 获取devicekey,decryptObj
+				_epubBookInfo = JSON.parse(localStorage.epubBookInfo)
+				console.log(_epubBookInfo,'_epubBookInfo========');
+				if (decodededUrl == 'OPS/chapter14.xhtml'){
+					return entry.async("uint8Array").then(function (u8) {
+						try{
+							// 获得前6位
+							_ifAesObj = Array.from(u8.slice(0,6))
+							// 获取授权的decryptStr
+							_decryptStr = _epubBookInfo.decryptStr
+							console.log(_decryptStr,'_decryptStr')
+							// 获得devicekey
+							_devicekey =  _epubBookInfo.devicekey
+							console.log(_devicekey,'_devicekey')
+							// 对divicekey进行处理
+							_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+							// 解密完成以后的key
+							_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+							// 解密的key转成字符串
+							_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+							console.log(_decryptAfterKeyToStr,'解出来的key')
+							// 判断u8是否加密
+							if (_ifAesObj !== normalxml || _ifAesObj !== normalXML || _ifAesObj !== normalhtml || _ifAesObj !== normalHTML) {
+								word = window.btoa(String.fromCharCode.apply(null, u8))
+								// 将key转成wordarray
+								key = CryptoJS.enc.Utf8.parse('^4fSY0aUwPl8%Buv')
+								// 正文解密
+								_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+								// wordArray 转字符串
+								text = CryptoJS.enc.Utf8.stringify(_decrypt).toString();
+							}
+							// console.log(text,'normalxml')
+							return text;
+						} catch(e) {
+							alert(e.message);
+						}
+					});
+				}else{
+					return entry.async("string").then(function (text) {
+						return text;
+					});
+				}
 			}
 		}
 
@@ -16830,3 +16881,13 @@ module.exports = function(module) {
 /******/ ]);
 });
 //# sourceMappingURL=epub.js.map
+
+function stringToUint8Array(str){
+  var arr = [];
+  for (var i = 0, j = str.length; i < j; ++i) {
+    arr.push(str.charCodeAt(i));
+  }
+ 
+  var tmpUint8Array = new Uint8Array(arr);
+  return tmpUint8Array
+}
