@@ -112,7 +112,6 @@ export default {
           })
         },
         success: function(data) {
-          console.log(data.Data)
           try {
             Indicator.close();
             // 储存解密相关信息
@@ -146,7 +145,7 @@ export default {
           _decryptu8,
           _beforeChangeHtml;
 
-      _epubUrl = localStorage.resourceUrl
+      _epubUrl = "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
             // localStorage.resourceUrl
             // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
             // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"

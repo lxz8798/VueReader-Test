@@ -5445,7 +5445,6 @@ var DefaultViewManager = function () {
 	}, {
 		key: "display",
 		value: function display(section, target) {
-
 			var displaying = new _core.defer();
 			var displayed = displaying.promise;
 
@@ -16060,65 +16059,113 @@ var Archive = function () {
 	}, {
 		key: "getText",
 		value: function getText(url, encoding) {
+			var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
 			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			console.log(decodededUrl,'11111111111111111111111')
-			console.log(url,'2222222222222222222222');
+			// console.log(decodededUrl,'11111111111111111111111')
+			// console.log(url,'2222222222222222222222');
 			var entry = this.zip.file(decodededUrl);
 			if (entry) {
-				// 提出加密的前5~6位二进制并赋值
-				const ifEncry = {
-					normalxml:[60,63,120,109,103],
-					normalXML:[60,63,88,77,76],
-					normalhtml:[60,63,104,116,109,108],
-					normalHTML:[60,63,72,84,77,76]
-				}
-				// 解构
-				var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
-				// 常用对象
-				var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
-				// 获取devicekey,decryptObj
-				_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-				_epubSpine = JSON.parse(localStorage.epubCanonical)
-				// console.log(_epubSpine,'XXXXXXXXXXXXXXXXXXXXXXXXX')
-				if (decodededUrl == 'OPS/coverpage.xhtml'){
-					return entry.async("uint8Array").then(function (u8) {
-						try{
-							// 获得前6位
-							_ifAesObj = Array.from(u8.slice(0,6))
-							// 获取授权的decryptStr
-							_decryptStr = _epubBookInfo.decryptStr
-							// console.log(_decryptStr,'_decryptStr')
-							// 获得devicekey
-							_devicekey =  _epubBookInfo.devicekey
-							// console.log(_devicekey,'_devicekey')
-							// 对divicekey进行处理
-							_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
-							// 解密完成以后的key
-							_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-							// 解密的key转成字符串
-							_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
-							// console.log(_decryptAfterKeyToStr,'解出来的key')
-							// 判断u8是否加密
-							if (_ifAesObj !== normalxml || _ifAesObj !== normalXML || _ifAesObj !== normalhtml || _ifAesObj !== normalHTML) {
-								word = window.btoa(String.fromCharCode.apply(null, u8))
-								// 将key转成wordarray
-								key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
-								// 正文解密
-								_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-								// wordArray 转字符串
-								text = CryptoJS.enc.Utf8.stringify(_decrypt).toString();
-							}
-							// console.log(text,'normalxml')
-							return text;
-						} catch(e) {
-							console.log(e.message);
-						}
-					});
-				}else{
-					return entry.async("string").then(function (text) {
+				// entry 就是zipobject 对象
+				return entry.async("uint8array").then(function (text) {
+					// console.log(text,'texttexttexttext')
+					// 获得当前文件的u8前6位
+					_ifAesObj = Array.from(text.slice(0,6))
+					// console.log(_ifAesObj,'_ifAesObj')
+					// 未加密的u8前6位
+					const ifEncry = {
+						normalxml:[60,63,120,109,103],
+						normalXML:[60,63,88,77,76],
+						normalhtml:[60,63,104,116,109,108],
+						normalHTML:[60,63,72,84,77,76]
+					}
+					// 解构
+					var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
+					// 判断当前是否加密
+					if (_ifAesObj === normalxml || _ifAesObj === normalXML || _ifAesObj === normalhtml || _ifAesObj === normalHTML) {
+						// 获取devicekey,decryptObj
+						_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+						// 获取spine
+						// _epubSpine = JSON.parse(localStorage.epubCanonical)
+						// console.log(_epubBookInfo,'_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine')
+						// 获取授权的decryptStr
+						_decryptStr = _epubBookInfo.decryptStr
+						// console.log(_decryptStr,'_decryptStr')
+						// 获得devicekey
+						_devicekey =  _epubBookInfo.devicekey
+						// console.log(_devicekey,'_devicekey')
+						// 对divicekey进行处理
+						_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+						// 解密完成以后的key
+						_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+						// 解密的key转成字符串
+						_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+						// console.log(_decryptAfterKeyToStr,'解出来的key')
+						word = window.btoa(String.fromCharCode.apply(null, u8))
+						// 将key转成wordarray
+						key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+						// 正文解密
+						_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+						// wordArray 转字符串
+						text = CryptoJS.enc.Utf8.stringify(_decrypt).toString();
+					} else {
 						return text;
-					});
-				}
+					}
+				});
+				// console.log(entry,'333333333333333333333333')
+				// // 提出加密的前5~6位二进制并赋值
+				// const ifEncry = {
+				// 	normalxml:[60,63,120,109,103],
+				// 	normalXML:[60,63,88,77,76],
+				// 	normalhtml:[60,63,104,116,109,108],
+				// 	normalHTML:[60,63,72,84,77,76]
+				// }
+				// // 解构
+				// var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
+				// // 常用对象
+				// var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
+				// // 获取devicekey,decryptObj
+				// _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+				// _epubSpine = JSON.parse(localStorage.epubCanonical)
+				// // console.log(_epubSpine,'XXXXXXXXXXXXXXXXXXXXXXXXX')
+				// if (url == '/OPS/coverpage.xhtml'){
+				// 	return entry.async("uint8Array").then(function (u8) {
+				// 		try{
+				// 			// 获得前6位
+				// 			_ifAesObj = Array.from(u8.slice(0,6))
+				// 			// 获取授权的decryptStr
+				// 			_decryptStr = _epubBookInfo.decryptStr
+				// 			// console.log(_decryptStr,'_decryptStr')
+				// 			// 获得devicekey
+				// 			_devicekey =  _epubBookInfo.devicekey
+				// 			// console.log(_devicekey,'_devicekey')
+				// 			// 对divicekey进行处理
+				// 			_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+				// 			// 解密完成以后的key
+				// 			_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+				// 			// 解密的key转成字符串
+				// 			_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+				// 			// console.log(_decryptAfterKeyToStr,'解出来的key')
+				// 			// 判断u8是否加密
+				// 			if (_ifAesObj !== normalxml || _ifAesObj !== normalXML || _ifAesObj !== normalhtml || _ifAesObj !== normalHTML) {
+				// 				word = window.btoa(String.fromCharCode.apply(null, u8))
+				// 				// 将key转成wordarray
+				// 				key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+				// 				// 正文解密
+				// 				_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+				// 				// wordArray 转字符串
+				// 				text = CryptoJS.enc.Utf8.stringify(_decrypt).toString();
+				// 			}
+				// 			// console.log(text,'normalxml')
+				// 			return text;
+				// 		} catch(e) {
+				// 			console.log(e.message);
+				// 		}
+				// 	});
+				// }else{
+				// 	return entry.async("string").then(function (text) {
+				// 		return text;
+				// 	});
+				// }
 			}
 		}
 
