@@ -16061,13 +16061,9 @@ var Archive = function () {
 		key: "getText",
 		value: function getText(url, encoding) {
 			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			console.log(url,'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
-			// console.log(decodededUrl,'333333333');
+			console.log(decodededUrl,'11111111111111111111111')
+			console.log(url,'2222222222222222222222');
 			var entry = this.zip.file(decodededUrl);
-			// console.log(entry,'XXXXXXXXXXXXXXXXXXXXX')
-			// return entry.async("string").then(function (text) {
-			// 	return text;
-			// });
 			if (entry) {
 				// 提出加密的前5~6位二进制并赋值
 				const ifEncry = {
@@ -16082,8 +16078,8 @@ var Archive = function () {
 				var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
 				// 获取devicekey,decryptObj
 				_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-				// console.log(_epubBookInfo,'_epubBookInfo========');
-				// console.log(decodededUrl.length,'LLLLLLLLLLLLLLLLLLLLLLLLL')
+				_epubSpine = JSON.parse(localStorage.epubCanonical)
+				// console.log(_epubSpine,'XXXXXXXXXXXXXXXXXXXXXXXXX')
 				if (decodededUrl == 'OPS/coverpage.xhtml'){
 					return entry.async("uint8Array").then(function (u8) {
 						try{
@@ -16091,17 +16087,17 @@ var Archive = function () {
 							_ifAesObj = Array.from(u8.slice(0,6))
 							// 获取授权的decryptStr
 							_decryptStr = _epubBookInfo.decryptStr
-							console.log(_decryptStr,'_decryptStr')
+							// console.log(_decryptStr,'_decryptStr')
 							// 获得devicekey
 							_devicekey =  _epubBookInfo.devicekey
-							console.log(_devicekey,'_devicekey')
+							// console.log(_devicekey,'_devicekey')
 							// 对divicekey进行处理
 							_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
 							// 解密完成以后的key
 							_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 							// 解密的key转成字符串
 							_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
-							console.log(_decryptAfterKeyToStr,'解出来的key')
+							// console.log(_decryptAfterKeyToStr,'解出来的key')
 							// 判断u8是否加密
 							if (_ifAesObj !== normalxml || _ifAesObj !== normalXML || _ifAesObj !== normalhtml || _ifAesObj !== normalHTML) {
 								word = window.btoa(String.fromCharCode.apply(null, u8))
@@ -16115,7 +16111,7 @@ var Archive = function () {
 							// console.log(text,'normalxml')
 							return text;
 						} catch(e) {
-							alert(e.message);
+							console.log(e.message);
 						}
 					});
 				}else{

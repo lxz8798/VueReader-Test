@@ -55,13 +55,17 @@ export default {
   },
   created() {
     this.getBookUpdate();
-    this.ePubStream();
-    // this.epubLoad()
+    this.getEpub()
+    this.startReader()
   },
   mounted() {
     // this.clickHidden();
   },
   methods: {
+    /**
+     * 添加目录显示隐藏事件
+     * 李啸竹
+     */
     ifClickHidden() {
       let _that, _ul, _header, _ePubPrev, _ePubNext;
 
@@ -83,11 +87,12 @@ export default {
         _header.style.transition = "all .3s ease-in";
       }
     },
-    ePubStream() {
-      // this.$http.get('http://124.204.40.3:50696/content/authorize')
-      // this.$http.get('http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub')
-      // url ="http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
-      
+    /**
+     * 载入 epub
+     * 李啸竹
+     */
+    getEpub () {
+      // 发请求拿授权及 epub 地址
       $.ajax({
         type: "post",
         url: "http://124.204.40.3:50696/content/authorize",
@@ -107,150 +112,118 @@ export default {
           })
         },
         success: function(data) {
-          let $el,
-            $iframe,
-            zip,
-            _isAes,
-            _epubUrl,
-            _book,
-            _displayed,
-            _ePubKey,
-            _decryptObj,
-            _devicekey,
-            _getSpine,
-            _getEpubFolder,
-            _getEpubFiles,
-            _encryptu8,
-            _decryptu8,
-            _beforeChangeHtml;
-            
-          Indicator.close();
-          // 临时关闭加载动画
-          $el = document.getElementById("ePubArea");
-          // 从返回结果里得到epub地址
-          // _epubUrl = data.Data.Url;
-          // 测试Epub地址
-          _epubUrl =
+          console.log(data.Data)
+          try {
+            Indicator.close();
+            // 储存解密相关信息
+            if (!sessionStorage.epubBookInfo) {
+              sessionStorage.epubBookInfo = JSON.stringify({
+                devicekey: "tb)DPkFKpWJ5H7uL",
+                decryptStr: data.Data.Key
+              })
+            }
+            localStorage.resourceUrl = data.Data.Url
+          } catch (e) {
+            console.log(e.message)
+          }
+        }
+      })
+    },
+    startReader () {
+      let zip,
+          _that,
+          _isAes,
+          _epubUrl,
+          _book,
+          _displayed,
+          _ePubKey,
+          _decryptObj,
+          _devicekey,
+          _getSpine,
+          _getEpubFolder,
+          _getEpubFiles,
+          _encryptu8,
+          _decryptu8,
+          _beforeChangeHtml;
+
+      _epubUrl = localStorage.resourceUrl
+            // localStorage.resourceUrl
             // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
             // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
-            "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
+            // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
-          
-          // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
-          _book = new ePub(_epubUrl,{ replacements: "string" });
-          // 拿到加密的key字符串
-          // _ePubKey = data.Data.Key;
-          // _devicekey
-          _devicekey = "tb)DPkFKpWJ5H7uL";
-          // 真实解密得到的key
-          // _decryptObj = aes.decrypt(_ePubKey,_devicekey)
-          // 模拟密钥
-          _decryptObj = "^4fSY0aUwPl8%Buv";
-          // console.log(_decryptObj1,_decryptObj2,'解密key得到的结果')
 
-          _book.ready.then(content => {
-            
-            let {_epubCanonical,_epuCfiBase,_epubHref,_epubUrl} = []
-            // 拿到spine下的所有xhtml
-            _getSpine = _book.spine.items
-            sessionStorage.spine = JSON.stringify(_getSpine)
-            // console.log(_getSpine,'_getSpine_getSpine_getSpine_getSpine_getSpine')
-            // console.log(_book.spine,'_book.spine_book.spine_book.spine_book.spine')
-            console.log(_getSpine,'拿到的spine')
-            
-            // for (let i in _getSpine) {
-            //   console.log(_getSpine[i].canonical,'********************')
-            //   _epubCanonical = _getSpine[i].canonical
-            //   sessionStorage.epubCanonical = _epubCanonical
-            //   console.log(_epubCanonical.length,'++++++++++++++++++++++++++')
-            // }
-          });
-
-          if (!localStorage.epubBookInfo) {
-            sessionStorage.epubBookInfo = JSON.stringify({
-              devicekey: "tb)DPkFKpWJ5H7uL",
-              decryptStr: data.Data.Key,
-              Url:data.Data.Url
-            })
-          }
-
-          // ul 侧边栏
-          _book.loaded.navigation.then(getToc => {
-
-            let _ul, _url, _docfrag, _item, _link;
-
-            _ul = document.getElementById("toc");
-            _docfrag = document.createDocumentFragment();
-
-            // console.log(getToc.parse(),'getToc.get()')
-            getToc.toc.forEach((chapter, index) => {
-              //新建li标签
-              (_item = document.createElement("li")),
-                //新建a标签
-                (_link = document.createElement("a"));
-              //给a标签添加id名
-              _link.id = "chap-" + chapter.id;
-              //给a标签添加label
-              _link.textContent = chapter.label;
-              //把chapter的链接赋值给a标签
-              _link.href = chapter.href;
-              //添加到li里
-              _item.appendChild(_link);
-              _docfrag.appendChild(_item);
-              _link.onclick = function() {
-                let _url = _link.getAttribute("href");
-                this.rendition.display(_url);
-                return false;
-              };
-            });
-            _ul.appendChild(_docfrag);
-          });
-
-          this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
-          this.rendition.display()
-
-          // console.log(this.rendition, "this.rendition final");
+      _book = new ePub(_epubUrl)
+      
+      // 阅读时的处理
+      _book.ready.then(content => {
+        // 解析空数组 
+        let _epubCanonical = []
+        // 拿到spine下的所有xhtml
+        _getSpine = _book.spine.items
+        // console.log(_getSpine,'_getSpine')
+        for (let i = 0; i < _getSpine.length; i++) {
+          _epubCanonical.push(_getSpine[i].canonical)
         }
+        localStorage.epubCanonical = JSON.stringify(_epubCanonical)
+      })
+
+      // 加载时的处理，添加目录
+      _book.loaded.navigation.then(getToc => {
+
+        let _touchWrap,_touchL,_touchC,_touchR,_ul, _url, _docfrag, _item, _link;
+
+        _ul = document.getElementById("toc");
+        _docfrag = document.createDocumentFragment();
+
+        // 创建目录
+        getToc.toc.forEach((chapter, index) => {
+          //新建li标签
+          (_item = document.createElement("li")),
+            //新建a标签
+            (_link = document.createElement("a"));
+          //给a标签添加id名
+          _link.id = "chap-" + chapter.id;
+          //给a标签添加label
+          _link.textContent = chapter.label;
+          //把chapter的链接赋值给a标签
+          _link.href = chapter.href;
+          //添加到li里
+          _item.appendChild(_link);
+          _docfrag.appendChild(_item);
+          _link.onclick = function() {
+            let _url = _link.getAttribute("href");
+            this.rendition.display(_url);
+            return false;
+          };
+        });
+        _ul.appendChild(_docfrag);
       });
-    },
-    /**
-     * 载入 epub
-     */
-    epubLoad() {
-      // book.spine.hooks.serialize // Section is being converted to text
-      // book.spine.hooks.content // Section has been loaded and parsed
-      // rendition.hooks.render // Section is rendered to the screen
-      // rendition.hooks.content // Section contents have been loaded
-      // rendition.hooks.unloaded // Section contents are being unloaded
-      // _Store.state.ePubBook.ready.then(books => {
-      //   let meta = _Store.state.ePubBook.package.metadata; // Metadata from the package json
-      //   let toc = _Store.state.ePubBook.navigation.toc; // Table of Contents
-      //   let landmarks = _Store.state.ePubBook.navigation.landmarks; // landmarks
-      //   let spine = _Store.state.ePubBook.spine; // landmarks
-      //   let cover = _Store.state.ePubBook.cover; // landmarks
-      //   let resources = _Store.state.ePubBook.resources; // landmarks
-      //   let pageList = _Store.state.ePubBook.pageList; // page list (if present)
-      //   _Store.state.ePubBook.loaded.manifest.then((manifest) => { console.log(manifest) });
-      //   _Store.state.ePubBook.loaded.spine.then((spine) => { console.log(spine) });
-      //   _Store.state.ePubBook.loaded.metadata.then((metadata) => { console.log(metadata) });
-      //   _Store.state.ePubBook.loaded.cover.then((cover) => { console.log(cover) });
-      //   _Store.state.ePubBook.loaded.navigation.then((navigation) => { console.log(navigation) });
-      //   _Store.state.ePubBook.loaded.resources.then((resources) => { console.log(resources) });
-      // })
+      
+      this.rendition = _book.renderTo('ePubArea', { width: "100vw" });
+      this.rendition.display()
     },
     /**
      * 下一页
      * @author 李啸竹
      */
     ePubNext() {
-      this.rendition.next();
+      try {
+        this.rendition.next();
+      } catch (e) {
+        console.log(e.message)
+      }
     },
     /**
      * 上一页
      * @author 李啸竹
      */
     ePubPrev() {
-      this.rendition.prev();
+      try {
+        this.rendition.prev();
+      } catch (e) {
+        console.log(e.message)
+      }
     },
     /**
      * 返回追更新的书本id
