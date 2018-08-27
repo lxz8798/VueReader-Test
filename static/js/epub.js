@@ -16061,8 +16061,13 @@ var Archive = function () {
 		key: "getText",
 		value: function getText(url, encoding) {
 			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+			console.log(url,'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
 			// console.log(decodededUrl,'333333333');
 			var entry = this.zip.file(decodededUrl);
+			// console.log(entry,'XXXXXXXXXXXXXXXXXXXXX')
+			// return entry.async("string").then(function (text) {
+			// 	return text;
+			// });
 			if (entry) {
 				// 提出加密的前5~6位二进制并赋值
 				const ifEncry = {
@@ -16074,11 +16079,12 @@ var Archive = function () {
 				// 解构
 				var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
 				// 常用对象
-				var _epubBookInfo,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
+				var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
 				// 获取devicekey,decryptObj
-				_epubBookInfo = JSON.parse(localStorage.epubBookInfo)
-				console.log(_epubBookInfo,'_epubBookInfo========');
-				if (decodededUrl == 'OPS/chapter14.xhtml'){
+				_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+				// console.log(_epubBookInfo,'_epubBookInfo========');
+				// console.log(decodededUrl.length,'LLLLLLLLLLLLLLLLLLLLLLLLL')
+				if (decodededUrl == 'OPS/coverpage.xhtml'){
 					return entry.async("uint8Array").then(function (u8) {
 						try{
 							// 获得前6位
@@ -16100,7 +16106,7 @@ var Archive = function () {
 							if (_ifAesObj !== normalxml || _ifAesObj !== normalXML || _ifAesObj !== normalhtml || _ifAesObj !== normalHTML) {
 								word = window.btoa(String.fromCharCode.apply(null, u8))
 								// 将key转成wordarray
-								key = CryptoJS.enc.Utf8.parse('^4fSY0aUwPl8%Buv')
+								key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
 								// 正文解密
 								_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 								// wordArray 转字符串

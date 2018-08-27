@@ -9,12 +9,12 @@
     <div id="ePubArea"></div>
     
     
-    <!-- <div id="toc-wrap">
+    <div id="toc-wrap">
       <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-epub-sort"></use>
       </svg>
       <ul id="toc"></ul>      
-    </div> -->
+    </div>
 
 	</div>
 </template>
@@ -93,7 +93,7 @@ export default {
         url: "http://124.204.40.3:50696/content/authorize",
         data: {
           authorzieParameters: JSON.stringify({
-            contentexternalid: "29552-Epub",
+            contentexternalid: "29612-Epub",
             device: {
               devicekey: "tb)DPkFKpWJ5H7uL",
               DeviceType: 4,
@@ -122,10 +122,8 @@ export default {
             _getEpubFiles,
             _encryptu8,
             _decryptu8,
-            _beforeChangeHtml,
-            epubCanonical,epuCfiBase,epubHref,epubUrl;
-          
-          
+            _beforeChangeHtml;
+            
           Indicator.close();
           // 临时关闭加载动画
           $el = document.getElementById("ePubArea");
@@ -133,8 +131,9 @@ export default {
           // _epubUrl = data.Data.Url;
           // 测试Epub地址
           _epubUrl =
-            "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub";
-            // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
+            // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
+            // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
+            "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
             // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
           
           // 声明一个新的epub对象，并使用base64/blob来替换静态资源选项
@@ -150,22 +149,25 @@ export default {
           // console.log(_decryptObj1,_decryptObj2,'解密key得到的结果')
 
           _book.ready.then(content => {
+            
+            let {_epubCanonical,_epuCfiBase,_epubHref,_epubUrl} = []
             // 拿到spine下的所有xhtml
             _getSpine = _book.spine.items
-
-            // 遍历赋值
-            for (let i in _getSpine) {
-              epubCanonical = _getSpine[i].canonical
-              epuCfiBase = _getSpine[i].cfiBase
-              epubHref = _getSpine[i].href
-              epubUrl = _getSpine[i].url
-              // _book.archive.zip.folder("OPS").file(epubHref).async("uint8array")
-            }
+            sessionStorage.spine = JSON.stringify(_getSpine)
+            // console.log(_getSpine,'_getSpine_getSpine_getSpine_getSpine_getSpine')
+            // console.log(_book.spine,'_book.spine_book.spine_book.spine_book.spine')
+            console.log(_getSpine,'拿到的spine')
             
+            // for (let i in _getSpine) {
+            //   console.log(_getSpine[i].canonical,'********************')
+            //   _epubCanonical = _getSpine[i].canonical
+            //   sessionStorage.epubCanonical = _epubCanonical
+            //   console.log(_epubCanonical.length,'++++++++++++++++++++++++++')
+            // }
           });
 
           if (!localStorage.epubBookInfo) {
-            localStorage.epubBookInfo = JSON.stringify({
+            sessionStorage.epubBookInfo = JSON.stringify({
               devicekey: "tb)DPkFKpWJ5H7uL",
               decryptStr: data.Data.Key,
               Url:data.Data.Url
