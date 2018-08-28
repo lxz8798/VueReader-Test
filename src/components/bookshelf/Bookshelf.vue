@@ -9,12 +9,12 @@
     <div id="ePubArea"></div>
     
     
-    <div id="toc-wrap">
+    <!-- <div id="toc-wrap">
       <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-epub-sort"></use>
       </svg>
       <ul id="toc"></ul>      
-    </div>
+    </div> -->
 
 	</div>
 </template>
@@ -145,7 +145,7 @@ export default {
           _decryptu8,
           _beforeChangeHtml;
 
-      _epubUrl = "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
+      _epubUrl = localStorage.resourceUrl
             // localStorage.resourceUrl
             // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
             // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"

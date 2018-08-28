@@ -16059,7 +16059,7 @@ var Archive = function () {
 	}, {
 		key: "getText",
 		value: function getText(url, encoding) {
-			var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
+			var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_ifAesObj2,word,key
 			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
 			// console.log(decodededUrl,'11111111111111111111111')
 			// console.log(url,'2222222222222222222222');
@@ -16075,47 +16075,67 @@ var Archive = function () {
 						// console.log(u8,'texttexttexttext')
 						// 获得当前文件的u8前6位
 						_ifAesObj = Array.from(u8.slice(0,6))
-						// console.log(_ifAesObj,'获取前6位')
+						_ifAesObj2 = _ifAesObj.indexOf(60)
+						// console.log(u8,'XXXXXXXXXXXXXXXXXXXXX')
+						console.log(_ifAesObj2,'获取前6位')
 						// 未加密的u8前6位
 						const ifEncry = {
+							OtherFile:'main.css',
+							OtherFormat:[239,187,191,60,63,120],
 							normalxml:[60,63,120,109,108,32],
 							normalXML:[60,63,88,77,76,32],
 							normalhtml:[60,63,104,116,109,108],
 							normalHTML:[60,63,72,84,77,76]
 						}
 						// 解构
-						var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
+						var {OtherFile,OtherFormat,normalxml,normalXML,normalhtml,normalHTML} = ifEncry
+						// 判断是否CSS或者其他文件
+						let isCSS = function () {
+							return url === OtherFile ?  true : false
+							// for (let i = 3; i < 6; i++) {
+							// 	return _ifAesObj[i] == OtherFormat[i] || _ifAesObj2 >= 3 ? true : false
+							// }
+						}
+						// 判断是否其他类型头
+						let isOther = function () {			
+							for (let i = 3; i < 6; i++) {
+								return _ifAesObj[i] == OtherFormat[i] || _ifAesObj2 >= 3 ? true : false
+							}
+						}
 						// 判断数组是否相等
 						let xmlEqual = function () {						
 							for (let i = 0; i < 6; i++) {
-								return _ifAesObj[i] == normalxml[i] ? true :false
+								return _ifAesObj[i] == normalxml[i] || _ifAesObj2 >= 3 ? true : false
 							}
 						}
 						let XMLEqual = function () {						
 							for (let i = 0; i < 6; i++) {
-								return _ifAesObj[i] == normalXML[i] ? true :false
+								return _ifAesObj[i] == normalXML[i] || _ifAesObj2 >= 3 ? true : false
 							}
 						}
 						let htmlEqual = function () {						
 							for (let i = 0; i < 6; i++) {
-								return _ifAesObj[i] == normalhtml[i] ? true :false
+								return _ifAesObj[i] == normalhtml[i] || _ifAesObj2 >= 3 ? true : false
 							}
 						}
 						let HTMLEqual = function () {						
 							for (let i = 0; i < 6; i++) {
-								return _ifAesObj[i] == normalHTML[i] ? true :false
+								return _ifAesObj[i] == normalHTML[i] || _ifAesObj2 >= 3 ? true : false
 							}
 						}
-						// console.log(xmlEqual() && XMLEqual() && htmlEqual() && HTMLEqual(),'xmlEqual() && XMLEqual() && htmlEqual() && HTMLEqual()')
+						
+						console.log(isOther(), xmlEqual(), XMLEqual(), htmlEqual(),HTMLEqual(),'是否其他类型')
 						// 判断当前是否加密
+						
 						if (xmlEqual() && XMLEqual() && htmlEqual() && HTMLEqual()) {
 							// console.log('如果当前文件不是加密的走这里')
 							return entry.async("string").then(function (text) {
-								// console.log(text)
+								console.log(text)
 								return text;
 							})
 						} else {
-							// console.log(decodededUrl,'如果当前文件被加密了走这里')						
+							console.log('文件路径是',url)
+							console.log('文件内容是',decodededUrl,'如果当前文件被加密了走这里')						
 							// 获取devicekey,decryptObj
 							_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
 							// 获取spine
@@ -16123,28 +16143,28 @@ var Archive = function () {
 							// console.log(_epubBookInfo,'_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine')
 							// 获取授权的decryptStr
 							_decryptStr = _epubBookInfo.decryptStr
-							// console.log(_decryptStr,'_decryptStr')
+							console.log(_decryptStr,'_decryptStr')
 							// 获得devicekey
 							_devicekey =  _epubBookInfo.devicekey
-							// console.log(_devicekey,'_devicekey')
+							console.log(_devicekey,'_devicekey')
 							// 对divicekey进行处理
 							_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
 							// 解密完成以后的key
 							_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 							// 解密的key转成字符串
 							_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
-							// console.log(_decryptAfterKeyToStr,'解出来的key')
+							console.log(_decryptAfterKeyToStr,'解出来的key')
 							// 使用 windows方法加密成base64
 							word = window.btoa(String.fromCharCode.apply(null, u8))
 							// word = u8.toString(CryptoJS.enc.Base64)
 							// console.log(word,'正文转成base64')
 							// 将key转成wordarray，测试用密钥（'^4fSY0aUwPl8%Buv'）
-							key = CryptoJS.enc.Utf8.parse('^4fSY0aUwPl8%Buv')
+							key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
 							// console.log(key,'key转成wordarray')
 							// 正文解密
 							_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 							// console.log(_decrypt,'解密后的wordArray')
-							// console.log(u8,'未解密前的u8')
+							console.log(u8,'未解密前的u8')
 							// 转成u8
 							let wordArrayToU8 = function () {
 								let _words = _decrypt.words;
@@ -16156,7 +16176,7 @@ var Archive = function () {
 								}
 								return _decryptU8;
 							}
-							// console.log(wordArrayToU8(),'解密成功以后的u8*****************')
+							console.log(wordArrayToU8(),'解密成功以后的u8*****************')
 
 							let Utf8ArrayToStr = function () {
 								var out, i, len, c;
@@ -16191,71 +16211,14 @@ var Archive = function () {
 								// console.log(out,'asdc')
 								return out;
 							  }
-							// console.log(wordArrayToU8(),'解密后且转成的u8')
-							// console.log(Utf8ArrayToStr(),'转成字符串')
+							console.log(wordArrayToU8(),'解密后且转成的u8')
+							console.log(Utf8ArrayToStr(),'转成字符串')
 							return Utf8ArrayToStr();
 						}
 					} catch (e) {
 						console.log(e.message)
 					}
 				})
-
-				// console.log(decodededUrl,'333333333333333333333333')
-				// // 提出加密的前5~6位二进制并赋值
-				// const ifEncry = {
-				// 	normalxml:[60,63,120,109,103],
-				// 	normalXML:[60,63,88,77,76],
-				// 	normalhtml:[60,63,104,116,109,108],
-				// 	normalHTML:[60,63,72,84,77,76]
-				// }
-				// // 解构
-				// var {normalxml,normalXML,normalhtml,normalHTML} = ifEncry
-				// // 常用对象
-				// var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_conut,_newData,_getU8,_toChar,word,key,text
-				// // 获取devicekey,decryptObj
-				// _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-				// _epubSpine = JSON.parse(localStorage.epubCanonical)
-				// // console.log(_epubSpine,'XXXXXXXXXXXXXXXXXXXXXXXXX')
-				// if (decodededUrl == 'OPS/chapter14.xhtml'){
-				// 	return entry.async("uint8Array").then(function (u8) {
-				// 		try{
-				// 			// 获得前6位
-				// 			_ifAesObj = Array.from(u8.slice(0,6))
-				// 			// 获取授权的decryptStr
-				// 			_decryptStr = _epubBookInfo.decryptStr
-				// 			// console.log(_decryptStr,'_decryptStr')
-				// 			// 获得devicekey
-				// 			_devicekey =  _epubBookInfo.devicekey
-				// 			// console.log(_devicekey,'_devicekey')
-				// 			// 对divicekey进行处理
-				// 			_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
-				// 			// 解密完成以后的key
-				// 			_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-				// 			// 解密的key转成字符串
-				// 			_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
-				// 			// console.log(_decryptAfterKeyToStr,'解出来的key')
-				// 			// 判断u8是否加密
-				// 			if (_ifAesObj !== normalxml || _ifAesObj !== normalXML || _ifAesObj !== normalhtml || _ifAesObj !== normalHTML) {
-				// 				word = window.btoa(String.fromCharCode.apply(null, u8))
-				// 				// 将key转成wordarray
-				// 				key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
-				// 				// 正文解密
-				// 				_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-				// 				// wordArray 转字符串
-				// 				text = CryptoJS.enc.Utf8.stringify(_decrypt).toString();
-				// 				console.log(text)
-				// 			}
-				// 			// console.log(text,'normalxml')
-				// 			return text;
-				// 		} catch(e) {
-				// 			console.log(e.message);
-				// 		}
-				// 	});
-				// }else{
-				// 	return entry.async("string").then(function (text) {
-				// 		return text;
-				// 	});
-				// }
 			} 
 		}
 
