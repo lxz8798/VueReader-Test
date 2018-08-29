@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<title>EPUB.js Basic Example</title>
 
-	<script src="../dist/epub.js"></script>
+	<script src="../../../js/epub.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="examples.css">
 
@@ -22,10 +22,9 @@
 		var book = ePub("https://s3.amazonaws.com/moby-dick/OPS/package.opf");
 		
 		var rendition = book.renderTo("viewer", { flow: "scrolled-doc", width: 600, height: 400});
-		var displayed = rendition.display(currentSectionIndex);
-
+		var displayed = rendition.display();
+		
 		book.loaded.navigation.then(function(toc){
-			console.log(toc,'toctoctoctoctoctoctoctoctoctoctoc')
 			var $select = document.getElementById("toc"),
 					docfrag = document.createDocumentFragment();
 
@@ -33,16 +32,17 @@
 				var option = document.createElement("option");
 				option.textContent = chapter.label;
 				option.ref = chapter.href;
-				console.log(option.ref)
+				// console.log(option.ref)
 				docfrag.appendChild(option);
 			});
 
 			$select.appendChild(docfrag);
-
+			
 			$select.onchange = function(){
+				// rendition.display().then(click => {console.log(click,'click')})
 					var index = $select.selectedIndex,
 							url = $select.options[index].ref;
-					console.log(index,'urlurlurlurlurlurlurlurlurlurlurlurl')
+					console.log(url,'url')
 					rendition.display(url);
 					return false;
 			};

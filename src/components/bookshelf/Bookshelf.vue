@@ -15,7 +15,14 @@
     <div id="ePubArea"></div>
     
     <div id="toc-wrap">
-      <ul id="toc"></ul>      
+      <ul id="toc">
+        <li v-for="item in tocList" :title="item.href" :id="'chap-'+item.id">
+          <span @click="gotoDisplay(item.href)">{{item.label}}</span>
+          <ul v-for="sub in item.subitems">
+            <li @click="gotoDisplay(sub.href)">{{sub.label}}</li>
+          </ul>
+        </li>
+      </ul>      
     </div>
 
 	</div>
@@ -40,9 +47,10 @@ export default {
   data() {
     return {
       books: [],
-      book:{},
+      book: {},
       rendition: {},
-      currentSectionIndex:0,
+      tocList:[],
+      currentSectionIndex: 0,
       ifHiddenFlag: true,
       displayed: "",
       decryptAfterToU8: [],
@@ -59,14 +67,17 @@ export default {
   },
   created() {
     this.getEpub();
-    this.openEpub();
-    this.readyReader();
+    // this.openEpub();
+    // this.readyReader();
     this.getBookUpdate();
   },
   mounted() {
+    this.openEpub();
+    this.readyReader();
     // this.clickHidden();
   },
   methods: {
+    
     /**
      * 添加目录显示隐藏事件
      * 李啸竹
@@ -98,10 +109,10 @@ export default {
         Url: "http://124.205.220.186:8001/content/authorize",
         data: {
           authorzieParameters: {
-            contentexternalid: "P00003-01-978-7-115-31060-6-Epub",
-            organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
+            contentexternalid: "P00003-01-32568-Epub",
+            organizationExternalId: null,
             device: {
-              devicekey: 'i0TPLKk";saUBVG7',
+              devicekey: "Q)JY%4aH0%EwZ.GO",
               DeviceType: 4,
               Title: "电脑试读"
             },
@@ -115,10 +126,7 @@ export default {
       let parseUrl = routeParams.split("?")[1];
       let QsParseUrl = Qs.parse(parseUrl);
       console.log(Qs.stringify(params, { indices: false }), "模拟提交");
-      console.log(
-        QsParseUrl.data.authorzieParameters.device.devicekey,
-        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-      );
+      
       // console.log('QsParseUrl.data')
       $.ajax({
         type: "post",
@@ -130,29 +138,31 @@ export default {
         },
         success: function(data) {
           try {
-            if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
-              sessionStorage.resourceUrl = data.Data.Url;
-              sessionStorage.epubBookInfo = JSON.stringify({
-                devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
-                decryptStr: data.Data.Key
-              });
-            } else {
-              sessionStorage.removeItem("resourceUrl");
-              sessionStorage.removeItem("epubBookInfo");
-              sessionStorage.resourceUrl = data.Data.Url;
-              sessionStorage.epubBookInfo = JSON.stringify({
-                devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
-                decryptStr: data.Data.Key
-              });
+            if (data) {
+              if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
+                sessionStorage.resourceUrl = data.Data.Url;
+                sessionStorage.epubBookInfo = JSON.stringify({
+                  devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
+                  decryptStr: data.Data.Key
+                });
+              } else {
+                sessionStorage.removeItem("resourceUrl");
+                sessionStorage.removeItem("epubBookInfo");
+                sessionStorage.resourceUrl = data.Data.Url;
+                sessionStorage.epubBookInfo = JSON.stringify({
+                  devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
+                  decryptStr: data.Data.Key
+                });
+              }
+              Indicator.close();
             }
-            Indicator.close();
           } catch (e) {
             console.log(e.message);
           }
         }
       });
     },
-    openEpub () {
+    openEpub() {
       // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
       // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
       // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
@@ -162,131 +172,52 @@ export default {
 
       this.book = new ePub(_epubUrl);
 
-      this.rendition = this.book.renderTo("ePubArea", { width: "100vw" });
-      this.rendition.display(this.currentSectionIndex);
+      this.rendition = this.book.renderTo("ePubArea", {flow: "scrolled-doc", width: "100vw" });
+      
+      this.rendition.display();
     },
     readyReader() {
-      
-      let zip,
-        _that,
-        _isAes,
-        _epubUrl,
-        _book,
-        _displayed,
-        _ePubKey,
-        _decryptObj,
-        _devicekey,
-        _getSpine,
-        _getEpubFolder,
-        _getEpubFiles,
-        _encryptu8,
-        _decryptu8,
-        _beforeChangeHtml;
+      let _getSpine
 
       // 阅读时的处理
       this.book.ready.then(content => {
-        
-        let _touchWrap,
-          _touchL,
-          _touchC,
-          _touchR,
-          _ul,
-          _url,
-          _docfrag,
-          _item,
-          _link,
-          _subUl;
-       
+
         try {
-          
-            // 解析空数组
-            // let _epubCanonical = [];
-            // // 拿到spine下的所有xhtml
-            // _getSpine = _book.spine.items;
-            // // console.log(_getSpine,'_getSpine')
-            // for (let i = 0; i < _getSpine.length; i++) {
-            //   _epubCanonical.push(_getSpine[i].canonical);
-            // }
-            // if (!sessionStorage.epubCanonical) {
-            //   sessionStorage.epubCanonical = JSON.stringify(_epubCanonical);
-            // } else {
-            //     localStorage.removeItem("epubCanonical");
-            //     sessionStorage.epubCanonical = JSON.stringify(_epubCanonical);
-            // }
+          _getSpine = this.book.spine.items;
+          // 加载时的处理，添加目录
+          this.book.loaded.navigation.then(getToc => {
+            if (!localStorage.toc) {
+              localStorage.toc = JSON.stringify(getToc.toc)
+              localStorage.spine = JSON.stringify(_getSpine)
+            } else {
+              localStorage.removeItem('toc')
+              localStorage.removeItem('spine')
+              localStorage.toc = JSON.stringify(getToc.toc)
+              localStorage.spine = JSON.stringify(_getSpine)
 
-            // 加载时的处理，添加目录
-            this.book.loaded.navigation.then(getToc => {
-            console.log(getToc,'getTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetToc')
-            // this.book.loaded.spine.then(toc => {console.log(toc,'toctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoc')})
-            
-            // 创建虚拟节点
-            _docfrag = document.createDocumentFragment();
-            // 获得 目录 dom
-            _ul = document.getElementById("toc");
-            
-            // 创建目录
-            getToc.toc.forEach((chapter, index) => {
-              
-              // 新建li标签
-              _item = document.createElement("li")
-              _item.title = chapter.href;
-              console.log(chapter.href,'XXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-              _item.textContent = chapter.label;
-              _item.id = "chap-" + chapter.id;
-              _docfrag.appendChild(_item)
-              console.log(_item.length)
-              _item.onclick = function(index) {
-                // _gotoChap = _item[index].title
-                // console.log(_item[index])
-                this.rendition.display(_gotoChap)
-                return false;
-              }
-              
-            })
-
-            _ul.appendChild(_docfrag)
-
-            
-            // _ul.appendChild(_item);
-            //   // _item.href = chapter.href;
-            //   // _item.textContent = chapter.label;
-            //   _item.id = "chap-" + chapter.id;
-
-              // 新建li下的ul标签
-              // _subUl = document.createElement("ul");
-
-              // _item.appendChild(_subUl);
-              // _subUl.id = "subItem-" + chapter.id;
-
-              // chapter.subitems.forEach((sub, key) => {
-              //   let _subItem, _subItemLink;
-
-              //   if (sub) {
-              //     // 新建li标签
-              //     _subItem = document.createElement("li");
-              //     _subUl.appendChild(_subItem);
-              //     // _subItem.id = "subItem-" + sub.id;
-
-              //     _subItemLink = document.createElement("a");
-              //     _subItem.appendChild(_subItemLink);
-              //     // _subItemLink.id = "chap-" + sub.id;
-              //     _subItemLink.textContent = sub.label;
-              //     _subItemLink.href = sub.href;
-              //   }
-              // })
-           })
-          } catch (e) {
-            console.log(e.message);
-          }
-      })
+              this.tocList = getToc.toc
+            }
+          });
+        } catch (e) {
+          console.log(e.message);
+        }
+      });
       // 其他样式风格
       // rendition.themes.register("dark", "themes.css");
       this.rendition.themes.default({
         img: {
-          width: "96%",
-          height: "96%"
+          width: "96%"
         }
-      })
+      });
+    },
+    gotoDisplay(href){
+      if (this.rendition) {
+        try {
+          this.rendition.display(href)
+        } catch (e) {
+          throw e
+        }
+      }
     },
     /**
      * 下一页

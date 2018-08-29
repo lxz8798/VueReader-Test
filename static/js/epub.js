@@ -16133,8 +16133,8 @@ var Archive = function () {
 									return text;
 								})
 							} else {
-									console.log('文件路径是 stemp5',url)
-									console.log('文件内容是',decodededUrl,'如果当前文件被加密了走这里 stemp 6')						
+									// console.log('文件路径是 stemp5',url)
+									// console.log('文件内容是',decodededUrl,'如果当前文件被加密了走这里 stemp 6')						
 									// 获取devicekey,decryptObj
 									_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
 									// 获取spine
