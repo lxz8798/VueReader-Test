@@ -9,17 +9,9 @@ export default {
   * 获取所有的排行榜类型
   * @returns {null}
   */
-  getRankType () {
-    return Vue.http.get('/rank-category/')
-  },
-  /**
-   * 访问epub
-   * @return {_ePubBook} 渲染到"ePubArea"
-   * @author 李啸竹
-   */
-  getEpub () {
-    
-  },
+  // getRankType () {
+  //   return Vue.http.get('/rank-category/')
+  // },
   /**
      * 根据id获取排行榜
      * @returns {String} id为周榜id，月榜id，总榜id
@@ -33,16 +25,16 @@ export default {
      * @returns {null}
      * http://api.zhuishushenqi.com/cats/lv2
      */
-  getCategory () {
-    return Vue.http.get('/categories')
-  },
+  // getCategory () {
+  //   return Vue.http.get('/categories')
+  // },
 
-  /**
-     * 获取细分的类别
-     */
-  getCategoryDetail () {
-    return Vue.http.get('/sub-categories')
-  },
+  // /**
+  //    * 获取细分的类别
+  //    */
+  // getCategoryDetail () {
+  //   return Vue.http.get('/sub-categories')
+  // },
 
   /**
      * 根据分类获取小说列表
@@ -116,9 +108,9 @@ export default {
      * 获取搜索热词
      * @returns {null}
      */
-  getHotWords () {
-    return Vue.http.get('/search?keyword=')
-  },
+  // getHotWords () {
+  //   return Vue.http.get('/search?keyword=')
+  // },
 
   /**
      * 搜索自动补充

@@ -1,5 +1,11 @@
 <template>
 	<div class="epub-index-wrap">
+    <div class="head-catalog-wrap">
+      <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-epub-sort"></use>
+      </svg>
+    </div>
+
     <div id="touch-wrap">
         <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()"></v-touch>
         <v-touch class="c" id="touch-center" @tap="ifClickHidden()"></v-touch>
@@ -8,11 +14,7 @@
     
     <div id="ePubArea"></div>
     
-    
     <div id="toc-wrap">
-      <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-epub-sort"></use>
-      </svg>
       <ul id="toc"></ul>      
     </div>
 
@@ -38,7 +40,9 @@ export default {
   data() {
     return {
       books: [],
+      book:{},
       rendition: {},
+      currentSectionIndex:0,
       ifHiddenFlag: true,
       displayed: "",
       decryptAfterToU8: [],
@@ -54,9 +58,10 @@ export default {
     }
   },
   created() {
-    this.getBookUpdate();
     this.getEpub();
-    this.startReader();
+    this.openEpub();
+    this.readyReader();
+    this.getBookUpdate();
   },
   mounted() {
     // this.clickHidden();
@@ -79,12 +84,8 @@ export default {
 
       if (_that.ifHiddenFlag) {
         _ul.classList.add("boxHidden");
-        _header.style.transform = "translateY(-100%)";
-        _header.style.transition = "all .3s ease-out";
       } else {
         _ul.classList.remove("boxHidden");
-        _header.style.transform = "translateY(0)";
-        _header.style.transition = "all .3s ease-in";
       }
     },
     /**
@@ -94,10 +95,10 @@ export default {
     getEpub() {
       // 发请求拿授权及 epub 地址
       let params = {
-        Url: "http://218.249.32.238/content/authorize",
+        Url: "http://124.205.220.186:8001/content/authorize",
         data: {
           authorzieParameters: {
-            contentexternalid: "P00001-01-978-7-121-05858-5-Epub",
+            contentexternalid: "P00003-01-978-7-115-31060-6-Epub",
             organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
             device: {
               devicekey: 'i0TPLKk";saUBVG7',
@@ -129,8 +130,6 @@ export default {
         },
         success: function(data) {
           try {
-            // loading
-            Indicator.close();
             if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
               sessionStorage.resourceUrl = data.Data.Url;
               sessionStorage.epubBookInfo = JSON.stringify({
@@ -146,13 +145,28 @@ export default {
                 decryptStr: data.Data.Key
               });
             }
+            Indicator.close();
           } catch (e) {
             console.log(e.message);
           }
         }
       });
     },
-    startReader() {
+    openEpub () {
+      // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
+      // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
+      // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
+      // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
+
+      let _epubUrl = sessionStorage.resourceUrl;
+
+      this.book = new ePub(_epubUrl);
+
+      this.rendition = this.book.renderTo("ePubArea", { width: "100vw" });
+      this.rendition.display(this.currentSectionIndex);
+    },
+    readyReader() {
+      
       let zip,
         _that,
         _isAes,
@@ -169,39 +183,9 @@ export default {
         _decryptu8,
         _beforeChangeHtml;
 
-      _epubUrl = sessionStorage.resourceUrl;
-      // sessionStorage.resourceUrl
-      // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
-      // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
-      // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
-      // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
-
-      _book = new ePub(_epubUrl);
-
       // 阅读时的处理
-      _book.ready.then(content => {
-        try {
-          // 解析空数组
-          let _epubCanonical = [];
-          // 拿到spine下的所有xhtml
-          _getSpine = _book.spine.items;
-          // console.log(_getSpine,'_getSpine')
-          for (let i = 0; i < _getSpine.length; i++) {
-            _epubCanonical.push(_getSpine[i].canonical);
-          }
-          if (!sessionStorage.epubCanonical) {
-            sessionStorage.epubCanonical = JSON.stringify(_epubCanonical);
-          } else {
-            localStorage.removeItem("epubCanonical");
-            sessionStorage.epubCanonical = JSON.stringify(_epubCanonical);
-          }
-        } catch (e) {
-          console.log(e.message);
-        }
-      });
-
-      // 加载时的处理，添加目录
-      _book.loaded.navigation.then(getToc => {
+      this.book.ready.then(content => {
+        
         let _touchWrap,
           _touchL,
           _touchC,
@@ -210,37 +194,99 @@ export default {
           _url,
           _docfrag,
           _item,
-          _link;
+          _link,
+          _subUl;
+       
+        try {
+          
+            // 解析空数组
+            // let _epubCanonical = [];
+            // // 拿到spine下的所有xhtml
+            // _getSpine = _book.spine.items;
+            // // console.log(_getSpine,'_getSpine')
+            // for (let i = 0; i < _getSpine.length; i++) {
+            //   _epubCanonical.push(_getSpine[i].canonical);
+            // }
+            // if (!sessionStorage.epubCanonical) {
+            //   sessionStorage.epubCanonical = JSON.stringify(_epubCanonical);
+            // } else {
+            //     localStorage.removeItem("epubCanonical");
+            //     sessionStorage.epubCanonical = JSON.stringify(_epubCanonical);
+            // }
 
-        _ul = document.getElementById("toc");
-        _docfrag = document.createDocumentFragment();
+            // 加载时的处理，添加目录
+            this.book.loaded.navigation.then(getToc => {
+            console.log(getToc,'getTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetTocgetToc')
+            // this.book.loaded.spine.then(toc => {console.log(toc,'toctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoctoc')})
+            
+            // 创建虚拟节点
+            _docfrag = document.createDocumentFragment();
+            // 获得 目录 dom
+            _ul = document.getElementById("toc");
+            
+            // 创建目录
+            getToc.toc.forEach((chapter, index) => {
+              
+              // 新建li标签
+              _item = document.createElement("li")
+              _item.title = chapter.href;
+              console.log(chapter.href,'XXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+              _item.textContent = chapter.label;
+              _item.id = "chap-" + chapter.id;
+              _docfrag.appendChild(_item)
+              console.log(_item.length)
+              _item.onclick = function(index) {
+                // _gotoChap = _item[index].title
+                // console.log(_item[index])
+                this.rendition.display(_gotoChap)
+                return false;
+              }
+              
+            })
 
-        // 创建目录
-        getToc.toc.forEach((chapter, index) => {
-          //新建li标签
-          (_item = document.createElement("li")),
-            //新建a标签
-            (_link = document.createElement("a"));
-          //给a标签添加id名
-          _link.id = "chap-" + chapter.id;
-          //给a标签添加label
-          _link.textContent = chapter.label;
-          //把chapter的链接赋值给a标签
-          _link.href = chapter.href;
-          //添加到li里
-          _item.appendChild(_link);
-          _docfrag.appendChild(_item);
-          _link.onclick = function() {
-            let _url = _link.getAttribute("href");
-            this.rendition.display(_url);
-            return false;
-          };
-        });
-        _ul.appendChild(_docfrag);
-      });
+            _ul.appendChild(_docfrag)
 
-      this.rendition = _book.renderTo("ePubArea", { width: "100vw" });
-      this.rendition.display();
+            
+            // _ul.appendChild(_item);
+            //   // _item.href = chapter.href;
+            //   // _item.textContent = chapter.label;
+            //   _item.id = "chap-" + chapter.id;
+
+              // 新建li下的ul标签
+              // _subUl = document.createElement("ul");
+
+              // _item.appendChild(_subUl);
+              // _subUl.id = "subItem-" + chapter.id;
+
+              // chapter.subitems.forEach((sub, key) => {
+              //   let _subItem, _subItemLink;
+
+              //   if (sub) {
+              //     // 新建li标签
+              //     _subItem = document.createElement("li");
+              //     _subUl.appendChild(_subItem);
+              //     // _subItem.id = "subItem-" + sub.id;
+
+              //     _subItemLink = document.createElement("a");
+              //     _subItem.appendChild(_subItemLink);
+              //     // _subItemLink.id = "chap-" + sub.id;
+              //     _subItemLink.textContent = sub.label;
+              //     _subItemLink.href = sub.href;
+              //   }
+              // })
+           })
+          } catch (e) {
+            console.log(e.message);
+          }
+      })
+      // 其他样式风格
+      // rendition.themes.register("dark", "themes.css");
+      this.rendition.themes.default({
+        img: {
+          width: "96%",
+          height: "96%"
+        }
+      })
     },
     /**
      * 下一页
@@ -276,7 +322,6 @@ export default {
       }
       return bookListArray;
     },
-
     getBookUpdate() {
       let localShelf,
         that = this;
@@ -293,40 +338,6 @@ export default {
           });
         }
       });
-    },
-
-    readbook(book) {
-      this.$store.commit(SET_READ_BOOK, book);
-      this.$store.commit(SET_CURRENT_SOURCE, book.source);
-      this.$router.push("/readbook/" + book._id);
-    },
-
-    showDelBookBtn(e) {
-      let target = e.target.parentElement;
-      while (target.className !== "book-list") {
-        target = target.parentElement;
-      }
-      target.style.left = "-44vw";
-    },
-
-    hideDelBookBtn(e) {
-      let target = e.target.parentElement;
-      while (target.className !== "book-list") {
-        target = target.parentElement;
-      }
-      target.style.left = "0";
-    },
-
-    delBook($event, index) {
-      let storage = window.localStorage;
-      let localShelf = JSON.parse(storage.getItem("followBookList"))
-        ? JSON.parse(storage.getItem("followBookList"))
-        : {};
-      // 删除该书籍在本地的缓存记录
-      delete localShelf[this.books[index]._id];
-      this.books.splice(index, 1);
-      // 重新保存
-      storage.setItem("followBookList", JSON.stringify(localShelf));
     }
   }
 };
@@ -341,23 +352,22 @@ div.epub-index-wrap {
     // transition: all .3s ease-out;
   }
   div.boxHidden {
-    transform: translateX(100%);
+    transform: translateX(0%) !important;
     transition: all 0.3s ease-out;
   }
   div#toc-wrap {
     position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 99;
-    width: 45%;
-    height: 100%;
-    padding: 5%;
+    z-index: 98;
+
+    width: 94vw;
+    height: 94vh;
+    padding: 3vw;
     background: rgba(255, 255, 255, 0.9);
 
+    transform: translateX(100%);
     transition: all 0.3s ease-in;
     ul#toc {
       font-size: 14px;
-      height: inherit;
     }
   }
   div#touch-wrap {
@@ -366,7 +376,7 @@ div.epub-index-wrap {
     height: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 99;
+    z-index: 10;
 
     display: flex;
     flex-direction: row;

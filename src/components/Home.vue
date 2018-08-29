@@ -5,21 +5,6 @@
 				<mt-header fixed :title="selected" style="position: fixed; z-index:1; top:0;"></mt-header>
 				<Bookshelf class="tab-container" @addBook="changeSelected"></Bookshelf>
 			</mt-tab-container-item>
-			<mt-tab-container-item id="背景">
-				<mt-header fixed :title="selected"></mt-header>
-				<keep-alive include="Bookshelf">
-					<Bookcategory class="tab-container"></Bookcategory>
-				</keep-alive>
-			</mt-tab-container-item>
-			<mt-tab-container-item id="字体">
-				<mt-header fixed :title="selected"></mt-header>
-				<keep-alive include="Rank">
-					<Ranklist class="tab-container"></Ranklist>
-				</keep-alive>
-			</mt-tab-container-item>
-			<mt-tab-container-item id="我的">
-				<Search></Search>
-			</mt-tab-container-item>
 		</mt-tab-container>
 		<!-- 原footer 现隐藏 -->
 		<!-- <mt-tabbar v-model="selected" :fixed="true" :value="selected">
@@ -41,17 +26,17 @@
 
 <script>
 import Bookshelf from './bookshelf/Bookshelf'
-import Bookcategory from './category/Bookcategory'
-import Ranklist from './ranklist/Rank'
-import Search from './search/Search'
+// import Bookcategory from './category/Bookcategory'
+// import Ranklist from './ranklist/Rank'
+// import Search from './search/Search'
 
 export default {
   name: 'home',
   components: {
     Bookshelf,
-    Bookcategory,
-    Ranklist,
-    Search
+    // Bookcategory,
+    // Ranklist,
+    // Search
   },
   data () {
     return {

@@ -10421,7 +10421,7 @@ var Book = function () {
 
 			var navPath = opf.navPath || opf.ncxPath;
 			var toc = opf.toc;
-
+			
 			// From json manifest
 			if (toc) {
 				return new Promise(function (resolve, reject) {
@@ -16075,13 +16075,13 @@ var Archive = function () {
 						let temp = url.split('.')
 						if (temp[1] == "ncx" || temp[1] == "opf" || temp[1] == "css") {
 							return entry.async("string").then(function (text) {
-								console.log(text)
+								// console.log(text,'stemp 1')
 								return text;
 							})
 						} else {
 							_ifAesObj = Array.from(u8.slice(0,10))
 							_ifAesObj2 = _ifAesObj.indexOf(60)
-							console.log('60','的位置在第,',_ifAesObj2,'位')
+							// console.log('60','的位置在第,',_ifAesObj2,'位,stemp 2')
 							// 未加密的u8前6位
 							const ifEncry = {
 								OtherFormat:[239,187,191,60,63,120,109,108,32,118],
@@ -16092,10 +16092,10 @@ var Archive = function () {
 							}
 							// 判断60在多少位
 							if (_ifAesObj2 > -1 && _ifAesObj2 !== -1) {
-								console.log(_ifAesObj2 > -1 && _ifAesObj2 !== -1,'判断60在第几位，如果不存在就走正常流程')
+								// console.log(_ifAesObj2 > -1 && _ifAesObj2 !== -1,'判断60在第几位，如果不存在就走正常流程 stemp 3')
 								// 不是xhtml、xml、css或者html文件 直接返回string流程
 								return entry.async("string").then(function (text) {
-									console.log(text)
+									// console.log(text)
 									return text;
 								})
 							} else {
@@ -16124,17 +16124,17 @@ var Archive = function () {
 								}
 							}
 							
-							console.log(xmlEqual(), XMLEqual(), htmlEqual(),HTMLEqual(),'是否其他类型')
+							// console.log(xmlEqual(), XMLEqual(), htmlEqual(),HTMLEqual(),'是否其他类型 stemp 4')
 
 							if (xmlEqual() || XMLEqual() || htmlEqual() || HTMLEqual()) {
 								// console.log('如果当前文件不是加密的走这里')
 								return entry.async("string").then(function (text) {
-									console.log(text)
+									// console.log(text)
 									return text;
 								})
 							} else {
-									console.log('文件路径是',url)
-									console.log('文件内容是',decodededUrl,'如果当前文件被加密了走这里')						
+									console.log('文件路径是 stemp5',url)
+									console.log('文件内容是',decodededUrl,'如果当前文件被加密了走这里 stemp 6')						
 									// 获取devicekey,decryptObj
 									_epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
 									// 获取spine
@@ -16142,17 +16142,17 @@ var Archive = function () {
 									// console.log(_epubBookInfo,'_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine_epubSpine')
 									// 获取授权的decryptStr
 									_decryptStr = _epubBookInfo.decryptStr
-									console.log(_decryptStr,'_decryptStr')
+									// console.log(_decryptStr,'_decryptStr stemp 7')
 									// 获得devicekey
 									_devicekey =  _epubBookInfo.devicekey
-									console.log(_devicekey,'_devicekey')
+									// console.log(_devicekey,'_devicekey stemp 8')
 									// 对divicekey进行处理
 									_decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
 									// 解密完成以后的key
 									_decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 									// 解密的key转成字符串
 									_decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
-									console.log(_decryptAfterKeyToStr,'解出来的key')
+									// console.log(_decryptAfterKeyToStr,'解出来的key stemp 9')
 									// 使用 windows方法加密成base64
 									word = window.btoa(String.fromCharCode.apply(null, u8))
 									// word = u8.toString(CryptoJS.enc.Base64)
@@ -16163,7 +16163,7 @@ var Archive = function () {
 									// 正文解密
 									_decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 									// console.log(_decrypt,'解密后的wordArray')
-									console.log(u8,'未解密前的u8')
+									// console.log(u8,'未解密前的u8 stemp 10')
 									// 转成u8
 									let wordArrayToU8 = function () {
 										let _words = _decrypt.words;
@@ -16175,7 +16175,7 @@ var Archive = function () {
 										}
 										return _decryptU8;
 									}
-									console.log(wordArrayToU8(),'解密成功以后的u8*****************')
+									// console.log(wordArrayToU8(),'解密成功以后的u8***************** stemp 11')
 		
 									let Utf8ArrayToStr = function () {
 										var out, i, len, c;
@@ -16210,8 +16210,8 @@ var Archive = function () {
 										// console.log(out,'asdc')
 										return out;
 									}
-									console.log(wordArrayToU8(),'解密后且转成的u8')
-									console.log(Utf8ArrayToStr(),'转成字符串')
+									// console.log(wordArrayToU8(),'解密后且转成的u8 stemp 12')
+									// console.log(Utf8ArrayToStr(),'转成字符串 stemp 13')
 									return Utf8ArrayToStr();
 								}
 							}

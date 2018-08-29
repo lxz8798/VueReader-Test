@@ -20,10 +20,12 @@
 		var currentSectionIndex = 9;
 		// Load the opf
 		var book = ePub("https://s3.amazonaws.com/moby-dick/OPS/package.opf");
+		
 		var rendition = book.renderTo("viewer", { flow: "scrolled-doc", width: 600, height: 400});
 		var displayed = rendition.display(currentSectionIndex);
 
 		book.loaded.navigation.then(function(toc){
+			console.log(toc,'toctoctoctoctoctoctoctoctoctoctoc')
 			var $select = document.getElementById("toc"),
 					docfrag = document.createDocumentFragment();
 
@@ -31,7 +33,7 @@
 				var option = document.createElement("option");
 				option.textContent = chapter.label;
 				option.ref = chapter.href;
-
+				console.log(option.ref)
 				docfrag.appendChild(option);
 			});
 
@@ -40,6 +42,7 @@
 			$select.onchange = function(){
 					var index = $select.selectedIndex,
 							url = $select.options[index].ref;
+					console.log(index,'urlurlurlurlurlurlurlurlurlurlurlurl')
 					rendition.display(url);
 					return false;
 			};
