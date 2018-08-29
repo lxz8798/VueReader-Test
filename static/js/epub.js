@@ -16091,7 +16091,8 @@ var Archive = function () {
 								normalHTML:[60,63,72,84,77,76,32,118,101,114]
 							}
 							// 判断60在多少位
-							if (_ifAesObj2 > -1) {
+							if (_ifAesObj2 > -1 && _ifAesObj2 !== -1) {
+								console.log(_ifAesObj2 > -1 && _ifAesObj2 !== -1,'判断60在第几位，如果不存在就走正常流程')
 								// 不是xhtml、xml、css或者html文件 直接返回string流程
 								return entry.async("string").then(function (text) {
 									console.log(text)
@@ -16125,7 +16126,7 @@ var Archive = function () {
 							
 							console.log(xmlEqual(), XMLEqual(), htmlEqual(),HTMLEqual(),'是否其他类型')
 
-							if (xmlEqual() && XMLEqual() && htmlEqual() && HTMLEqual()) {
+							if (xmlEqual() || XMLEqual() || htmlEqual() || HTMLEqual()) {
 								// console.log('如果当前文件不是加密的走这里')
 								return entry.async("string").then(function (text) {
 									console.log(text)

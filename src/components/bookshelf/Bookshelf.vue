@@ -9,12 +9,12 @@
     <div id="ePubArea"></div>
     
     
-    <!-- <div id="toc-wrap">
+    <div id="toc-wrap">
       <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-epub-sort"></use>
       </svg>
       <ul id="toc"></ul>      
-    </div> -->
+    </div>
 
 	</div>
 </template>
@@ -24,7 +24,7 @@ import api from "@/api/api";
 import moment from "moment";
 import util from "@/utils/util";
 import aes from "../../../static/js/aes";
-
+import Qs from 'qs';
 import {
   SET_EPUB_BOOK,
   SET_CURRENT_SOURCE,
@@ -93,31 +93,50 @@ export default {
      */
     getEpub () {
       // 发请求拿授权及 epub 地址
+      let params = {
+        Url:'http://124.205.220.186:8001/content/authorize',
+        data:{
+          authorzieParameters: {
+            contentexternalid:"P00003-01-978-7-115-31060-6-Epub",
+            organizationExternalId:null,
+            device:{
+              devicekey:"Q)JY%4aH0%EwZ.GO",
+              DeviceType:4,
+              Title:"电脑试读"
+          },
+          FromSalePlatformTitle:"可知",
+          userinfo:{
+              nickname:"未登录",
+              ExternalId:"未登录"
+          }}
+        }
+      }
+      
+      let routeParams = window.location.href
+      let parseUrl = routeParams.split('?')[1]
+      let QsParseUrl = Qs.parse(parseUrl)
+      // console.log(Qs.stringify(params, {indices: false}),'模拟提交')
+      console.log(QsParseUrl.data.authorzieParameters.device.devicekey,'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+      // console.log('QsParseUrl.data')
       $.ajax({
         type: "post",
-        url: "http://124.204.40.3:50696/content/authorize",
+        url: QsParseUrl.Url,
         data: {
-          authorzieParameters: JSON.stringify({
-            contentexternalid: "29612-Epub",
-            device: {
-              devicekey: "tb)DPkFKpWJ5H7uL",
-              DeviceType: 4,
-              Title: "测试"
-            },
-            FromSalePlatformTitle: "建工",
-            userinfo: {
-              nickname: "未登录",
-              ExternalId: "未登录"
-            }
-          })
+          authorzieParameters:JSON.stringify(QsParseUrl.data.authorzieParameters)
         },
         success: function(data) {
           try {
+            // loading
             Indicator.close();
-            // 储存解密相关信息
             if (!sessionStorage.epubBookInfo) {
               sessionStorage.epubBookInfo = JSON.stringify({
-                devicekey: "tb)DPkFKpWJ5H7uL",
+                devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
+                decryptStr: data.Data.Key
+              })
+            } else {
+              sessionStorage.removeItem('epubBookInfo')
+              sessionStorage.epubBookInfo = JSON.stringify({
+                devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
                 decryptStr: data.Data.Key
               })
             }
