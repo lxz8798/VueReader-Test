@@ -42,6 +42,7 @@
 				// rendition.display().then(click => {console.log(click,'click')})
 					var index = $select.selectedIndex,
 							url = $select.options[index].ref;
+					console.log(index,'index')
 					console.log(url,'url')
 					rendition.display(url);
 					return false;

@@ -2688,7 +2688,7 @@ var posix = {
     resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
 
     if (resolvedAbsolute) {
-      if (resolvedPath.length > 0)
+	  if (resolvedPath.length > 0)
         return '/' + resolvedPath;
       else
         return '/';
@@ -8268,6 +8268,8 @@ var IframeView = function () {
 
 			// Render Chain
 			return this.sectionRender.then(function (contents) {
+				contents = contents.replace(/<img([^>]+)src="[/]?([^"]+)"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
+				console.log(contents)
 				return this.load(contents);
 			}.bind(this)).then(function () {
 				var _this = this;
@@ -10285,7 +10287,7 @@ var Book = function () {
 			if (absolute != false && this.url) {
 				resolved = this.url.resolve(resolved);
 			}
-
+			
 			return resolved;
 		}
 
@@ -13010,9 +13012,8 @@ var Resources = function () {
 
 			var replacements = this.urls.map(function (url) {
 				var absolute = _this.settings.resolver(url);
-
 				return _this.createUrl(absolute).catch(function (err) {
-					console.error(err);
+					// console.error(err);
 					return null;
 				});
 			});

@@ -10,7 +10,7 @@
 
     <div id="touch-wrap">
         <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()"></v-touch>
-        <v-touch class="c" id="touch-center" @tap="ifClickHidden()"></v-touch>
+        <v-touch class="c" id="touch-center"></v-touch>
         <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()"></v-touch>
     </div>
     
@@ -39,7 +39,6 @@
 import api from "@/api/api";
 import moment from "moment";
 import util from "@/utils/util";
-import aes from "../../../static/js/aes";
 import Qs from "qs";
 import {
   SET_EPUB_BOOK,
@@ -84,20 +83,6 @@ export default {
   },
   methods: {
     /**
-     * 添加目录显示隐藏事件
-     * 李啸竹
-     */
-    ifClickHidden() {
-      let _ul, _header, _ePubPrev, _ePubNext;
-
-      _ul = document.getElementById("toc-wrap");
-      _header = document.getElementsByClassName("mint-header")[0];
-      _ePubNext = document.getElementById("ePubNext");
-      _ePubPrev = document.getElementById("ePubPrev");
-
-      this.ifHiddenFlag = !this.ifHiddenFlag;
-    },
-    /**
      * 载入 epub
      * 李啸竹
      */
@@ -107,7 +92,8 @@ export default {
         Url: "http://124.205.220.186:8001/content/authorize",
         data: {
           authorzieParameters: {
-            contentexternalid: "P00003-01-978-7-115-31060-6-Epub",
+            isOnline:true,
+            contentexternalid: "P00003-01-28883-Epub",
             organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
             device: {
               devicekey: 'i0TPLKk";saUBVG7',
@@ -139,15 +125,18 @@ export default {
             if (data) {
               if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
                 sessionStorage.resourceUrl = data.Data.Url;
+                sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl
                 sessionStorage.epubBookInfo = JSON.stringify({
                   devicekey:
                     QsParseUrl.data.authorzieParameters.device.devicekey,
-                  decryptStr: data.Data.Key
+                    decryptStr: data.Data.Key
                 });
               } else {
                 sessionStorage.removeItem("resourceUrl");
                 sessionStorage.removeItem("epubBookInfo");
+                sessionStorage.removeItem("PackageBaseUrl");
                 sessionStorage.resourceUrl = data.Data.Url;
+                sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
                 sessionStorage.epubBookInfo = JSON.stringify({
                   devicekey:
                     QsParseUrl.data.authorzieParameters.device.devicekey,
@@ -162,6 +151,11 @@ export default {
         }
       });
     },
+    /**
+     * 添加目录显示隐藏事件
+     * 李啸竹
+     */
+    
     openEpub() {
       // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
       // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
@@ -173,11 +167,20 @@ export default {
       this.book = new ePub(_epubUrl);
 
       this.rendition = this.book.renderTo("ePubArea", {
-        
         width: "100vw"
       });
 
-      this.rendition.display();
+      this.rendition.display(this.currentSectionIndex);
+    },
+    ifClickHidden() {
+      let _ul, _header, _ePubPrev, _ePubNext;
+
+      _ul = document.getElementById("toc-wrap");
+      _header = document.getElementsByClassName("mint-header")[0];
+      _ePubNext = document.getElementById("ePubNext");
+      _ePubPrev = document.getElementById("ePubPrev");
+
+      this.ifHiddenFlag = !this.ifHiddenFlag;
     },
     readyReader() {
       let _getSpine;
@@ -187,6 +190,8 @@ export default {
           _getSpine = this.book.spine.items;
           // 加载时的处理，添加目录
           this.book.loaded.navigation.then(getToc => {
+            console.log(getToc,'getTocgetTocgetTocgetToc')
+
             if (!localStorage.toc) {
               localStorage.toc = JSON.stringify(getToc.toc);
               localStorage.spine = JSON.stringify(_getSpine);
