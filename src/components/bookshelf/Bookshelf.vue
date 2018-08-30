@@ -72,14 +72,11 @@ export default {
       return moment(time).fromNow();
     }
   },
-  created() {
-    this.getEpub();
-    this.openEpub();
-    this.readyReader();
-    this.getBookUpdate();
-  },
-  mounted() {
-    // this.clickHidden();
+  async created() {
+    await this.getEpub();
+    await this.openEpub();
+    await this.readyReader();
+    await this.getBookUpdate();
   },
   methods: {
     /**
@@ -87,92 +84,100 @@ export default {
      * 李啸竹
      */
     getEpub() {
-      // 发请求拿授权及 epub 地址
-      let params = {
-        Url: "http://124.205.220.186:8001/content/authorize",
-        data: {
-          authorzieParameters: {
-            isOnline:true,
-            contentexternalid: "P00003-01-28883-Epub",
-            organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
-            device: {
-              devicekey: 'i0TPLKk";saUBVG7',
-              DeviceType: 1,
-              Title: "电脑试读"
-            },
-            FromSalePlatformTitle: "可知",
-            userinfo: { nickname: "未登录", ExternalId: "未登录" }
-          }
-        }
-      };
-
-      let routeParams = window.location.href;
-      let parseUrl = routeParams.split("?")[1];
-      let QsParseUrl = Qs.parse(parseUrl);
-      console.log(Qs.stringify(params, { indices: false }), "模拟提交");
-
-      // console.log('QsParseUrl.data')
-      $.ajax({
-        type: "post",
-        url: QsParseUrl.Url,
-        data: {
-          authorzieParameters: JSON.stringify(
-            QsParseUrl.data.authorzieParameters
-          )
-        },
-        success: function(data) {
-          try {
-            if (data) {
-              if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
-                sessionStorage.resourceUrl = data.Data.Url;
-                sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl
-                sessionStorage.epubBookInfo = JSON.stringify({
-                  devicekey:
-                    QsParseUrl.data.authorzieParameters.device.devicekey,
-                    decryptStr: data.Data.Key
-                });
-              } else {
-                sessionStorage.removeItem("resourceUrl");
-                sessionStorage.removeItem("epubBookInfo");
-                sessionStorage.removeItem("PackageBaseUrl");
-                sessionStorage.resourceUrl = data.Data.Url;
-                sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-                sessionStorage.epubBookInfo = JSON.stringify({
-                  devicekey:
-                    QsParseUrl.data.authorzieParameters.device.devicekey,
-                  decryptStr: data.Data.Key
-                });
-              }
-              Indicator.close();
+      return new Promise((resolve, ject) => {
+        // 发请求拿授权及 epub 地址
+        let params = {
+          Url: "http://218.249.32.238/content/authorize",
+          data: {
+            authorzieParameters: {
+              contentexternalid: "P00001-01-978-7-121-08710-3-Epub",
+              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
+              device: {
+                devicekey: 'i0TPLKk";saUBVG7',
+                DeviceType: 4,
+                Title: "电脑试读"
+              },
+              FromSalePlatformTitle: "可知",
+              userinfo: { nickname: "未登录", ExternalId: "未登录" }
             }
-          } catch (e) {
-            console.log(e.message);
           }
-        }
+        };
+
+        let routeParams = window.location.href;
+        let parseUrl = routeParams.split("?")[1];
+        let QsParseUrl = Qs.parse(parseUrl);
+        console.log(Qs.stringify(params, { indices: false }), "模拟提交");
+
+        // console.log('QsParseUrl.data')
+        $.ajax({
+          type: "post",
+          url: QsParseUrl.Url,
+          data: {
+            authorzieParameters: JSON.stringify(
+              QsParseUrl.data.authorzieParameters
+            )
+          },
+          success: function(data) {
+            try {
+              if (data) {
+                if (
+                  !sessionStorage.epubBookInfo &&
+                  !sessionStorage.resourceUrl
+                ) {
+                  sessionStorage.resourceUrl = data.Data.Url;
+                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                  sessionStorage.epubBookInfo = JSON.stringify({
+                    devicekey:
+                      QsParseUrl.data.authorzieParameters.device.devicekey,
+                    decryptStr: data.Data.Key
+                  });
+                } else {
+                  sessionStorage.removeItem("resourceUrl");
+                  sessionStorage.removeItem("epubBookInfo");
+                  sessionStorage.removeItem("PackageBaseUrl");
+                  sessionStorage.resourceUrl = data.Data.Url;
+                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                  sessionStorage.epubBookInfo = JSON.stringify({
+                    devicekey:
+                      QsParseUrl.data.authorzieParameters.device.devicekey,
+                    decryptStr: data.Data.Key
+                  });
+                }
+                Indicator.close();
+              }
+            } catch (e) {
+              console.log(e.message);
+            }
+            resolve();
+          }
+        });
       });
     },
     /**
      * 添加目录显示隐藏事件
      * 李啸竹
      */
-    
+
     openEpub() {
-      // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
-      // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
-      // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
-      // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
+      return new Promise((resolve, reject) => {
+        // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
+        // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
+        // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
+        // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
 
-      let _epubUrl = sessionStorage.resourceUrl;
+        let _epubUrl = sessionStorage.resourceUrl;
 
-      this.book = new ePub(_epubUrl);
+        this.book = new ePub(_epubUrl);
 
-      this.rendition = this.book.renderTo("ePubArea", {
-        width: "100vw"
+        this.rendition = this.book.renderTo("ePubArea", {
+          width: "100vw"
+        });
+
+        this.rendition.display(this.currentSectionIndex);
+        // resolve();
       });
-
-      this.rendition.display(this.currentSectionIndex);
     },
-    ifClickHidden() {
+    async ifClickHidden() {
       let _ul, _header, _ePubPrev, _ePubNext;
 
       _ul = document.getElementById("toc-wrap");
@@ -181,71 +186,86 @@ export default {
       _ePubPrev = document.getElementById("ePubPrev");
 
       this.ifHiddenFlag = !this.ifHiddenFlag;
+      await this.readyReader()
     },
     readyReader() {
-      let _getSpine;
-      // 阅读时的处理
-      this.book.ready.then(content => {
-        try {
-          _getSpine = this.book.spine.items;
-          // 加载时的处理，添加目录
-          this.book.loaded.navigation.then(getToc => {
-            console.log(getToc,'getTocgetTocgetTocgetToc')
+      return new Promise((resolve, reject) => {
+        let _getSpine;
+        // 阅读时的处理
+        console.log(this.book.ready);
+        this.book.ready.then(content => {
+          try {
+            _getSpine = this.book.spine.items;
+            // 加载时的处理，添加目录
+            this.book.loaded.navigation.then(getToc => {
+              console.log(getToc, "getTocgetTocgetTocgetToc");
 
-            if (!localStorage.toc) {
-              localStorage.toc = JSON.stringify(getToc.toc);
-              localStorage.spine = JSON.stringify(_getSpine);
-            } else {
-              localStorage.removeItem("toc");
-              localStorage.removeItem("spine");
-              localStorage.toc = JSON.stringify(getToc.toc);
-              localStorage.spine = JSON.stringify(_getSpine);
+              if (!localStorage.toc) {
+                localStorage.toc = JSON.stringify(getToc.toc);
+                localStorage.spine = JSON.stringify(_getSpine);
+              } else {
+                localStorage.removeItem("toc");
+                localStorage.removeItem("spine");
+                localStorage.toc = JSON.stringify(getToc.toc);
+                localStorage.spine = JSON.stringify(_getSpine);
 
-              this.tocList = getToc.toc;
-            }
-          });
-        } catch (e) {
-          console.log(e.message);
-        }
-      });
-      // 其他样式风格
-      // rendition.themes.register("dark", "themes.css");
-      this.rendition.themes.default({
-        img: {
-          width: "96%"
-        }
+                this.tocList = getToc.toc;
+              }
+            resolve();
+            });
+          } catch (e) {
+            console.log(e.message);
+          }
+        });
+        // 其他样式风格
+        // rendition.themes.register("dark", "themes.css");
+        this.rendition.themes.default({
+          img: {
+            width: "96%"
+          }
+        });
       });
     },
     gotoDisplay(href) {
-      if (this.rendition) {
-        try {
-          this.rendition.display(href);
-        } catch (e) {
-          throw e;
+      return new Promise((resolve, rejcet) => {
+        console.log(href, "href");
+        if (this.rendition) {
+          try {
+            this.rendition.display(href);
+            resolve();
+          } catch (e) {
+            throw e;
+          }
         }
-      }
+      });
     },
     /**
      * 下一页
      * @author 李啸竹
      */
     ePubNext() {
-      try {
-        this.rendition.next();
-      } catch (e) {
-        console.log(e.message);
-      }
+      return new Promise((resolve, rejcet) => {
+        try {
+          this.rendition.next();
+          resolve();
+        } catch (e) {
+          console.log(e.message);
+        }
+      });
     },
     /**
      * 上一页
      * @author 李啸竹
      */
     ePubPrev() {
-      try {
-        this.rendition.prev();
-      } catch (e) {
-        console.log(e.message);
-      }
+      return new Promise((resolve, rejcet) => {
+        try {
+          this.rendition.prev();
+          resolve();
+        } catch (e) {
+          console.log(e.message);
+        }
+      });
     },
     /**
      * 返回追更新的书本id
