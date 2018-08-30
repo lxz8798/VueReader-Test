@@ -1,10 +1,11 @@
 <template>
 	<div class="epub-index-wrap">
-    <div class="head-catalog-wrap">
-      <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-epub-sort"></use>
-      </svg>
+
+    <div class="book_shelf_icon" :class="ifHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'" @click="ifClickHidden()" >
+        <i class="iconfont epub-sort"></i>
     </div>
+
+    <mt-header fixed :title="selected" class="book_shelf_header" :class="ifHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'"></mt-header>
 
     <div id="touch-wrap">
         <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()"></v-touch>
@@ -14,12 +15,17 @@
     
     <div id="ePubArea"></div>
     
-    <div id="toc-wrap">
+    <div id="toc-wrap" :class="ifHiddenFlag ? 'boxHiddenA' : 'boxHiddenB'">
       <ul id="toc">
         <li v-for="item in tocList" :title="item.href" :id="'chap-'+item.id">
           <span @click="gotoDisplay(item.href)">{{item.label}}</span>
-          <ul v-for="sub in item.subitems">
-            <li @click="gotoDisplay(sub.href)">{{sub.label}}</li>
+          <ul class="subUl" v-for="sub in item.subitems">
+            <li @click="gotoDisplay(sub.href)">
+              <span>{{sub.label}}</span>
+              <ul class="childUl" v-for="child in sub.subitems">
+                <li>{{child.label}}</li>
+              </ul>
+            </li>
           </ul>
         </li>
       </ul>      
@@ -50,6 +56,7 @@ export default {
       book: {},
       rendition: {},
       tocList:[],
+      selected:'我的书架',
       currentSectionIndex: 0,
       ifHiddenFlag: true,
       displayed: "",
@@ -81,21 +88,14 @@ export default {
      * 李啸竹
      */
     ifClickHidden() {
-      let _that, _ul, _header, _ePubPrev, _ePubNext;
-
-      _that = this;
-      _that.ifHiddenFlag = !_that.ifHiddenFlag;
+      let _ul, _header, _ePubPrev, _ePubNext;
 
       _ul = document.getElementById("toc-wrap");
       _header = document.getElementsByClassName("mint-header")[0];
       _ePubNext = document.getElementById("ePubNext");
       _ePubPrev = document.getElementById("ePubPrev");
 
-      if (_that.ifHiddenFlag) {
-        _ul.classList.add("boxHidden");
-      } else {
-        _ul.classList.remove("boxHidden");
-      }
+      this.ifHiddenFlag = !this.ifHiddenFlag
     },
     /**
      * 载入 epub
@@ -176,7 +176,6 @@ export default {
     },
     readyReader() {
       let _getSpine
-
       // 阅读时的处理
       this.book.ready.then(content => {
 
@@ -274,29 +273,66 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
+
 div.epub-index-wrap {
-  .headerHidden {
-    background: #000;
-    // transform: translateY(100%);
-    // transition: all .3s ease-out;
+  div.book_shelf_icon {
+    position: fixed;
+    top:.4rem;
+    right:.2rem;
+    width:1.8rem;
+    height: 1.8rem;
+    z-index: 99;
+    color:white;
+    .iconfont {
+      font-size: 23px;
+    }
   }
-  div.boxHidden {
-    transform: translateX(0%) !important;
+  .headerHiddenA {
+    transform: translateY(-100%) !important;
     transition: all 0.3s ease-out;
+  }
+  .headerHiddenB {
+    transform: translateY(0%) !important;
+    transition: all 0.3s ease-in;
+  }
+  div.boxHiddenA {
+    transform: translateX(-100%) !important;
+    transition: all 0.3s ease-out;
+  }
+  div.boxHiddenB {
+    transform: translateX(0%) !important;
+    transition: all 0.3s ease-in;
   }
   div#toc-wrap {
     position: fixed;
-    z-index: 98;
+    top:0;
+    left:0;
+    z-index: 80;
 
-    width: 94vw;
-    height: 94vh;
+    width: 60vw;
+    height: 100vh;
     padding: 3vw;
-    background: rgba(255, 255, 255, 0.9);
+    
+    background: rgb(243, 243, 243);
+    border:1px solid rgb(235, 235, 235);
 
-    transform: translateX(100%);
-    transition: all 0.3s ease-in;
+    // transform: translateX(100%);
+    // transition: all 0.3s ease-in;
+
+    overflow-x: hidden;
+    overflow-y: scroll;
     ul#toc {
       font-size: 14px;
+      margin-bottom: 1rem;
+      li {
+        line-height: 1.2rem;
+      }
+      ul.subUl {
+        padding-left:1rem;
+        ul.childUl {
+          padding-left:1rem;
+        }
+      }
     }
   }
   div#touch-wrap {
@@ -327,8 +363,12 @@ div.epub-index-wrap {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 97vh;
+    padding-top: 3vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    
     .clickHidden {
       display: none;
     }

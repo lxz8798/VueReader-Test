@@ -2,7 +2,7 @@
 	<div>
 		<mt-tab-container v-model="selected" :swipeable="false" :value="selected">
 			<mt-tab-container-item id="书架">
-				<mt-header fixed :title="selected" style="position: fixed; z-index:1; top:0;"></mt-header>
+				<!-- <mt-header fixed :title="selected" class="book_shelf_header"></mt-header> -->
 				<Bookshelf class="tab-container" @addBook="changeSelected"></Bookshelf>
 			</mt-tab-container-item>
 		</mt-tab-container>
@@ -54,7 +54,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .tab-container {
 	box-sizing: border-box;
 	padding-top: 2rem;
@@ -62,4 +62,11 @@ export default {
 	width: 100vw;
 	min-height: 100vh;
 }
+div.book_shelf_header {
+	position: fixed;
+	top:0;
+	left:0;
+	z-index: 90;
+}
+
 </style>
