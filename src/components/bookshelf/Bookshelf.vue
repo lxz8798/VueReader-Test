@@ -97,7 +97,7 @@ export default {
             organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
             device: {
               devicekey: 'i0TPLKk";saUBVG7',
-              DeviceType: 4,
+              DeviceType: 1,
               Title: "电脑试读"
             },
             FromSalePlatformTitle: "可知",

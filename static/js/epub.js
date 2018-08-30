@@ -8268,7 +8268,7 @@ var IframeView = function () {
 
 			// Render Chain
 			return this.sectionRender.then(function (contents) {
-				contents = contents.replace(/<img([^>]+)src="[/]?([^"]+)"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
+				contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
 				console.log(contents)
 				return this.load(contents);
 			}.bind(this)).then(function () {
@@ -10287,6 +10287,15 @@ var Book = function () {
 			if (absolute != false && this.url) {
 				resolved = this.url.resolve(resolved);
 			}
+
+			// 一次性替换所有图片，位置不对
+			// let path = sessionStorage.PackageBaseUrl
+			// let reg = /\w(\.gif|\.jpeg|\.png|\.jpg|\.bmp)/i;
+			// if (reg.test(resolved)) {
+			// 	resolved = path + this.url.resolve(resolved);
+			// } else {
+			// 	resolved = this.url.resolve(resolved);
+			// }
 			
 			return resolved;
 		}
