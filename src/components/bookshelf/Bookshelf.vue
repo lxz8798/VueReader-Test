@@ -67,17 +67,15 @@ export default {
   },
   created() {
     this.getEpub();
-    // this.openEpub();
-    // this.readyReader();
+    this.openEpub();
+    this.readyReader();
     this.getBookUpdate();
   },
   mounted() {
-    this.openEpub();
-    this.readyReader();
+    
     // this.clickHidden();
   },
   methods: {
-    
     /**
      * 添加目录显示隐藏事件
      * 李啸竹
