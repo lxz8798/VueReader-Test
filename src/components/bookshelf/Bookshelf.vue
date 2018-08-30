@@ -5,13 +5,12 @@
         <i class="iconfont epub-sort"></i>
     </div>
 
-    <!-- <mt-header fixed :title="selected" class="book_shelf_header" :class="ifHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'"></mt-header> -->
-    <mt-header fixed :title="selected" class="book_shelf_header"></mt-header>
+    <mt-header fixed :title="selected" :class="topHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'"></mt-header>
 
     <div id="touch-wrap">
-        <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()"></v-touch>
-        <v-touch class="c" id="touch-center"></v-touch>
-        <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()"></v-touch>
+        <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubnext()"></v-touch>
+        <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
+        <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch>
     </div>
     
     <div id="ePubArea"></div>
@@ -59,6 +58,7 @@ export default {
       selected: "我的书架",
       currentSectionIndex: 0,
       ifHiddenFlag: true,
+      topHiddenFlag:true,
       displayed: "",
       decryptAfterToU8: [],
       epubText: ""
@@ -77,6 +77,7 @@ export default {
     await this.openEpub();
     await this.readyReader();
     await this.getBookUpdate();
+    await this.topHidden()
   },
   methods: {
     /**
@@ -180,8 +181,6 @@ export default {
     async ifClickHidden() {
       let _ul, _header, _ePubPrev, _ePubNext;
 
-      _ul = document.getElementById("toc-wrap");
-      _header = document.getElementsByClassName("mint-header")[0];
       _ePubNext = document.getElementById("ePubNext");
       _ePubPrev = document.getElementById("ePubPrev");
 
@@ -198,7 +197,6 @@ export default {
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
-              console.log(getToc, "getTocgetTocgetTocgetToc");
 
               if (!localStorage.toc) {
                 localStorage.toc = JSON.stringify(getToc.toc);
@@ -295,6 +293,14 @@ export default {
           });
         }
       });
+    },
+    topHidden(){
+      let _ul,_header
+
+      _ul = document.getElementById("toc-wrap");
+      _header = document.getElementsByClassName("mint-header")[0];
+      
+      this.topHiddenFlag = !this.topHiddenFlag
     }
   }
 };
@@ -315,11 +321,11 @@ div.epub-index-wrap {
       font-size: 23px;
     }
   }
-  .headerHiddenA {
+  div.headerHiddenA {
     transform: translateY(-100%) !important;
     transition: all 0.3s ease-out;
   }
-  .headerHiddenB {
+  div.headerHiddenB {
     transform: translateY(0%) !important;
     transition: all 0.3s ease-in;
   }
@@ -375,15 +381,15 @@ div.epub-index-wrap {
     flex-direction: row;
 
     div.l {
-      width: 25vw;
+      width: 30vw;
       height: inherit;
     }
     div.c {
-      width: 50vw;
+      width: 40vw;
       height: inherit;
     }
     div.r {
-      width: 25vw;
+      width: 30vw;
       height: inherit;
     }
   }
