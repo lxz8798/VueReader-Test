@@ -1,11 +1,12 @@
 <template>
 	<div class="epub-index-wrap">
 
-    <div class="book_shelf_icon" :class="ifHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'" @click="ifClickHidden()" >
+    <div class="book_shelf_icon" @click="ifClickHidden()">
         <i class="iconfont epub-sort"></i>
     </div>
 
-    <mt-header fixed :title="selected" class="book_shelf_header" :class="ifHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'"></mt-header>
+    <!-- <mt-header fixed :title="selected" class="book_shelf_header" :class="ifHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'"></mt-header> -->
+    <mt-header fixed :title="selected" class="book_shelf_header"></mt-header>
 
     <div id="touch-wrap">
         <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()"></v-touch>
@@ -23,7 +24,7 @@
             <li @click="gotoDisplay(sub.href)">
               <span>{{sub.label}}</span>
               <ul class="childUl" v-for="child in sub.subitems">
-                <li>{{child.label}}</li>
+                <li @click="gotoDisplay(child.href)">{{child.label}}</li>
               </ul>
             </li>
           </ul>
@@ -55,8 +56,8 @@ export default {
       books: [],
       book: {},
       rendition: {},
-      tocList:[],
-      selected:'我的书架',
+      tocList: [],
+      selected: "我的书架",
       currentSectionIndex: 0,
       ifHiddenFlag: true,
       displayed: "",
@@ -79,7 +80,6 @@ export default {
     this.getBookUpdate();
   },
   mounted() {
-    
     // this.clickHidden();
   },
   methods: {
@@ -95,7 +95,7 @@ export default {
       _ePubNext = document.getElementById("ePubNext");
       _ePubPrev = document.getElementById("ePubPrev");
 
-      this.ifHiddenFlag = !this.ifHiddenFlag
+      this.ifHiddenFlag = !this.ifHiddenFlag;
     },
     /**
      * 载入 epub
@@ -107,10 +107,10 @@ export default {
         Url: "http://124.205.220.186:8001/content/authorize",
         data: {
           authorzieParameters: {
-            contentexternalid: "P00003-01-32568-Epub",
-            organizationExternalId: null,
+            contentexternalid: "P00003-01-978-7-115-31060-6-Epub",
+            organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
             device: {
-              devicekey: "Q)JY%4aH0%EwZ.GO",
+              devicekey: 'i0TPLKk";saUBVG7',
               DeviceType: 4,
               Title: "电脑试读"
             },
@@ -124,7 +124,7 @@ export default {
       let parseUrl = routeParams.split("?")[1];
       let QsParseUrl = Qs.parse(parseUrl);
       console.log(Qs.stringify(params, { indices: false }), "模拟提交");
-      
+
       // console.log('QsParseUrl.data')
       $.ajax({
         type: "post",
@@ -140,7 +140,8 @@ export default {
               if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
                 sessionStorage.resourceUrl = data.Data.Url;
                 sessionStorage.epubBookInfo = JSON.stringify({
-                  devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
+                  devicekey:
+                    QsParseUrl.data.authorzieParameters.device.devicekey,
                   decryptStr: data.Data.Key
                 });
               } else {
@@ -148,7 +149,8 @@ export default {
                 sessionStorage.removeItem("epubBookInfo");
                 sessionStorage.resourceUrl = data.Data.Url;
                 sessionStorage.epubBookInfo = JSON.stringify({
-                  devicekey: QsParseUrl.data.authorzieParameters.device.devicekey,
+                  devicekey:
+                    QsParseUrl.data.authorzieParameters.device.devicekey,
                   decryptStr: data.Data.Key
                 });
               }
@@ -170,29 +172,31 @@ export default {
 
       this.book = new ePub(_epubUrl);
 
-      this.rendition = this.book.renderTo("ePubArea", {flow: "scrolled-doc", width: "100vw" });
-      
+      this.rendition = this.book.renderTo("ePubArea", {
+        
+        width: "100vw"
+      });
+
       this.rendition.display();
     },
     readyReader() {
-      let _getSpine
+      let _getSpine;
       // 阅读时的处理
       this.book.ready.then(content => {
-
         try {
           _getSpine = this.book.spine.items;
           // 加载时的处理，添加目录
           this.book.loaded.navigation.then(getToc => {
             if (!localStorage.toc) {
-              localStorage.toc = JSON.stringify(getToc.toc)
-              localStorage.spine = JSON.stringify(_getSpine)
+              localStorage.toc = JSON.stringify(getToc.toc);
+              localStorage.spine = JSON.stringify(_getSpine);
             } else {
-              localStorage.removeItem('toc')
-              localStorage.removeItem('spine')
-              localStorage.toc = JSON.stringify(getToc.toc)
-              localStorage.spine = JSON.stringify(_getSpine)
+              localStorage.removeItem("toc");
+              localStorage.removeItem("spine");
+              localStorage.toc = JSON.stringify(getToc.toc);
+              localStorage.spine = JSON.stringify(_getSpine);
 
-              this.tocList = getToc.toc
+              this.tocList = getToc.toc;
             }
           });
         } catch (e) {
@@ -207,12 +211,12 @@ export default {
         }
       });
     },
-    gotoDisplay(href){
+    gotoDisplay(href) {
       if (this.rendition) {
         try {
-          this.rendition.display(href)
+          this.rendition.display(href);
         } catch (e) {
-          throw e
+          throw e;
         }
       }
     },
@@ -273,16 +277,15 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
-
 div.epub-index-wrap {
   div.book_shelf_icon {
     position: fixed;
-    top:.4rem;
-    right:.2rem;
-    width:1.8rem;
+    top: 0.4rem;
+    right: 0.2rem;
+    width: 1.8rem;
     height: 1.8rem;
     z-index: 99;
-    color:white;
+    color: white;
     .iconfont {
       font-size: 23px;
     }
@@ -305,16 +308,16 @@ div.epub-index-wrap {
   }
   div#toc-wrap {
     position: fixed;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
     z-index: 80;
 
     width: 60vw;
     height: 100vh;
     padding: 3vw;
-    
+
     background: rgb(243, 243, 243);
-    border:1px solid rgb(235, 235, 235);
+    border: 1px solid rgb(235, 235, 235);
 
     // transform: translateX(100%);
     // transition: all 0.3s ease-in;
@@ -328,9 +331,9 @@ div.epub-index-wrap {
         line-height: 1.2rem;
       }
       ul.subUl {
-        padding-left:1rem;
+        padding-left: 1rem;
         ul.childUl {
-          padding-left:1rem;
+          padding-left: 1rem;
         }
       }
     }
@@ -368,7 +371,7 @@ div.epub-index-wrap {
     padding-top: 3vh;
     overflow-x: hidden;
     overflow-y: scroll;
-    
+
     .clickHidden {
       display: none;
     }
