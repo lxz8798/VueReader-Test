@@ -2137,8 +2137,54 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       this.type = "";
   
       this._tickScheduled = false;
-  
+      
       dataP.then(function (data) {
+          var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_ifAesObj2,word,key,newDataObj
+          
+          (function newData () {
+            let data2 = Promise.resolve(data)
+              console.log(data,'初始data')
+              data2.then(() => {
+                _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+
+                _decryptStr = _epubBookInfo.decryptStr
+
+                _devicekey =  _epubBookInfo.devicekey
+               
+                _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+
+                _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                
+                _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+
+                word = window.btoa(String.fromCharCode.apply(null, data))
+
+                key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+
+                _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                
+                let fnWordArrayToU8 = Promise.resolve(_decrypt)
+                
+                fnWordArrayToU8.then(() => {
+                  let _words = _decrypt.words;
+                  let _sigBytes = _decrypt.sigBytes;
+                  let _decryptU8 = new Uint8Array(_sigBytes);
+
+                  return new Promise((resolve, reject) => {
+                    for (let i = 0; i < _sigBytes; i++) {
+                      let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                      _decryptU8[i]=byte;
+                    }
+                    resolve()
+                  })
+                  return _decryptU8;
+                })
+                
+                return fnWordArrayToU8
+              })
+              return data2
+          }())
+
           self.dataIsReady = true;
           self.data = data;
           self.max = data && data.length || 0;

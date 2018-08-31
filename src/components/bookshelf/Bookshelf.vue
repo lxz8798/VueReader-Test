@@ -114,15 +114,14 @@ export default {
       return new Promise((resolve, ject) => {
         // 发请求拿授权及 epub 地址
         let params = {
-          Url: "http://124.205.220.186:8001/content/authorize",
+          Url: "http://218.249.32.238/content/authorize",
           data: {
             authorzieParameters: {
-              contentexternalid: "P00003-01-978-7-115-47951-8-Epub",
+              contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
               organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
-              isOnline:true,
               device: {
                 devicekey: 'i0TPLKk";saUBVG7',
-                DeviceType: 1,
+                DeviceType: 4,
                 Title: "电脑试读"
               },
               FromSalePlatformTitle: "可知",
@@ -157,7 +156,7 @@ export default {
                   sessionStorage.epubBookInfo = JSON.stringify({
                     devicekey:
                       QsParseUrl.data.authorzieParameters.device.devicekey,
-                    decryptStr: data.Data.Key
+                      decryptStr: data.Data.Key
                   });
                 } else {
                   sessionStorage.removeItem("resourceUrl");
@@ -201,7 +200,7 @@ export default {
           width: "100vw",
           height: 600,
           manager: "continuous",
-          flow: "paginated",
+          flow: "paginated"
         });
         // 其他样式风格
 
@@ -209,7 +208,7 @@ export default {
 
         this.rendition.themes.default({
           p: {
-            color:'#333333'
+            color: "#333333"
           },
           img: {
             width: "96%"
@@ -218,9 +217,7 @@ export default {
 
         // 当前位置之类的，可以做进度
         this.rendition.on("relocated", function(location) {
-
           this.currentSectionIndex = location.start.displayed.page;
-
         });
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("120%");
@@ -264,7 +261,6 @@ export default {
               }
               resolve();
             });
-            
           } catch (e) {
             console.log(e.message);
           }
@@ -291,9 +287,9 @@ export default {
     ePubNext() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.rendition.next().then(res=>{
-            console.log(res)
-          })
+          this.rendition.next().then(res => {
+            console.log(res);
+          });
           // this.rendition.next();
           resolve();
         } catch (e) {
@@ -348,7 +344,7 @@ export default {
       let _header;
 
       _header = document.getElementById("my_header");
-      
+
       this.topHiddenFlag = !this.topHiddenFlag;
     }
   }
@@ -359,14 +355,14 @@ export default {
 <style lang="less">
 div.epub-index-wrap {
   div.header_wrap {
-    width:100vw;
+    width: 100vw;
     height: 3.5rem;
     background: white;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 
     position: fixed;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
 
     z-index: 80;
 
@@ -376,20 +372,20 @@ div.epub-index-wrap {
       flex-direction: row;
       justify-content: space-around;
       align-items: center;
-      flex:1;
+      flex: 1;
       li {
         i.iconfont {
           font-size: 20px;
         }
       }
       li:nth-child(1) {
-        flex:.8;
+        flex: 0.8;
         i.iconfont {
           font-size: 15px;
         }
       }
       li:nth-child(4) {
-        padding-right: .3rem;
+        padding-right: 0.3rem;
       }
     }
   }
@@ -400,8 +396,8 @@ div.epub-index-wrap {
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
 
     position: fixed;
-    bottom:0;
-    left:0;
+    bottom: 0;
+    left: 0;
 
     z-index: 80;
     ul {
@@ -420,27 +416,27 @@ div.epub-index-wrap {
           color: RGBA(64, 71, 79, 1);
         }
       }
-      
+
       li:nth-child(1) {
         padding-left: 1rem;
-        flex: .2;
+        flex: 0.2;
       }
       li:nth-child(2) {
-        flex: .2;
+        flex: 0.2;
         transform: rotate(270deg);
       }
       li:nth-child(3) {
         flex: 1;
         height: 2px;
-        
+
         background: RGBA(64, 71, 79, 1);
       }
       li:nth-child(4) {
-        flex: .2;
+        flex: 0.2;
         transform: rotate(90deg);
       }
       li:nth-child(5) {
-        flex: .2;
+        flex: 0.2;
       }
     }
   }
@@ -453,7 +449,7 @@ div.epub-index-wrap {
     border-radius: 50%;
     z-index: 99;
     color: white;
-    background: #40474F;
+    background: #40474f;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -494,11 +490,11 @@ div.epub-index-wrap {
     overflow-x: hidden;
     overflow-y: scroll;
     div.toc_title_wrap {
-      width:inherit;
+      width: inherit;
       height: 3rem;
-      
-      background: #40474F;
-      color:white;
+
+      background: #40474f;
+      color: white;
 
       display: flex;
       justify-content: center;
@@ -506,12 +502,11 @@ div.epub-index-wrap {
 
       span {
         height: 3rem;
-        line-height: 3rem;;
-        flex:1;
+        line-height: 3rem;
+        flex: 1;
         text-align: center;
       }
       span:nth-child(1) {
-
       }
       span:nth-child(2) {
         width: inherit;
@@ -519,30 +514,28 @@ div.epub-index-wrap {
         justify-content: center;
         align-self: center;
         background: white;
-        color: #40474F;
+        color: #40474f;
       }
     }
     ul#toc {
-      width:inherit - 6vw;
-      padding:3vw;
+      width: inherit - 6vw;
+      padding: 3vw;
       margin-bottom: 1rem;
-      font-size: .8rem;
+      font-size: 0.8rem;
       padding-top: 1.2rem;
       padding-bottom: 1.2rem;
 
       li {
         width: inherit;
         span {
-
           width: inherit;
           height: 3rem;
           display: inline-block;
         }
         span:hover {
-          color:#2053E4;
+          color: #2053e4;
         }
       }
-      
     }
   }
   div#touch-wrap {
