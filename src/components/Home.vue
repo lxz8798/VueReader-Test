@@ -6,8 +6,9 @@
 				<Bookshelf class="tab-container" @addBook="changeSelected"></Bookshelf>
 			</mt-tab-container-item>
 		</mt-tab-container>
+		
 		<!-- 原footer 现隐藏 -->
-		<!-- <mt-tabbar v-model="selected" :fixed="true" :value="selected">
+		<!-- <mt-tabbar v-model="selected" class="footer" :fixed="true" :value="selected">
 			<mt-tab-item id="书架">
 				<img slot="icon" src="../assets/book.svg"> 书架
 			</mt-tab-item>
@@ -55,18 +56,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.tab-container {
-	box-sizing: border-box;
-	padding-top: 2rem;
-	padding-bottom: 55px;
-	width: 100vw;
-	min-height: 100vh;
+div.epub_reader_footer {
+	
 }
-div.book_shelf_header {
-	position: fixed;
-	top:0;
-	left:0;
-	z-index: 90;
+.tab-container {
+	width:100vw;
+	height:100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 </style>

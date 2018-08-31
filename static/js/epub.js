@@ -9479,7 +9479,6 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 				if (next) {
 					sessionStorage.sectionFlag = true
 					newViews.push(_this5.append(next));
-					console.log(newViews,'newViews')
 				}
 			};
 
@@ -16218,7 +16217,6 @@ var Archive = function () {
 												break;
 											}
 										}
-										// console.log(out,'asdc')
 										return out;
 									}
 									// console.log(wordArrayToU8(),'解密后且转成的u8 stemp 12')

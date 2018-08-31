@@ -2,10 +2,18 @@
 	<div class="epub-index-wrap">
 
     <div class="book_shelf_icon" @click="ifClickHidden()">
-        <i class="iconfont epub-sort"></i>
+        <i class="iconfont epub-ziyuan"></i>
     </div>
 
-    <mt-header fixed :title="selected" id="my_header"></mt-header>
+    <!-- <mt-header fixed :title="selected" id="my_header"></mt-header> -->
+    <div class="header_wrap">
+      <ul>
+        <li><i class="iconfont epub-jiantou"></i></li>
+        <li><i class="iconfont epub-fangdajing"></i></li>
+        <li><i class="iconfont epub-icon-test"></i></li>
+        <li><i class="iconfont epub-gengduo"></i></li>
+      </ul>
+    </div>
 
     <div id="touch-wrap">
         <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubnext()"></v-touch>
@@ -15,9 +23,13 @@
 
     <div id="ePubArea"></div>
 
-    <div id="curr_page_number" v-model="currentSectionIndex">{{currentSectionIndex}}</div>
+    <!-- <div id="curr_page_number" v-model="currentSectionIndex">{{currentSectionIndex}}</div> -->
     
     <div id="toc-wrap" :class="ifHiddenFlag ? 'boxHiddenA' : 'boxHiddenB'">
+      <div class="toc_title_wrap">
+        <span>目录</span>
+        <span>历史</span>
+      </div>
       <ul id="toc">
         <li v-for="item in tocList" :title="item.href">
           <span @click="gotoDisplay(item.href)" :id="item.id">{{item.label}}</span>
@@ -25,12 +37,24 @@
             <li @click="gotoDisplay(sub.href)" :id="sub.id">
               <span>{{sub.label}}</span>
               <ul class="childUl" v-for="child in sub.subitems">
-                <li @click="gotoDisplay(child.href)" :id="child.id">{{child.label}}</li>
+                <li @click="gotoDisplay(child.href)" :id="child.id">
+                  <span>{{child.label}}</span>
+                </li>
               </ul>
             </li>
           </ul>
         </li>
       </ul>      
+    </div>
+
+    <div class="foot_wrap">
+      <ul>
+        <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
+        <li></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
+        <li><i class="iconfont epub-shezhi"></i></li>
+      </ul>
     </div>
 
 	</div>
@@ -184,6 +208,9 @@ export default {
         // this.rendition.themes.register("Other", "Other.css");
 
         this.rendition.themes.default({
+          p: {
+            color:'#333333'
+          },
           img: {
             width: "96%"
           }
@@ -195,7 +222,7 @@ export default {
           this.currentSectionIndex = location.start.displayed.page;
 
         });
-
+        this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("120%");
 
         // this.rendition.themes.select("Other")
@@ -264,7 +291,10 @@ export default {
     ePubNext() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.rendition.next();
+          this.rendition.next().then(res=>{
+            console.log(res)
+          })
+          // this.rendition.next();
           resolve();
         } catch (e) {
           console.log(e.message);
@@ -318,7 +348,7 @@ export default {
       let _header;
 
       _header = document.getElementById("my_header");
-
+      
       this.topHiddenFlag = !this.topHiddenFlag;
     }
   }
@@ -328,14 +358,105 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
 div.epub-index-wrap {
+  div.header_wrap {
+    width:100vw;
+    height: 3.5rem;
+    background: white;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
+
+    position: fixed;
+    top:0;
+    left:0;
+
+    z-index: 80;
+
+    ul {
+      height: 3.5rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      flex:1;
+      li {
+        i.iconfont {
+          font-size: 20px;
+        }
+      }
+      li:nth-child(1) {
+        flex:.8;
+        i.iconfont {
+          font-size: 15px;
+        }
+      }
+      li:nth-child(4) {
+        padding-right: .3rem;
+      }
+    }
+  }
+  div.foot_wrap {
+    width: 100vw;
+    height: 3.5rem;
+    background: white;
+    box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
+
+    position: fixed;
+    bottom:0;
+    left:0;
+
+    z-index: 80;
+    ul {
+      width: inherit;
+      height: inherit;
+      display: flex;
+      justify-content: space-around;
+      flex-direction: row;
+      align-items: center;
+      li {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        i.iconfont {
+          font-size: 20px;
+          color: RGBA(64, 71, 79, 1);
+        }
+      }
+      
+      li:nth-child(1) {
+        padding-left: 1rem;
+        flex: .2;
+      }
+      li:nth-child(2) {
+        flex: .2;
+        transform: rotate(270deg);
+      }
+      li:nth-child(3) {
+        flex: 1;
+        height: 2px;
+        
+        background: RGBA(64, 71, 79, 1);
+      }
+      li:nth-child(4) {
+        flex: .2;
+        transform: rotate(90deg);
+      }
+      li:nth-child(5) {
+        flex: .2;
+      }
+    }
+  }
   div.book_shelf_icon {
     position: fixed;
-    top: 0.4rem;
+    top: 45%;
     right: 0.2rem;
-    width: 1.8rem;
-    height: 1.8rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
     z-index: 99;
     color: white;
+    background: #40474F;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     .iconfont {
       font-size: 23px;
     }
@@ -360,45 +481,80 @@ div.epub-index-wrap {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 80;
+    z-index: 90;
 
-    width: 60vw;
+    width: 70vw;
     height: 100vh;
-    padding: 3vw;
 
     background: rgb(243, 243, 243);
-    border: 1px solid rgb(235, 235, 235);
 
     // transform: translateX(100%);
     // transition: all 0.3s ease-in;
 
     overflow-x: hidden;
     overflow-y: scroll;
-    ul#toc {
-      font-size: 14px;
-      margin-bottom: 1rem;
-      li {
-        line-height: 1.2rem;
+    div.toc_title_wrap {
+      width:inherit;
+      height: 3rem;
+      
+      background: #40474F;
+      color:white;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      span {
+        height: 3rem;
+        line-height: 3rem;;
+        flex:1;
+        text-align: center;
       }
-      ul.subUl {
-        padding-left: 1rem;
-        ul.childUl {
-          padding-left: 1rem;
+      span:nth-child(1) {
+
+      }
+      span:nth-child(2) {
+        width: inherit;
+        display: flex;
+        justify-content: center;
+        align-self: center;
+        background: white;
+        color: #40474F;
+      }
+    }
+    ul#toc {
+      width:inherit - 6vw;
+      padding:3vw;
+      margin-bottom: 1rem;
+      font-size: .8rem;
+      padding-top: 1.2rem;
+      padding-bottom: 1.2rem;
+
+      li {
+        width: inherit;
+        span {
+
+          width: inherit;
+          height: 3rem;
+          display: inline-block;
+        }
+        span:hover {
+          color:#2053E4;
         }
       }
+      
     }
   }
   div#touch-wrap {
     position: fixed;
-    top: 0;
-    height: 0;
+    top: 10%;
     width: 100vw;
-    height: 100vh;
-    z-index: 10;
-
+    height: calc(100vh - 140px);
+    z-index: 90;
     display: flex;
     flex-direction: row;
-
+    justify-content: center;
+    align-items: center;
     div.l {
       width: 40vw;
       height: inherit;
@@ -424,7 +580,6 @@ div.epub-index-wrap {
     align-items: center;
 
     overflow-x: hidden;
-    overflow-y: scroll;
   }
   div#curr_page_number {
     color: #ccc;
