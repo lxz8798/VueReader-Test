@@ -16228,10 +16228,10 @@ var Archive = function () {
 						}
 					} catch (e) {
 						if (e) {
-							console.log(e.message,'捕捉到的错误!')
 							return entry.async("string").then(function (text) {
+								console.log(e.message,text,'捕捉到的错误!')
 								return text
-							})	
+							})
 						}
 					}
 				})

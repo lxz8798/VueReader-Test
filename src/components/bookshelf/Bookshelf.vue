@@ -5,25 +5,29 @@
         <i class="iconfont epub-sort"></i>
     </div>
 
-    <mt-header fixed :title="selected" :class="topHiddenFlag ? 'headerHiddenA' : 'headerHiddenB'"></mt-header>
+    <mt-header fixed :title="selected" id="my_header"></mt-header>
 
     <div id="touch-wrap">
         <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubnext()"></v-touch>
         <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
         <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch>
     </div>
-    
+
     <div id="ePubArea"></div>
+
+    <div id="curr_page_number">
+      {{currentSectionIndex}}
+    </div>
     
     <div id="toc-wrap" :class="ifHiddenFlag ? 'boxHiddenA' : 'boxHiddenB'">
       <ul id="toc">
-        <li v-for="item in tocList" :title="item.href" :id="'chap-'+item.id">
-          <span @click="gotoDisplay(item.href)">{{item.label}}</span>
+        <li v-for="item in tocList" :title="item.href">
+          <span @click="gotoDisplay(item.href)" :id="item.id">{{item.label}}</span>
           <ul class="subUl" v-for="sub in item.subitems">
-            <li @click="gotoDisplay(sub.href)">
+            <li @click="gotoDisplay(sub.href)" :id="sub.id">
               <span>{{sub.label}}</span>
               <ul class="childUl" v-for="child in sub.subitems">
-                <li @click="gotoDisplay(child.href)">{{child.label}}</li>
+                <li @click="gotoDisplay(child.href)" :id="child.id">{{child.label}}</li>
               </ul>
             </li>
           </ul>
@@ -58,7 +62,7 @@ export default {
       selected: "我的书架",
       currentSectionIndex: 0,
       ifHiddenFlag: true,
-      topHiddenFlag:true,
+      topHiddenFlag: true,
       displayed: "",
       decryptAfterToU8: [],
       epubText: ""
@@ -77,7 +81,7 @@ export default {
     await this.openEpub();
     await this.readyReader();
     await this.getBookUpdate();
-    await this.topHidden()
+    await this.topHidden();
   },
   methods: {
     /**
@@ -88,14 +92,15 @@ export default {
       return new Promise((resolve, ject) => {
         // 发请求拿授权及 epub 地址
         let params = {
-          Url: "http://218.249.32.238/content/authorize",
+          Url: "http://124.205.220.186:8001/content/authorize",
           data: {
             authorzieParameters: {
-              contentexternalid: "P00001-01-978-7-121-08710-3-Epub",
-              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
+              contentexternalid: "P00003-01-32568-Epub",
+              organizationExternalId: "",
+              isOnline:true,
               device: {
-                devicekey: 'i0TPLKk";saUBVG7',
-                DeviceType: 4,
+                devicekey: "Q)JY%4aH0%EwZ.GO",
+                DeviceType: "4",
                 Title: "电脑试读"
               },
               FromSalePlatformTitle: "可知",
@@ -171,8 +176,22 @@ export default {
         this.book = new ePub(_epubUrl);
 
         this.rendition = this.book.renderTo("ePubArea", {
-          width: "100vw"
-        });
+          width: "100vw",
+          height: 'auto'
+        })
+        // 其他样式风格
+        
+        // this.rendition.themes.register("Other", "Other.css");
+        
+        this.rendition.themes.default({
+          img: {
+            width: "96%"
+          }
+        })
+
+        this.rendition.themes.fontSize("120%");
+
+        // this.rendition.themes.select("Other")
 
         this.rendition.display(this.currentSectionIndex);
         // resolve();
@@ -185,19 +204,19 @@ export default {
       _ePubPrev = document.getElementById("ePubPrev");
 
       this.ifHiddenFlag = !this.ifHiddenFlag;
-      await this.readyReader()
+      
+      await this.readyReader();
     },
     readyReader() {
       return new Promise((resolve, reject) => {
         let _getSpine;
         // 阅读时的处理
-        console.log(this.book.ready);
         this.book.ready.then(content => {
           try {
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
-
+              console.log(getToc,'getToc')
               if (!localStorage.toc) {
                 localStorage.toc = JSON.stringify(getToc.toc);
                 localStorage.spine = JSON.stringify(_getSpine);
@@ -209,27 +228,25 @@ export default {
 
                 this.tocList = getToc.toc;
               }
-            resolve();
+              resolve();
             });
+            // 当前位置之类的，可以做进度
+            this.rendition.on("relocated", function(location){
+              this.currentSectionIndex = location
+            })
           } catch (e) {
             console.log(e.message);
           }
         });
-        // 其他样式风格
-        // rendition.themes.register("dark", "themes.css");
-        this.rendition.themes.default({
-          img: {
-            width: "96%"
-          }
-        });
+        
       });
     },
-    gotoDisplay(href) {
+    gotoDisplay(id) {
       return new Promise((resolve, rejcet) => {
-        console.log(href, "href");
+        console.log(id, "href");
         if (this.rendition) {
           try {
-            this.rendition.display(href);
+            this.rendition.display(id);
             resolve();
           } catch (e) {
             throw e;
@@ -294,20 +311,19 @@ export default {
         }
       });
     },
-    topHidden(){
-      let _ul,_header
+    topHidden() {
+      let _header;
 
-      _ul = document.getElementById("toc-wrap");
-      _header = document.getElementsByClassName("mint-header")[0];
+      _header = document.getElementById("my_header");
       
-      this.topHiddenFlag = !this.topHiddenFlag
+      this.topHiddenFlag = !this.topHiddenFlag;
     }
   }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="less" scoped>
+<style lang="less">
 div.epub-index-wrap {
   div.book_shelf_icon {
     position: fixed;
@@ -381,33 +397,39 @@ div.epub-index-wrap {
     flex-direction: row;
 
     div.l {
-      width: 30vw;
-      height: inherit;
-    }
-    div.c {
       width: 40vw;
       height: inherit;
     }
+    div.c {
+      width: 20vw;
+      height: inherit;
+    }
     div.r {
-      width: 30vw;
+      width: 40vw;
       height: inherit;
     }
   }
-  div#ePubArea {
+  div.curr_page_num {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 97vh;
-    padding-top: 3vh;
+    right:10px;
+    bottom:10px;
+    z-index:99;
+  }
+  div#ePubArea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     overflow-x: hidden;
     overflow-y: scroll;
-
-    .clickHidden {
-      display: none;
-    }
   }
-
+  div#curr_page_number {
+    color:#ccc;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    padding-right:.5rem;
+  }
   div.epub-btn-wrap {
     position: fixed;
     top: 0;
