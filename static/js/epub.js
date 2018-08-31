@@ -4097,7 +4097,6 @@ var Contents = function () {
 		key: "scrollHeight",
 		value: function scrollHeight() {
 			var height = this.documentElement.scrollHeight;
-
 			return height;
 		}
 
@@ -8268,8 +8267,8 @@ var IframeView = function () {
 
 			// Render Chain
 			return this.sectionRender.then(function (contents) {
+				// 使用正则替换img地址
 				contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
-				console.log(contents)
 				return this.load(contents);
 			}.bind(this)).then(function () {
 				var _this = this;
@@ -9476,9 +9475,11 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 			var append = function append() {
 				var last = _this5.views.last();
 				var next = last && last.section.next();
-
+				
 				if (next) {
+					sessionStorage.sectionFlag = true
 					newViews.push(_this5.append(next));
+					console.log(newViews,'newViews')
 				}
 			};
 

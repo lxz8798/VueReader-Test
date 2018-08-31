@@ -15,9 +15,7 @@
 
     <div id="ePubArea"></div>
 
-    <div id="curr_page_number">
-      {{currentSectionIndex}}
-    </div>
+    <div id="curr_page_number" v-model="currentSectionIndex">{{currentSectionIndex}}</div>
     
     <div id="toc-wrap" :class="ifHiddenFlag ? 'boxHiddenA' : 'boxHiddenB'">
       <ul id="toc">
@@ -95,12 +93,12 @@ export default {
           Url: "http://124.205.220.186:8001/content/authorize",
           data: {
             authorzieParameters: {
-              contentexternalid: "P00003-01-32568-Epub",
-              organizationExternalId: "",
+              contentexternalid: "P00003-01-978-7-115-47951-8-Epub",
+              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
               isOnline:true,
               device: {
-                devicekey: "Q)JY%4aH0%EwZ.GO",
-                DeviceType: "4",
+                devicekey: 'i0TPLKk";saUBVG7',
+                DeviceType: 1,
                 Title: "电脑试读"
               },
               FromSalePlatformTitle: "可知",
@@ -177,17 +175,26 @@ export default {
 
         this.rendition = this.book.renderTo("ePubArea", {
           width: "100vw",
-          height: 'auto'
-        })
+          height: 600,
+          manager: "continuous",
+          flow: "paginated",
+        });
         // 其他样式风格
-        
+
         // this.rendition.themes.register("Other", "Other.css");
-        
+
         this.rendition.themes.default({
           img: {
             width: "96%"
           }
-        })
+        });
+
+        // 当前位置之类的，可以做进度
+        this.rendition.on("relocated", function(location) {
+
+          this.currentSectionIndex = location.start.displayed.page;
+
+        });
 
         this.rendition.themes.fontSize("120%");
 
@@ -204,7 +211,7 @@ export default {
       _ePubPrev = document.getElementById("ePubPrev");
 
       this.ifHiddenFlag = !this.ifHiddenFlag;
-      
+
       await this.readyReader();
     },
     readyReader() {
@@ -216,7 +223,7 @@ export default {
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
-              console.log(getToc,'getToc')
+              console.log(getToc, "getToc");
               if (!localStorage.toc) {
                 localStorage.toc = JSON.stringify(getToc.toc);
                 localStorage.spine = JSON.stringify(_getSpine);
@@ -230,15 +237,11 @@ export default {
               }
               resolve();
             });
-            // 当前位置之类的，可以做进度
-            this.rendition.on("relocated", function(location){
-              this.currentSectionIndex = location
-            })
+            
           } catch (e) {
             console.log(e.message);
           }
         });
-        
       });
     },
     gotoDisplay(id) {
@@ -315,7 +318,7 @@ export default {
       let _header;
 
       _header = document.getElementById("my_header");
-      
+
       this.topHiddenFlag = !this.topHiddenFlag;
     }
   }
@@ -411,9 +414,9 @@ div.epub-index-wrap {
   }
   div.curr_page_num {
     position: fixed;
-    right:10px;
-    bottom:10px;
-    z-index:99;
+    right: 10px;
+    bottom: 10px;
+    z-index: 99;
   }
   div#ePubArea {
     display: flex;
@@ -424,11 +427,11 @@ div.epub-index-wrap {
     overflow-y: scroll;
   }
   div#curr_page_number {
-    color:#ccc;
+    color: #ccc;
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    padding-right:.5rem;
+    padding-right: 0.5rem;
   }
   div.epub-btn-wrap {
     position: fixed;
