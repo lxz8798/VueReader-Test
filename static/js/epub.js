@@ -577,6 +577,14 @@ function parse(markup, mime, forceXMLDom) {
 	// Remove byte order mark before parsing
 	// https://www.w3.org/International/questions/qa-byte-order-mark
 	if (markup.charCodeAt(0) === 0xFEFF) {
+		if (!localStorage.isError) {
+			console.log(trye,'是否报错')
+			localStorage.isError = true
+		} else {
+			localStorage.removeItem('isError')
+			localStorage.isError = true
+		}
+		
 		markup = markup.slice(1);
 	}
 
@@ -16076,12 +16084,56 @@ var Archive = function () {
 			var entry = this.zip.file(decodededUrl);
 			
 			if (entry) {
-				sessionStorage.fileName = url
+				// sessionStorage.fileName = url
 				// 原始的返回结果
+				// return entry.async("string").then(function (text) {
+				// 	console.log(decodededUrl,'这里是通过session写入文件名')
+				if (!sessionStorage.fileName) {
+					sessionStorage.fileName = url
+				} else {
+					sessionStorage.removeItem('fileName')
+					sessionStorage.fileName = url
+				}
+				// 	console.log(text)
+				// 	return text;
+				// });
+				
 				return entry.async("string").then(function (text) {
-					console.log(text)
-					return text;
-				});
+					console.log(text,'texttexttexttexttexttexttexttexttexttexttext')
+					let regXml = /<\?\b\w+\b.*?>/
+					let cssReg = /^\.\b\w.*?\w\b\{[^\}]+\}/
+					if (regXml.test(text) || cssReg.test(text)) {
+						return text
+					} else {
+						if (!localStorage.isDecrypt) {
+							localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
+							return entry.async("uint8array").then(function (u8) {
+								console.log(u8,'是否是zip对象')
+							})
+						} else {
+							localStorage.removeItem('isDecrypt')
+							localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
+						}
+						
+					}
+					
+				})
+				
+				// return entry.async("string").then(function (text) {
+				// 	try {
+				// 		let temp = url.split('.')
+				// 		if (temp[1] == "ncx" || temp[1] == "opf" || temp[1] == "css") {				
+				// 			return entry.async("string").then(function (text) {
+				// 				console.log(text,'stemp 1')
+				// 				return text;
+				// 			})
+				// 		}
+				// 		return text;
+				// 	} catch (e) {
+				// 		throw e
+				// 	}
+				// });
+
 				// return entry.async("uint8array").then(function (u8) {
 				// 	try {
 				// 		let temp = url.split('.')

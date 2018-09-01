@@ -154,12 +154,12 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           .pipe(this.compression.uncompressWorker())
           .pipe(new DataLengthProbe("data_length"));
   
-          var that = this;
-          worker.on("end", function () {
-              if(this.streamInfo['data_length'] !== that.uncompressedSize) {
-                  throw new Error("Bug : uncompressed data size mismatch");
-              }
-          });
+          // var that = this;
+          // worker.on("end", function () {
+          //     if(this.streamInfo['data_length'] !== that.uncompressedSize) {
+          //         throw new Error("Bug : uncompressed data size mismatch");
+          //     }
+          // });
           return worker;
       },
       /**
@@ -2135,57 +2135,128 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       this.max = 0;
       this.data = null;
       this.type = "";
-  
       this._tickScheduled = false;
       
       dataP.then(function (data) {
+          
           var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_ifAesObj2,word,key,newDataObj
           
-          (function newData () {
-            let data2 = Promise.resolve(data)
-              console.log(data,'初始data')
-              data2.then(() => {
-                _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-
-                _decryptStr = _epubBookInfo.decryptStr
-
-                _devicekey =  _epubBookInfo.devicekey
-               
-                _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
-
-                _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+          
+          try {
+            var fileName = sessionStorage.fileName
+            var temp = fileName.split('.')
+            
+            if (temp[1] == "xhtml" || temp[1] == "xml" || temp[1] == "html") {
+              console.log('是相关文件')
+              // data = []
+              function newData () {
+                console.log(data,'data')
+                _ifAesObj = Array.from(data.slice(0,10))
+                console.log(_ifAesObj,'_ifAesObj')
                 
-                _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+                const OTHER_UINT8ARRAY = [86, 116, 222, 232, 115, 7, 94, 98, 180, 7]
+                // // 判断数组是否相等
+                let otherXML = function () {						
+                  for (let i = 0; i < 10; i++) {
+                    return _ifAesObj[i] == OTHER_UINT8ARRAY[i] ? true : false
+                  }
+                }
+                console.log(sessionStorage.fileName,'这里是文件名')
+                console.log(otherXML(),'判断是否其他格式未加密的文件')
 
-                word = window.btoa(String.fromCharCode.apply(null, data))
-
-                key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
-
-                _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-                
-                let fnWordArrayToU8 = Promise.resolve(_decrypt)
-                
-                fnWordArrayToU8.then(() => {
-                  let _words = _decrypt.words;
-                  let _sigBytes = _decrypt.sigBytes;
-                  let _decryptU8 = new Uint8Array(_sigBytes);
-
-                  return new Promise((resolve, reject) => {
+                if (otherXML()) {
+                  _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+                  console.log(_epubBookInfo,'_epubBookInfo1')
+                  _decryptStr = _epubBookInfo.decryptStr
+                  console.log(_decryptStr,'_decryptStr2')
+                  _devicekey =  _epubBookInfo.devicekey
+                  console.log(_devicekey,'_devicekey3')                  
+                  _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+                  // console.log(_decryptKey,'_decryptKey4')
+                  _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                  // console.log(_decryptAfterKey,'_decryptAfterKey5')
+                  _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+                  console.log(_decryptAfterKeyToStr,'解密完成的key')
+                  word = window.btoa(String.fromCharCode.apply(null, data))
+                  console.log(word,'解密前的正文，应该是base64')
+                  key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+                  console.log(key,'解密完成的key7')
+                  _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                  console.log(_decrypt,'解密后的正文8，还是wordarray')
+                  let wordArrayToU8 = function () {
+                    let _words = _decrypt.words;
+                    let _sigBytes = _decrypt.sigBytes;
+                    let _decryptU8 = new Uint8Array(_sigBytes);
                     for (let i = 0; i < _sigBytes; i++) {
                       let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                       _decryptU8[i]=byte;
                     }
-                    resolve()
-                  })
-                  return _decryptU8;
-                })
+                    return _decryptU8;
+                  }
+                  console.log(wordArrayToU8(),'wordArrayToU8()wordArrayToU8()')
+                  data = wordArrayToU8()
+                  console.log(data,'赋值以后的data')
+                  return data
+                } else {
+                  return data
+                }
+                // return
+              }
+              console.log(newData(),'otherXML()otherXML()otherXML()')
+              data = newData()
+            } else {
+              
+            }
+          } catch (e) {
+            throw e
+          }
+
+          // (function newData () {
+          //   let data2 = Promise.resolve(data)
+          //     console.log(data,'初始data')
+          //     data2.then(() => {
+          //       _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+
+          //       _decryptStr = _epubBookInfo.decryptStr
+
+          //       _devicekey =  _epubBookInfo.devicekey
+               
+          //       _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+
+          //       _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
                 
-                return fnWordArrayToU8
-              })
-              return data2
-          }())
+          //       _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+
+          //       word = window.btoa(String.fromCharCode.apply(null, data))
+
+          //       key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+
+          //       _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                
+          //       let fnWordArrayToU8 = Promise.resolve(_decrypt)
+                
+          //       fnWordArrayToU8.then(() => {
+          //         let _words = _decrypt.words;
+          //         let _sigBytes = _decrypt.sigBytes;
+          //         let _decryptU8 = new Uint8Array(_sigBytes);
+
+          //         return new Promise((resolve, reject) => {
+          //           for (let i = 0; i < _sigBytes; i++) {
+          //             let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+          //             _decryptU8[i]=byte;
+          //           }
+          //           resolve()
+          //         })
+          //         return _decryptU8;
+          //       })
+                
+          //       return fnWordArrayToU8
+          //     })
+          //     return data2
+          // }())
 
           self.dataIsReady = true;
+          console.log(data,'如果不是80开头的data就是对的')
           self.data = data;
           self.max = data && data.length || 0;
           self.type = utils.getTypeOf(data);
