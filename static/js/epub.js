@@ -11349,11 +11349,12 @@ var Section = function () {
 			var request = _request || this.request || __webpack_require__(11);
 			var loading = new _core.defer();
 			var loaded = loading.promise;
-
 			if (this.contents) {
+				console.log(this.contents,'this.contents=========11353');
 				loading.resolve(this.contents);
 			} else {
 				request(this.url).then(function (xml) {
+					console.log(xml,'xml=============');
 					// var directory = new Url(this.url).directory;
 
 					this.document = xml;
@@ -11390,11 +11391,13 @@ var Section = function () {
 	}, {
 		key: "render",
 		value: function render(_request) {
+			// console.log(_request,'_request==');
 			var rendering = new _core.defer();
 			var rendered = rendering.promise;
 			this.output; // TODO: better way to return this from hooks?
 
 			this.load(_request).then(function (contents) {
+				console.log(contents,'contents=====');
 				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
 				var isIE = userAgent.indexOf('Trident') >= 0;
 				var Serializer;
