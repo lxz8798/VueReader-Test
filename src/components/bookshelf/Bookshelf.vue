@@ -1,14 +1,17 @@
 <template>
-	<div class="epub-index-wrap">
+  <div class="epub-index-wrap">
     <!-- 功能没有，暂时隐藏 -->
     <!-- <div class="book_shelf_icon" @click="ifClickHidden()">
         <i class="iconfont epub-ziyuan"></i>
     </div> -->
 
     <!-- <mt-header fixed :title="selected" id="my_header"></mt-header> -->
-    <div class="header_wrap" :class="HiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
+    <div class="header_wrap"
+         :class="HiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
-        <li><i class="iconfont epub-jiantou"></i></li>
+        <li>
+          <i class="iconfont epub-jiantou"></i>
+        </li>
         <!-- 暂时隐藏 -->
         <!-- <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
           <i class="iconfont epub-fangdajing"></i>
@@ -17,54 +20,85 @@
         <li><i class="iconfont epub-gengduo"></i></li> -->
       </ul>
       <span :class="seatchEvenFlag ? 'search-wrapA' : 'search-wrapB'">
-        <input type="text" class="searchInput">
+        <input type="text"
+               class="searchInput">
       </span>
     </div>
 
     <div id="touch-wrap">
-        <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubnext()"></v-touch>
-        <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
-        <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch>
+      <v-touch class="l"
+               @tap="ePubPrev()"
+               @swipeleft="ePubPrev()"
+               @swiperight="ePubnext()"></v-touch>
+      <v-touch class="c"
+               id="touch-center"
+               @tap="topHidden()"></v-touch>
+      <v-touch class="r"
+               @tap="ePubNext()"
+               @swipeleft="ePubNext()"
+               @swiperight="ePubPrev()"></v-touch>
     </div>
 
     <div id="ePubArea"></div>
 
     <!-- <div id="curr_page_number" v-model="currentSectionIndex">{{currentSectionIndex}}</div> -->
-    
-    <div id="toc-wrap" :class="ifHiddenFlag ? 'boxHiddenA' : 'boxHiddenB'">
+
+    <div id="toc-wrap"
+         :class="ifHiddenFlag ? 'boxHiddenA' : 'boxHiddenB'">
       <div class="toc_title_wrap">
         <span>目录</span>
         <!-- <span>历史</span> -->
       </div>
       <ul id="toc">
-        <li v-for="item in tocList" :title="item.href">
-          <span @click="gotoDisplay(item.href)" :id="item.id">{{item.label}}</span>
+        <li v-for="item in tocList"
+            :title="item.href">
+          <span @click="gotoDisplay(item.href)"
+                :id="item.id">{{item.label}}</span>
           <ul v-for="sub in item.subitems">
-            <li @click="gotoDisplay(sub.href)" :id="sub.href">
-              <span @click="TakeUp(sub.href)" class="span_title">{{sub.label}}</span>
-              <ul class="childUl" v-for="(child,index) in sub.subitems" :key="index">
-                <li @click="gotoDisplay(child.href)" :id="child.id">
+            <li @click="gotoDisplay(sub.href)"
+                :id="sub.href">
+              <span @click="TakeUp(sub.href)"
+                    class="span_title">{{sub.label}}</span>
+              <ul class="childUl"
+                  v-for="(child,index) in sub.subitems"
+                  :key="index">
+                <li @click="gotoDisplay(child.href)"
+                    :id="child.id">
                   <span>{{child.label}}</span>
                 </li>
               </ul>
             </li>
           </ul>
         </li>
-      </ul>      
+      </ul>
     </div>
 
-    <div class="foot_wrap" v-if="setFontAndBG" :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
+    <div class="foot_wrap"
+         v-if="setFontAndBG"
+         :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
       <ul>
-        <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
-        <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
+        <li>
+          <i class="iconfont epub-sort"
+             @click="ifClickHidden()"></i>
+        </li>
+        <li>
+          <i class="iconfont epub-sanjiaojiantoushang"></i>
+        </li>
         <li></li>
-        <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
-        <li><i class="iconfont epub-shezhi" @click="setBG()" ></i></li>
+        <li>
+          <i class="iconfont epub-sanjiaojiantoushang"></i>
+        </li>
+        <li>
+          <i class="iconfont epub-shezhi"
+             @click="setBG()"></i>
+        </li>
         <li class="setting_wrap"></li>
       </ul>
     </div>
 
-    <div class="foot_wrap2" v-else :class="HiddenFlag ? 'SetiingHiddenA' : 'SetiingHiddenB'">
+    <div class="foot_wrap2"
+         v-else
+         :class="HiddenFlag ? 'SetiingHiddenA' : 'SetiingHiddenB'">
       <div class="font_set">
         <ul>
           <li>{{seetingTitle}}</li>
@@ -80,70 +114,74 @@
           <li></li>
           <li></li>
           <li></li>
-          <li><i class="iconfont epub-moonbyueliang"></i></li>
+          <li>
+            <i class="iconfont epub-moonbyueliang"></i>
+          </li>
         </ul>
       </div>
     </div>
 
-    <div id="mask_wrap" @click="ifClickHidden()" v-if="!ifHiddenFlag">
+    <div id="mask_wrap"
+         @click="ifClickHidden()"
+         v-if="!ifHiddenFlag">
 
     </div>
 
-	</div>
+  </div>
 </template>
 
 <script>
-import api from "@/api/api";
-import moment from "moment";
-import util from "@/utils/util";
-import Qs from "qs";
+import api from '@/api/api'
+import moment from 'moment'
+import util from '@/utils/util'
+import Qs from 'qs'
 import {
   SET_EPUB_BOOK,
   SET_CURRENT_SOURCE,
   SET_READ_BOOK
-} from "@/store/mutationsType";
-import { Indicator } from "mint-ui";
+} from '@/store/mutationsType'
+import { Indicator } from 'mint-ui'
 
-moment.locale("zh-cn");
+moment.locale('zh-cn')
 export default {
-  name: "Bookshelf",
+  name: 'Bookshelf',
   data() {
     return {
       books: [],
       book: {},
       rendition: {},
       tocList: [],
-      seatchEvenFlag:false,
-      ulTakeUpFlag:true,
-      setFontAndBG:true,
-      selected: "我的书架",
-      seetingTitle:'字体大小',
-      bgTitle:'背景色',
+      seatchEvenFlag: false,
+      ulTakeUpFlag: true,
+      setFontAndBG: true,
+      selected: '我的书架',
+      seetingTitle: '字体大小',
+      bgTitle: '背景色',
       currentSectionIndex: 0,
       ifHiddenFlag: true,
       HiddenFlag: true,
-      displayed: "",
+      displayed: '',
       decryptAfterToU8: [],
-      epubText: ""
-    };
+      epubText: ''
+    }
   },
   filters: {
     /**
      * 使用moment格式化时间
      */
     ago(time) {
-      return moment(time).fromNow();
+      return moment(time).fromNow()
     }
   },
   async created() {
-    await this.getEpub();
-    await this.openEpub();
-    await this.readyReader();
-    await this.getBookUpdate();
-    await this.topHidden();
+    await this.getEpub()
+    await this.openEpub()
+    await this.readyReader()
+    await this.getBookUpdate()
+    await this.topHidden()
   },
   methods: {
-    setBG () {
+    setBG() {
       this.setFontAndBG = !this.setFontAndBG
       console.log('sadcasdc')
     },
@@ -151,25 +189,24 @@ export default {
      * 收起
      * 李啸竹
      */
-    TakeUp (id) {
+    TakeUp(id) {
       let temp = document.getElementById(id).parentNode
-      console.log(temp,'temptemptemp')
+      console.log(temp, 'temptemptemp')
       if (this.ulTakeUpFlag) {
         this.ulTakeUpFlag = false
         temp.style.height = '3rem'
-        temp.style.overflow = "hidden"
-        temp.style.opcity = "0"
-        
-        temp.style.transition = "all .3s ease-in"
+        temp.style.overflow = 'hidden'
+        temp.style.opcity = '0'
+
+        temp.style.transition = 'all .3s ease-in'
       } else {
         this.ulTakeUpFlag = true
         // temp.style.height = "auto"
-        
-        temp.style.overflow = ""
-        temp.style.opcity = "1"
-        temp.style.transition = "all .3s ease-out"
+
+        temp.style.overflow = ''
+        temp.style.opcity = '1'
+        temp.style.transition = 'all .3s ease-out'
       }
-      
     },
     /**
      * 搜索
@@ -186,21 +223,31 @@ export default {
       return new Promise((resolve, ject) => {
         // 发请求拿授权及 epub 地址
         let params = {
-          Url: "http://218.249.32.238/content/authorize",
+          title: 'zhongzhi',
+          zhongzhiData: {
+            id: 592770,
+            authorizeToken: 'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
+            BridgePlatformName: 'phei_zhongzhi_web_demo',
+            accessToken: 'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
+            deviceToken: '3fe672e487314b34b1044825e46a0dd5',
+            decryptKey: 'CrKBHyXVGtknYiXy',
+            AppId: 11
+          },
+          Url: 'http://218.249.32.238/content/authorize',
           data: {
             authorzieParameters: {
-              contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
-              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
+              contentexternalid: 'P00001-01-978-7-121-33314-9-Epub',
+              organizationExternalId: 'B5C6517D-8879-4DA0-A742-59A3E8E39582',
               device: {
                 devicekey: 'i0TPLKk";saUBVG7',
                 DeviceType: 4,
-                Title: "电脑试读"
+                Title: '电脑试读'
               },
-              FromSalePlatformTitle: "可知",
-              userinfo: { nickname: "未登录", ExternalId: "未登录" }
+              FromSalePlatformTitle: '可知',
+              userinfo: { nickname: '未登录', ExternalId: '未登录' }
             }
           }
-        };
+        }
 
         // let params = {
         //   Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
@@ -215,20 +262,33 @@ export default {
         //   }
         // }
 
-        let routeParams = window.location.href;
-        let parseUrl = routeParams.split("?")[1];
-        let QsParseUrl = Qs.parse(parseUrl);
-        console.log(Qs.stringify(params, { indices: false }),"模拟提交");
-
-        // console.log('QsParseUrl.data')
-        $.ajax({
-          type: "post",
-          url: QsParseUrl.Url,
-          data: {
+        let routeParams = window.location.href
+        let parseUrl = routeParams.split('?')[1]
+        let QsParseUrl = Qs.parse(parseUrl)
+        console.log(Qs.stringify(params, { indices: false }), '模拟提交')
+        let mdata = {}
+        if (QsParseUrl.title === 'zhongzhi') {
+          mdata = {
+            id: QsParseUrl.zhongzhiData.id,
+            authorizeToken: QsParseUrl.zhongzhiData.authorizeToken,
+            BridgePlatformName: QsParseUrl.zhongzhiData.BridgePlatformName,
+            accessToken: QsParseUrl.zhongzhiData.accessToken,
+            deviceToken: QsParseUrl.zhongzhiData.deviceToken,
+            deviceKey: QsParseUrl.zhongzhiData.deviceKey,
+            AppId: QsParseUrl.zhongzhiData.AppId
+          }
+        } else {
+          mdata = {
             authorzieParameters: JSON.stringify(
               QsParseUrl.data.authorzieParameters
             )
-          },
+          }
+        }
+        // console.log('QsParseUrl.data')
+        $.ajax({
+          type: 'post',
+          url: QsParseUrl.Url,
+          data: mdata,
           success: function(data) {
             try {
               if (data) {
@@ -236,34 +296,34 @@ export default {
                   !sessionStorage.epubBookInfo &&
                   !sessionStorage.resourceUrl
                 ) {
-                  sessionStorage.resourceUrl = data.Data.Url;
-                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-                  sessionStorage.epubBookInfo = JSON.stringify({
-                    devicekey:
-                      QsParseUrl.data.authorzieParameters.device.devicekey,
-                      decryptStr: data.Data.Key
-                  });
-                } else {
-                  sessionStorage.removeItem("resourceUrl");
-                  sessionStorage.removeItem("epubBookInfo");
-                  sessionStorage.removeItem("PackageBaseUrl");
-                  sessionStorage.resourceUrl = data.Data.Url;
-                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                  sessionStorage.resourceUrl = data.Data.Url
+                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl
                   sessionStorage.epubBookInfo = JSON.stringify({
                     devicekey:
                       QsParseUrl.data.authorzieParameters.device.devicekey,
                     decryptStr: data.Data.Key
-                  });
+                  })
+                } else {
+                  sessionStorage.removeItem('resourceUrl')
+                  sessionStorage.removeItem('epubBookInfo')
+                  sessionStorage.removeItem('PackageBaseUrl')
+                  sessionStorage.resourceUrl = data.Data.Url
+                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl
+                  sessionStorage.epubBookInfo = JSON.stringify({
+                    devicekey:
+                      QsParseUrl.data.authorzieParameters.device.devicekey,
+                    decryptStr: data.Data.Key
+                  })
                 }
-                Indicator.close();
+                Indicator.close()
               }
             } catch (e) {
-              console.log(e.message);
+              console.log(e.message)
             }
-            resolve();
+            resolve()
           }
-        });
-      });
+        })
+      })
     },
     /**
      * 添加目录显示隐藏事件
@@ -278,94 +338,95 @@ export default {
         // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
 
         // let _epubUrl = sessionStorage.resourceUrl;
-        let _epubUrl = 'http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub';
+        let _epubUrl =
+          'http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub'
         // let _epubUrl = '';
 
-        this.book = new ePub(_epubUrl);
+        this.book = new ePub(_epubUrl)
 
-        this.rendition = this.book.renderTo("ePubArea", {
-          width: "100vw",
+        this.rendition = this.book.renderTo('ePubArea', {
+          width: '100vw',
           height: 600,
-          manager: "continuous",
-          flow: "paginated"
-        });
+          manager: 'continuous',
+          flow: 'paginated'
+        })
         // 其他样式风格
 
         // this.rendition.themes.register("Other", "Other.css");
 
         this.rendition.themes.default({
           p: {
-            color: "#333333"
+            color: '#333333'
           },
           img: {
-            width: "96%"
+            width: '96%'
           }
-        });
+        })
 
         // 当前位置之类的，可以做进度
-        this.rendition.on("relocated", function(location) {
-          this.currentSectionIndex = location.start.displayed.page;
-        });
-        this.rendition.themes.font("MSYH");
-        this.rendition.themes.fontSize("120%");
+        this.rendition.on('relocated', function(location) {
+          this.currentSectionIndex = location.start.displayed.page
+        })
+        this.rendition.themes.font('MSYH')
+        this.rendition.themes.fontSize('120%')
 
         // this.rendition.themes.select("Other")
 
-        this.rendition.display(this.currentSectionIndex);
+        this.rendition.display(this.currentSectionIndex)
         // resolve();
-      });
+      })
     },
     async ifClickHidden() {
-      let _ul, _header, _ePubPrev, _ePubNext;
+      let _ul, _header, _ePubPrev, _ePubNext
 
-      _ePubNext = document.getElementById("ePubNext");
-      _ePubPrev = document.getElementById("ePubPrev");
+      _ePubNext = document.getElementById('ePubNext')
+      _ePubPrev = document.getElementById('ePubPrev')
 
-      this.ifHiddenFlag = !this.ifHiddenFlag;
+      this.ifHiddenFlag = !this.ifHiddenFlag
 
-      await this.readyReader();
+      await this.readyReader()
     },
     readyReader() {
       return new Promise((resolve, reject) => {
-        let _getSpine;
+        let _getSpine
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
-            _getSpine = this.book.spine.items;
+            _getSpine = this.book.spine.items
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
-              console.log(getToc, "getToc");
+              console.log(getToc, 'getToc')
               if (!localStorage.toc) {
-                localStorage.toc = JSON.stringify(getToc.toc);
-                localStorage.spine = JSON.stringify(_getSpine);
+                localStorage.toc = JSON.stringify(getToc.toc)
+                localStorage.spine = JSON.stringify(_getSpine)
               } else {
-                localStorage.removeItem("toc");
-                localStorage.removeItem("spine");
-                localStorage.toc = JSON.stringify(getToc.toc);
-                localStorage.spine = JSON.stringify(_getSpine);
+                localStorage.removeItem('toc')
+                localStorage.removeItem('spine')
+                localStorage.toc = JSON.stringify(getToc.toc)
+                localStorage.spine = JSON.stringify(_getSpine)
 
-                this.tocList = getToc.toc;
+                this.tocList = getToc.toc
               }
-              resolve();
-            });
+              resolve()
+            })
           } catch (e) {
-            console.log(e.message);
+            console.log(e.message)
           }
-        });
-      });
+        })
+      })
     },
     gotoDisplay(id) {
       return new Promise((resolve, rejcet) => {
-        console.log(id, "href");
+        console.log(id, 'href')
         if (this.rendition) {
           try {
-            this.rendition.display(id);
-            resolve();
+            this.rendition.display(id)
+            resolve()
           } catch (e) {
-            throw e;
+            throw e
           }
         }
-      });
+      })
     },
     /**
      * 下一页
@@ -375,14 +436,14 @@ export default {
       return new Promise((resolve, rejcet) => {
         try {
           this.rendition.next().then(res => {
-            console.log(res);
-          });
+            console.log(res)
+          })
           // this.rendition.next();
-          resolve();
+          resolve()
         } catch (e) {
-          console.log(e.message);
+          console.log(e.message)
         }
-      });
+      })
     },
     /**
      * 上一页
@@ -391,52 +452,52 @@ export default {
     ePubPrev() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.rendition.prev();
-          resolve();
+          this.rendition.prev()
+          resolve()
         } catch (e) {
-          console.log(e.message);
+          console.log(e.message)
         }
-      });
+      })
     },
     /**
      * 返回追更新的书本id
      * @author 李啸竹
      */
     getBookList() {
-      let localShelf = util.getLocalStroageData("followBookList");
-      let bookListArray = [];
+      let localShelf = util.getLocalStroageData('followBookList')
+      let bookListArray = []
       for (let bookId in localShelf) {
-        bookListArray.push(bookId);
+        bookListArray.push(bookId)
       }
-      return bookListArray;
+      return bookListArray
     },
     getBookUpdate() {
       let localShelf,
-        that = this;
-      Indicator.open();
+        that = this
+      Indicator.open()
       api.getUpdate(this.getBookList()).then(response => {
         for (let i in response) {
-          localShelf = util.getLocalStroageData("followBookList");
+          localShelf = util.getLocalStroageData('followBookList')
           response[i].then(book => {
-            Object.assign(book.data, localShelf[book._id]);
-            book.data.cover = util.staticPath + book.data.cover;
-            that.books.push(book.data);
+            Object.assign(book.data, localShelf[book._id])
+            book.data.cover = util.staticPath + book.data.cover
+            that.books.push(book.data)
 
-            Indicator.close();
-          });
+            Indicator.close()
+          })
         }
-      });
+      })
     },
     topHidden() {
-      let _header,_footer;
+      let _header, _footer
 
-      _header = document.getElementsByClassName("header_wrap")[0];
-      _footer = document.getElementsByClassName("foot_wrap")[0];
+      _header = document.getElementsByClassName('header_wrap')[0]
+      _footer = document.getElementsByClassName('foot_wrap')[0]
 
-      this.HiddenFlag = !this.HiddenFlag;
+      this.HiddenFlag = !this.HiddenFlag
     }
   }
-};
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -444,16 +505,16 @@ export default {
 div.epub-index-wrap {
   div#mask_wrap {
     position: fixed;
-    top:0;
+    top: 0;
     left: 0;
     z-index: 70;
 
-    width:100vw;
+    width: 100vw;
     height: 100vh;
 
-    background:rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.3);
   }
-  
+
   div.header_wrap {
     width: 100vw;
     height: 3.5rem;
@@ -465,31 +526,31 @@ div.epub-index-wrap {
     left: 0;
 
     z-index: 80;
-    
+
     span.search-wrapA {
-      width:65vw;
+      width: 65vw;
       height: 2rem;
-      
+
       position: fixed;
-      top:.6rem;
-      left:2rem;
-      z-index:60;
+      top: 0.6rem;
+      left: 2rem;
+      z-index: 60;
 
       opacity: 1;
       transform: scaleX(100%);
-      transition: all .3s ease-out;
+      transition: all 0.3s ease-out;
       input.searchInput {
         width: inherit;
         height: inherit;
-        border:1px solid rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 20px;
       }
     }
     span.search-wrapB {
-      width:1vw;
+      width: 1vw;
       opacity: 0;
       transform: scaleX(0);
-      transition: all .3s ease-in;
+      transition: all 0.3s ease-in;
     }
     ul {
       position: relative;
@@ -513,14 +574,14 @@ div.epub-index-wrap {
       }
       li.searchAnimateA {
         transform: translateX(-650%) !important;
-        transition:all .3s ease-in;
-        
+        transition: all 0.3s ease-in;
+
         display: flex;
         flex-direction: row;
       }
       li.searchAnimateB {
         transform: translateX(0) !important;
-        transition:all .3s ease-out;
+        transition: all 0.3s ease-out;
       }
       li:nth-child(4) {
         padding-right: 0.3rem;
@@ -529,14 +590,14 @@ div.epub-index-wrap {
   }
   div.SetiingHiddenA {
     transform: translateY(0);
-    transition: all .3s ease-in;
+    transition: all 0.3s ease-in;
   }
   div.SetiingHiddenB {
     transform: translateY(100%);
-    transition: all .3s ease-in;
+    transition: all 0.3s ease-in;
   }
   div.foot_wrap2 {
-    width:100vw;
+    width: 100vw;
     height: 6rem;
     background: white;
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
@@ -546,15 +607,15 @@ div.epub-index-wrap {
     left: 0;
 
     z-index: 80;
-    flex:1;
+    flex: 1;
     div.font_set {
-      width:inherit;
+      width: inherit;
       height: 3rem;
       display: flex;
       flex-direction: row;
       justify-content: center;
       align-content: center;
-      flex: .5;
+      flex: 0.5;
       ul {
         width: inherit;
         height: inherit;
@@ -562,10 +623,10 @@ div.epub-index-wrap {
         justify-content: space-around;
         align-items: center;
         li {
-          width:4rem;
+          width: 4rem;
           height: 1.5rem;
-          border:1px solid RGBA(161, 161, 161, 1);
-          
+          border: 1px solid RGBA(161, 161, 161, 1);
+
           border-radius: 2rem;
 
           display: flex;
@@ -573,19 +634,19 @@ div.epub-index-wrap {
           align-items: center;
         }
         li:nth-child(1) {
-          width:5rem;
-          border:none;
+          width: 5rem;
+          border: none;
         }
       }
     }
     div.bg_set {
-      width:inherit;
+      width: inherit;
       height: 3rem;
       display: flex;
       flex-direction: row;
       justify-content: center;
       align-content: center;
-      flex: .5;
+      flex: 0.5;
       ul {
         width: inherit;
         height: inherit;
@@ -593,25 +654,25 @@ div.epub-index-wrap {
         justify-content: space-around;
         align-items: center;
         li {
-          width:1.5rem;
+          width: 1.5rem;
           height: 1.5rem;
           border-radius: 2rem;
-          border:1px solid RGBA(161, 161, 161, 1);
+          border: 1px solid RGBA(161, 161, 161, 1);
 
           display: flex;
           justify-content: flex-end;
           align-items: center;
         }
         li:nth-child(1) {
-          flex:.35;
-          border:none;
+          flex: 0.35;
+          border: none;
         }
         li:nth-child(2) {
-          border:1px solid RGBA(64, 71, 79, 1);
+          border: 1px solid RGBA(64, 71, 79, 1);
           background: white;
         }
         li:nth-child(3) {
-          border:1px solid RGBA(240, 234, 198, 1);
+          border: 1px solid RGBA(240, 234, 198, 1);
           background: RGBA(240, 234, 198, 1);
         }
         li:nth-child(4) {
@@ -619,15 +680,15 @@ div.epub-index-wrap {
           background: RGBA(178, 242, 225, 1);
         }
         li:nth-child(5) {
-          border:1px solid RGBA(178, 199, 242, 1);
-          background: RGBA(178, 199, 242, 1)
+          border: 1px solid RGBA(178, 199, 242, 1);
+          background: RGBA(178, 199, 242, 1);
         }
         li:nth-child(6) {
           color: white;
           display: flex;
           justify-content: center;
-          align-items:center;
-          border:1px solid RGBA(64, 71, 79, 1);
+          align-items: center;
+          border: 1px solid RGBA(64, 71, 79, 1);
           background: RGBA(64, 71, 79, 1);
         }
       }
@@ -650,7 +711,7 @@ div.epub-index-wrap {
       display: flex;
       justify-content: space-around;
       align-items: center;
-     
+
       li {
         display: flex;
         justify-content: center;
@@ -660,7 +721,7 @@ div.epub-index-wrap {
           color: RGBA(64, 71, 79, 1);
         }
       }
-      
+
       li:nth-child(1) {
         flex: 0.3;
       }
@@ -700,7 +761,7 @@ div.epub-index-wrap {
       font-size: 23px;
     }
   }
-  
+
   div.footerHiddenA {
     transform: translateY(100%) !important;
     transition: all 0.3s ease-out;
@@ -769,19 +830,17 @@ div.epub-index-wrap {
         color: #40474f;
       }
     }
-    
+
     ul#toc {
-      width:70vw;
+      width: 70vw;
       margin-bottom: 1rem;
       font-size: 0.8rem;
-      
+
       li {
-        
         width: inherit;
-        
+
         ul {
           width: inherit;
-          
         }
         ul {
           width: inherit;
@@ -792,16 +851,14 @@ div.epub-index-wrap {
         }
         span {
           width: 64vw;
-          padding:3vw;
+          padding: 3vw;
           height: 2rem;
           line-height: 2.2rem;
           display: inline-block;
-          
         }
         span:hover {
           color: #2053e4;
         }
-        
       }
     }
   }
