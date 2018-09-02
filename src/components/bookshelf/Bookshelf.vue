@@ -128,37 +128,37 @@
 </template>
 
 <script>
-import vueSlider from 'vue-slider-component';
-import Qs from 'qs'
-import { Indicator } from 'mint-ui'
+import vueSlider from "vue-slider-component";
+import Qs from "qs";
+import { Indicator } from "mint-ui";
 export default {
-  name: 'Bookshelf',
-  components:{vueSlider},
+  name: "Bookshelf",
+  components: { vueSlider },
   data() {
     return {
-      fontColor:'#B9B9B9',
+      fontColor: "#B9B9B9",
       books: [],
       book: {},
       rendition: {},
       tocList: [],
-      AllowReadPercentage:0,
-      totalLen:0,
+      AllowReadPercentage: 0,
+      totalLen: 0,
       seatchEvenFlag: false,
       ulTakeUpFlag: true,
       setFontAndBG: true,
-      selected: '我的书架',
-      seetingTitle: '字体大小',
-      bgTitle: '背景色',
+      selected: "我的书架",
+      seetingTitle: "字体大小",
+      bgTitle: "背景色",
       value: 0,
       bgStyle: null,
       ifHiddenFlag: true,
       HiddenFlag: true,
-      displayed: '',
+      displayed: "",
       decryptAfterToU8: [],
-      epubText: '',
-      count:18,
-      defaultFont:18
-    }
+      epubText: "",
+      count: 18,
+      defaultFont: 18
+    };
   },
   async created() {
     await this.getEpub();
@@ -170,38 +170,39 @@ export default {
     // await this.setBG()
   },
   watch: {
-    value:function (n) {
-      var displayed = this.rendition.display()
+    value: function(n) {
+      var displayed = this.rendition.display();
 
       displayed.then(() => {
         var currentLocation = this.rendition.currentLocation();
-        var currentPage = this.book.locations.percentageFromCfi(currentLocation.start.cfi);
-        this.value = currentPage
+        var currentPage = this.book.locations.percentageFromCfi(
+          currentLocation.start.cfi
+        );
+        this.value = currentPage;
 
-        console.log(this.book.locations.percentageFromCfi(),'this.value')
-      })
+        console.log(this.book.locations.percentageFromCfi(), "this.value");
+      });
     }
   },
   methods: {
-    setFont (num) {
-
+    setFont(num) {
       switch (num) {
-        case 'sub':
-        this.count--
-        this.rendition.themes.fontSize(this.count+'px');
-        break;
-        case 'add':
-        this.count++
-        this.rendition.themes.fontSize(this.count+'px');
-        break;
-        case 'default':
-        this.rendition.themes.fontSize(this.defaultFont+'px');
-        break;
+        case "sub":
+          this.count--;
+          this.rendition.themes.fontSize(this.count + "px");
+          break;
+        case "add":
+          this.count++;
+          this.rendition.themes.fontSize(this.count + "px");
+          break;
+        case "default":
+          this.rendition.themes.fontSize(this.defaultFont + "px");
+          break;
       }
     },
-    setBGFun () {
+    setBGFun() {
       if (this.setFontAndBG) {
-        this.setFontAndBG = false
+        this.setFontAndBG = false;
       }
       // this.setFontAndBG = !this.setFontAndBG
     },
@@ -210,22 +211,22 @@ export default {
      * 李啸竹
      */
     TakeUp(id) {
-      let temp = document.getElementById(id).parentNode
-      console.log(temp, 'temptemptemp')
+      let temp = document.getElementById(id).parentNode;
+      console.log(temp, "temptemptemp");
       if (this.ulTakeUpFlag) {
-        this.ulTakeUpFlag = false
-        temp.style.height = '3rem'
-        temp.style.overflow = 'hidden'
-        temp.style.opcity = '0'
+        this.ulTakeUpFlag = false;
+        temp.style.height = "3rem";
+        temp.style.overflow = "hidden";
+        temp.style.opcity = "0";
 
-        temp.style.transition = 'all .3s ease-in'
+        temp.style.transition = "all .3s ease-in";
       } else {
-        this.ulTakeUpFlag = true
+        this.ulTakeUpFlag = true;
         // temp.style.height = "auto"
 
-        temp.style.overflow = ''
-        temp.style.opcity = '1'
-        temp.style.transition = 'all .3s ease-out'
+        temp.style.overflow = "";
+        temp.style.opcity = "1";
+        temp.style.transition = "all .3s ease-out";
       }
     },
     /**
@@ -233,7 +234,7 @@ export default {
      * 李啸竹
      */
     searchEven() {
-      this.seatchEvenFlag = !this.seatchEvenFlag
+      this.seatchEvenFlag = !this.seatchEvenFlag;
     },
     /**
      * 载入 epub
@@ -241,34 +242,34 @@ export default {
      */
     getEpub() {
       return new Promise((resolve, ject) => {
-        
         // 发请求拿授权及 epub 地址
         let params = {
-          title: 'zhongzhi',
+          title: "zhongzhi",
           zhongzhiData: {
             id: 592770,
-            authorizeToken: 'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
-            BridgePlatformName: 'phei_zhongzhi_web_demo',
-            accessToken: 'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
-            deviceToken: '3fe672e487314b34b1044825e46a0dd5',
-            decryptKey: 'CrKBHyXVGtknYiXy',
+            authorizeToken: "oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ",
+            BridgePlatformName: "phei_zhongzhi_web_demo",
+            accessToken: "iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra",
+            deviceToken: "3fe672e487314b34b1044825e46a0dd5",
+            decryptKey: "CrKBHyXVGtknYiXy",
             AppId: 11
           },
-          Url: 'http://218.249.32.238/content/authorize',
+          Url: "http://218.249.32.238/content/authorize",
           data: {
             authorzieParameters: {
-              contentexternalid: 'P00001-01-978-7-121-33314-9-Epub',
-              organizationExternalId: 'B5C6517D-8879-4DA0-A742-59A3E8E39582',
+              isOnline: "true",
+              contentexternalid: "P00003-01-28883-Epub",
+              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
               device: {
                 devicekey: 'i0TPLKk";saUBVG7',
-                DeviceType: 4,
-                Title: '电脑试读'
+                DeviceType: "4",
+                Title: "电脑试读"
               },
-              FromSalePlatformTitle: '可知',
-              userinfo: { nickname: '未登录', ExternalId: '未登录' }
+              FromSalePlatformTitle: "可知",
+              userinfo: { nickname: "未登录", ExternalId: "未登录#/" }
             }
           }
-        }
+        };
 
         // let params = {
         //   Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
@@ -283,12 +284,12 @@ export default {
         //   }
         // }
 
-        let routeParams = window.location.href
-        let parseUrl = routeParams.split('?')[1]
-        let QsParseUrl = Qs.parse(parseUrl)
-        console.log(Qs.stringify(params, { indices: false }), '模拟提交')
-        let mdata = {}
-        if (QsParseUrl.title === 'zhongzhi') {
+        let routeParams = window.location.href;
+        let parseUrl = routeParams.split("?")[1];
+        let QsParseUrl = Qs.parse(parseUrl);
+        console.log(Qs.stringify(params, { indices: false }), "模拟提交");
+        let mdata = {};
+        if (QsParseUrl.title === "zhongzhi") {
           mdata = {
             id: QsParseUrl.zhongzhiData.id,
             authorizeToken: QsParseUrl.zhongzhiData.authorizeToken,
@@ -297,59 +298,60 @@ export default {
             deviceToken: QsParseUrl.zhongzhiData.deviceToken,
             deviceKey: QsParseUrl.zhongzhiData.deviceKey,
             AppId: QsParseUrl.zhongzhiData.AppId
-          }
+          };
         } else {
           mdata = {
             authorzieParameters: JSON.stringify(
               QsParseUrl.data.authorzieParameters
             )
-          }
+          };
         }
         // console.log('QsParseUrl.data')
         $.ajax({
-          type: 'post',
+          type: "post",
           url: QsParseUrl.Url,
           data: mdata,
           success: function(data) {
             try {
               if (data) {
+                this.AllowReadPercentage =
+                  data.Data.AuthorizeStrategy.AllowReadPercentage;
+                this.totalLen = sessionStorage.TocLen;
 
-                this.AllowReadPercentage = data.Data.AuthorizeStrategy.AllowReadPercentage
-                this.totalLen = sessionStorage.TocLen
-                
                 if (
                   !sessionStorage.epubBookInfo &&
                   !sessionStorage.resourceUrl
                 ) {
-                  sessionStorage.resourceUrl = data.Data.Url
-                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl
+                  sessionStorage.resourceUrl = data.Data.Url;
+                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
                   sessionStorage.epubBookInfo = JSON.stringify({
                     devicekey:
                       QsParseUrl.data.authorzieParameters.device.devicekey,
                     decryptStr: data.Data.Key
-                  })
+                  });
                 } else {
                   sessionStorage.removeItem("resourceUrl");
                   sessionStorage.removeItem("epubBookInfo");
                   sessionStorage.removeItem("PackageBaseUrl");
                   sessionStorage.resourceUrl = data.Data.Url;
                   // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-                  sessionStorage.PackageBaseUrl = 'http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops';
+                  sessionStorage.PackageBaseUrl =
+                    "http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops";
                   sessionStorage.epubBookInfo = JSON.stringify({
                     devicekey:
                       QsParseUrl.data.authorzieParameters.device.devicekey,
                     decryptStr: data.Data.Key
-                  })
+                  });
                 }
-                Indicator.close()
+                Indicator.close();
               }
             } catch (e) {
-              console.log(e.message)
+              console.log(e.message);
             }
-            resolve()
+            resolve();
           }
-        })
-      })
+        });
+      });
     },
     /**
      * 添加目录显示隐藏事件
@@ -365,124 +367,121 @@ export default {
 
         // let _epubUrl = sessionStorage.resourceUrl;
         let _epubUrl =
-          'http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub'
-       
+          "http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub";
+
         this.book = new ePub(_epubUrl);
-        
+
         this.rendition = this.book.renderTo("ePubArea", {
-          
           width: "100vw",
           height: 600,
-          manager: 'continuous',
-          flow: 'paginated'
-        })
-        
+          manager: "continuous",
+          flow: "paginated"
+        });
+
         this.rendition.themes.default({
-          h1:{
-            "font-size":"18px",
-            color:"RGBA(234, 84, 4, 1)",
-            "text-align":"left",
+          h1: {
+            "font-size": "23px",
+            color: "RGBA(234, 84, 4, 1)",
+            "text-align": "left"
           },
-          h2:{
-            "font-size":"21px",
-            color:"RGBA(234, 84, 4, 1)",
-            "text-align":"left",
+          h2: {
+            "font-size": "21px",
+            color: "RGBA(234, 84, 4, 1)",
+            "text-align": "left"
           },
-          h3:{
-            "font-size":"24px",
-            color:"RGBA(234, 84, 4, 1)",
-            "text-align":"left",
+          h3: {
+            "font-size": "20px",
+            color: "RGBA(234, 84, 4, 1)",
+            "text-align": "left"
           },
-          h4:{
-            "font-size":"27px",
-            color:"RGBA(234, 84, 4, 1)",
-            "text-align":"left",
+          h4: {
+            "margin-top": "0 !important",
+            "font-size": "18px",
+            color: "RGBA(234, 84, 4, 1)",
+            "text-align": "left"
           },
           p: {
-            "text-align":"left;",
-            "line-height":"2.5rem;",
-            "text-indent":"0 !important;",
-            "margin-top":"1.5rem !important;",
+            "text-align": "left;",
+            "line-height": "2.5rem;",
+            "text-indent": "0 !important;",
+            "margin-top": "1.5rem !important;"
           },
           div: {
-            "line-height":"2.5rem !important;",
+            "line-height": "2.5rem !important;"
           },
           a: {
-            color:"RGBA(51, 51, 51, 1) !important;",
+            color: "RGBA(51, 51, 51, 1) !important;",
             "text-decoration": "none;"
           },
           img: {
-            width: '98% !important;'
+            width: "98% !important;"
           }
-        })
+        });
 
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
 
-        this.rendition.display()
+        this.rendition.display();
         // resolve();
-      })
+      });
     },
     async ifClickHidden() {
-      let _ePubPrev, _ePubNext
+      let _ePubPrev, _ePubNext;
 
-      _ePubNext = document.getElementById('ePubNext')
-      _ePubPrev = document.getElementById('ePubPrev')
+      _ePubNext = document.getElementById("ePubNext");
+      _ePubPrev = document.getElementById("ePubPrev");
 
-      this.ifHiddenFlag = !this.ifHiddenFlag
-      
-      await this.readyReader()
+      this.ifHiddenFlag = !this.ifHiddenFlag;
+
+      await this.readyReader();
     },
     readyReader() {
-      
       return new Promise((resolve, reject) => {
-        let _getSpine
+        let _getSpine;
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
             // let totalLi = document.getElementById('toc').childNodes
-            let totalLi = $("li")
-            console.log(totalLi,'totalLi')
+            let totalLi = $("li");
+            // console.log(totalLi, "totalLi");
 
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
               if (!localStorage.toc) {
-                localStorage.toc = JSON.stringify(getToc.toc)
-                localStorage.spine = JSON.stringify(_getSpine)
-                localStorage.TocLen = getToc.length
+                localStorage.toc = JSON.stringify(getToc.toc);
+                localStorage.spine = JSON.stringify(_getSpine);
+                localStorage.TocLen = getToc.length;
               } else {
-                localStorage.removeItem('toc')
-                localStorage.removeItem('spine')
-                localStorage.removeItem('TocLen')
-                localStorage.toc = JSON.stringify(getToc.toc)
-                localStorage.spine = JSON.stringify(_getSpine)
-                localStorage.TocLen = getToc.length
+                localStorage.removeItem("toc");
+                localStorage.removeItem("spine");
+                localStorage.removeItem("TocLen");
+                localStorage.toc = JSON.stringify(getToc.toc);
+                localStorage.spine = JSON.stringify(_getSpine);
+                localStorage.TocLen = getToc.length;
 
-                this.tocList = getToc.toc
-                
+                this.tocList = getToc.toc;
               }
-              resolve(getToc.length)
-            })
+              resolve(getToc.length);
+            });
           } catch (e) {
-            console.log(e.message)
+            console.log(e.message);
           }
-        })
-
-      })
+        });
+      });
     },
     gotoDisplay(id) {
       return new Promise((resolve, rejcet) => {
-        console.log(id, 'href')
+        console.log(id, "href");
         if (this.rendition) {
           try {
-            this.rendition.display(id)
-            resolve()
+            this.rendition.display(id);
+            resolve();
           } catch (e) {
-            throw e
+            throw e;
           }
         }
-      })
+      });
     },
     /**
      * 下一页
@@ -491,12 +490,12 @@ export default {
     ePubNext() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.rendition.next()
-          resolve()
+          this.rendition.next();
+          resolve();
         } catch (e) {
-          console.log(e.message)
+          console.log(e.message);
         }
-      })
+      });
     },
     /**
      * 上一页
@@ -505,85 +504,84 @@ export default {
     ePubPrev() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.rendition.prev()
-          resolve()
+          this.rendition.prev();
+          resolve();
         } catch (e) {
-          console.log(e.message)
+          console.log(e.message);
         }
-      })
+      });
     },
     /**
      * 返回追更新的书本id
      * @author 李啸竹
      */
     getBookList() {
-      let localShelf = util.getLocalStroageData('followBookList')
-      let bookListArray = []
+      let localShelf = util.getLocalStroageData("followBookList");
+      let bookListArray = [];
       for (let bookId in localShelf) {
-        bookListArray.push(bookId)
+        bookListArray.push(bookId);
       }
-      return bookListArray
+      return bookListArray;
     },
     getBookUpdate() {
       let localShelf,
-        that = this
-      Indicator.open()
+        that = this;
+      Indicator.open();
       api.getUpdate(this.getBookList()).then(response => {
         for (let i in response) {
-          localShelf = util.getLocalStroageData('followBookList')
+          localShelf = util.getLocalStroageData("followBookList");
           response[i].then(book => {
-            Object.assign(book.data, localShelf[book._id])
-            book.data.cover = util.staticPath + book.data.cover
-            that.books.push(book.data)
+            Object.assign(book.data, localShelf[book._id]);
+            book.data.cover = util.staticPath + book.data.cover;
+            that.books.push(book.data);
 
-            Indicator.close()
-          })
+            Indicator.close();
+          });
         }
-      })
+      });
     },
     topHidden() {
-      let _header, _footer
+      let _header, _footer;
 
-      _header = document.getElementsByClassName('header_wrap')[0]
-      _footer = document.getElementsByClassName('foot_wrap')[0]
+      _header = document.getElementsByClassName("header_wrap")[0];
+      _footer = document.getElementsByClassName("foot_wrap")[0];
 
-      
-      this.setFontAndBG = true
+      this.setFontAndBG = true;
       this.HiddenFlag = !this.HiddenFlag;
     },
-    setBG(num){
-      let changeBG = document.getElementsByTagName('body')[0]
-      let domColor = $("p")
+    setBG(num) {
+      let changeBG = document.getElementsByTagName("body")[0];
+      let domColor = $("p");
       switch (num) {
         case 1:
-          changeBG.style.background = "white"
-          changeBG.style.transition = "all 0.3s ease-in"
-        break;
+          changeBG.style.background = "white";
+          changeBG.style.transition = "all 0.3s ease-in";
+          break;
         case 2:
-          changeBG.style.background = "#f0eac6"
-          changeBG.style.transition = "all 0.3s ease-in"
-        break;
+          changeBG.style.background = "#f0eac6";
+          changeBG.style.transition = "all 0.3s ease-in";
+          break;
         case 3:
-          changeBG.style.background = "#b2f2e1"
-          changeBG.style.transition = "all 0.3s ease-in"
-        break;
+          changeBG.style.background = "#b2f2e1";
+          changeBG.style.transition = "all 0.3s ease-in";
+          break;
         case 4:
-          changeBG.style.background = "#b2c7f2"
-          changeBG.style.transition = "all 0.3s ease-in"
-        break;
+          changeBG.style.background = "#b2c7f2";
+          changeBG.style.transition = "all 0.3s ease-in";
+          break;
         case 5:
           this.rendition.themes.default({
-            body:{
-              "color":"white !important"
+            body: {
+              color: "white !important"
             }
-          })
-          changeBG.style.background = "#40474f"
-          changeBG.style.transition = "all 0.3s ease-in"
-        break;
+          });
+          changeBG.style.background = "#40474f";
+          changeBG.style.transition = "all 0.3s ease-in";
+          break;
       }
-    },
+    }
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -680,7 +678,7 @@ div.epub-index-wrap {
   }
   div.SetiingHiddenB {
     transform: translateY(100%);
-    transition: all .3s ease-out;
+    transition: all 0.3s ease-out;
   }
   div.foot_wrap2 {
     width: 100vw;
@@ -780,7 +778,7 @@ div.epub-index-wrap {
       }
     }
   }
-  
+
   div.foot_wrap {
     width: 100vw;
     height: 3rem;
@@ -793,18 +791,20 @@ div.epub-index-wrap {
 
     z-index: 80;
     div.percent_wrap {
-      width:10rem;
+      width: 10rem;
       height: 2px;
       z-index: 99;
 
       position: fixed;
-      bottom:60%;
-      left:23.3%;
-      .vue-slider-component .vue-slider-dot.vue-slider-always .vue-slider-tooltip-wrap {
+      bottom: 60%;
+      left: 23.3%;
+      .vue-slider-component
+        .vue-slider-dot.vue-slider-always
+        .vue-slider-tooltip-wrap {
         display: none !important;
       }
       .vue-slider-component .vue-slider-dot {
-        top:-7px !important;
+        top: -7px !important;
       }
       .vue-slider-component .vue-slider {
         height: 2px;
@@ -812,12 +812,10 @@ div.epub-index-wrap {
       }
       .vue-slider-component.vue-slider-horizontal .vue-slider-process {
         height: 2px;
-        background: RGBA(64, 71, 79, 1)
+        background: RGBA(64, 71, 79, 1);
       }
-      
     }
     ul {
-      
       height: inherit;
       display: flex;
       justify-content: space-around;
@@ -841,13 +839,13 @@ div.epub-index-wrap {
       }
       li:nth-child(3) {
         flex: 1;
-        
+
         span {
           display: inline-block;
           width: 1rem;
           height: 1rem;
           background: white;
-          border:1px solid RGBA(0, 0, 0, 0.25);
+          border: 1px solid RGBA(0, 0, 0, 0.25);
           box-shadow: 3px 1px 3px RGBA(0, 0, 0, 0.1);
           border-radius: 3rem;
         }

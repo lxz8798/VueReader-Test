@@ -3576,6 +3576,21 @@ function request(url, type, withCredentials, headers) {
 						}
 						return btoa(result);
 					};
+
+					var epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+					console.log(epubBookInfo,'epubBookInfo')
+					var decryptStr = epubBookInfo.decryptStr
+					console.log(decryptStr,'decryptStr')
+					var devicekey =  epubBookInfo.devicekey
+					console.log(devicekey,'devicekey')
+					// 对divicekey进行处理
+					var decryptKey = CryptoJS.enc.Utf8.parse(devicekey)
+					// 解密完成以后的key
+					var decryptAfterKey = CryptoJS.AES.decrypt(decryptStr,decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+					// 解密的key转成字符串
+					var decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(decryptAfterKey).toString();
+					console.log(decryptAfterKeyToStr,'解出来的key')
+
 					var word = Uint8ToBase64(myUint8Array);
 					var key = CryptoJS.enc.Utf8.parse('1234567890123456');
 					var decryptedData = CryptoJS.AES.decrypt(word, key, {
