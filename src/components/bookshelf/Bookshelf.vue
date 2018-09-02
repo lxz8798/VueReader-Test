@@ -141,6 +141,8 @@ export default {
       book: {},
       rendition: {},
       tocList: [],
+      AllowReadPercentage:0,
+      totalLen:0,
       seatchEvenFlag: false,
       ulTakeUpFlag: true,
       setFontAndBG: true,
@@ -154,8 +156,8 @@ export default {
       displayed: '',
       decryptAfterToU8: [],
       epubText: '',
-      count:20,
-      defaultFont:20
+      count:18,
+      defaultFont:18
     }
   },
   async created() {
@@ -164,15 +166,20 @@ export default {
     await this.readyReader();
     await this.getBookUpdate();
     await this.topHidden();
+    await this.percentTotal();
     // await this.setBG()
   },
   watch: {
-    value:function () {
-      let cfi =  this.book.locations.cfiFromPercentage(this.value / 100);
-      // console.log(this.book.locations,'1111111111111111111')
-      // console.log(cfi,'cficficficficficficficficficficficficficficficficficficficfi')
-      // console.log(this.book.locations,'this.book.locations') 
-      // this.rendition.display(cfi);
+    value:function (n) {
+      var displayed = this.rendition.display()
+
+      displayed.then(() => {
+        var currentLocation = this.rendition.currentLocation();
+        var currentPage = this.book.locations.percentageFromCfi(currentLocation.start.cfi);
+        this.value = currentPage
+
+        console.log(this.book.locations.percentageFromCfi(),'this.value')
+      })
     }
   },
   methods: {
@@ -306,6 +313,10 @@ export default {
           success: function(data) {
             try {
               if (data) {
+
+                this.AllowReadPercentage = data.Data.AuthorizeStrategy.AllowReadPercentage
+                this.totalLen = sessionStorage.TocLen
+                
                 if (
                   !sessionStorage.epubBookInfo &&
                   !sessionStorage.resourceUrl
@@ -368,35 +379,47 @@ export default {
         
         this.rendition.themes.default({
           h1:{
-            "font-size":"1.8rem",
+            "font-size":"18px",
+            color:"RGBA(234, 84, 4, 1)",
+            "text-align":"left",
+          },
+          h2:{
+            "font-size":"21px",
+            color:"RGBA(234, 84, 4, 1)",
+            "text-align":"left",
+          },
+          h3:{
+            "font-size":"24px",
+            color:"RGBA(234, 84, 4, 1)",
+            "text-align":"left",
+          },
+          h4:{
+            "font-size":"27px",
             color:"RGBA(234, 84, 4, 1)",
             "text-align":"left",
           },
           p: {
-            "text-align":"left",
-            "line-height":"2.5rem",
-            "text-indent":"0 !important"
+            "text-align":"left;",
+            "line-height":"2.5rem;",
+            "text-indent":"0 !important;",
+            "margin-top":"1.5rem !important;",
           },
-          
+          div: {
+            "line-height":"2.5rem !important;",
+          },
           a: {
-            color:"RGBA(51, 51, 51, 1)",
-            "text-decoration": "none"
+            color:"RGBA(51, 51, 51, 1) !important;",
+            "text-decoration": "none;"
           },
           img: {
-            width: '98% !important'
+            width: '98% !important;'
           }
         })
-        console.log(this.book)
 
-        // this.rendition.themes.register("p","blob:http://localhost:8080/43cab505-19fb-4f35-a318-882a533c8e57");
-        // this.rendition.themes.select("p");
-    
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
 
         this.rendition.display()
-
-        
         // resolve();
       })
     },
@@ -407,7 +430,7 @@ export default {
       _ePubPrev = document.getElementById('ePubPrev')
 
       this.ifHiddenFlag = !this.ifHiddenFlag
-
+      
       await this.readyReader()
     },
     readyReader() {
@@ -417,23 +440,29 @@ export default {
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
-            console.log(this.book.PageList,'PageListPageList')
+            // let totalLi = document.getElementById('toc').childNodes
+            let totalLi = $("li")
+            console.log(totalLi,'totalLi')
+
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
-              console.log(getToc, 'getToc')
               if (!localStorage.toc) {
                 localStorage.toc = JSON.stringify(getToc.toc)
                 localStorage.spine = JSON.stringify(_getSpine)
+                localStorage.TocLen = getToc.length
               } else {
                 localStorage.removeItem('toc')
                 localStorage.removeItem('spine')
+                localStorage.removeItem('TocLen')
                 localStorage.toc = JSON.stringify(getToc.toc)
                 localStorage.spine = JSON.stringify(_getSpine)
+                localStorage.TocLen = getToc.length
 
                 this.tocList = getToc.toc
+                
               }
-              resolve()
+              resolve(getToc.length)
             })
           } catch (e) {
             console.log(e.message)
@@ -463,7 +492,6 @@ export default {
       return new Promise((resolve, rejcet) => {
         try {
           this.rendition.next()
-          // this.rendition.next();
           resolve()
         } catch (e) {
           console.log(e.message)
@@ -525,6 +553,7 @@ export default {
     },
     setBG(num){
       let changeBG = document.getElementsByTagName('body')[0]
+      let domColor = $("p")
       switch (num) {
         case 1:
           changeBG.style.background = "white"
@@ -543,7 +572,11 @@ export default {
           changeBG.style.transition = "all 0.3s ease-in"
         break;
         case 5:
-          changeBG.style.color = this.fontColor
+          this.rendition.themes.default({
+            body:{
+              "color":"white !important"
+            }
+          })
           changeBG.style.background = "#40474f"
           changeBG.style.transition = "all 0.3s ease-in"
         break;
@@ -570,7 +603,7 @@ div.epub-index-wrap {
 
   div.header_wrap {
     width: 100vw;
-    height: 3.5rem;
+    height: 2.5rem;
     background: white;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 
@@ -608,7 +641,7 @@ div.epub-index-wrap {
     ul {
       position: relative;
       z-index: 70;
-      height: 3.5rem;
+      height: inherit;
       display: flex;
       flex-direction: row;
       justify-content: space-around;
@@ -651,7 +684,7 @@ div.epub-index-wrap {
   }
   div.foot_wrap2 {
     width: 100vw;
-    height: 6rem;
+    height: 3rem;
     background: white;
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
 
@@ -750,7 +783,7 @@ div.epub-index-wrap {
   
   div.foot_wrap {
     width: 100vw;
-    height: 3.5rem;
+    height: 3rem;
     background: white;
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
 
@@ -767,6 +800,9 @@ div.epub-index-wrap {
       position: fixed;
       bottom:60%;
       left:23.3%;
+      .vue-slider-component .vue-slider-dot.vue-slider-always .vue-slider-tooltip-wrap {
+        display: none !important;
+      }
       .vue-slider-component .vue-slider-dot {
         top:-7px !important;
       }
@@ -781,7 +817,7 @@ div.epub-index-wrap {
       
     }
     ul {
-      width: 100vw;
+      
       height: inherit;
       display: flex;
       justify-content: space-around;
