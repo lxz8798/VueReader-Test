@@ -6,7 +6,7 @@
     </div> -->
 
     <!-- <mt-header fixed :title="selected" id="my_header"></mt-header> -->
-    <div class="header_wrap" :class="topHiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
+    <div class="header_wrap" :class="HiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
         <li><i class="iconfont epub-jiantou"></i></li>
         <!-- 暂时隐藏 -->
@@ -53,7 +53,7 @@
       </ul>      
     </div>
 
-    <div class="foot_wrap" v-if="setFontAndBG" :class="topHiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
+    <div class="foot_wrap" v-if="setFontAndBG" :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
@@ -64,22 +64,23 @@
       </ul>
     </div>
 
-    <div class="foot_wrap2" v-else>
-      <div>
+    <div class="foot_wrap2" v-else :class="HiddenFlag ? 'SetiingHiddenA' : 'SetiingHiddenB'">
+      <div class="font_set">
         <ul>
           <li>{{seetingTitle}}</li>
-          <li></li>
-          <li></li>
-          <li></li>
+          <li>A-</li>
+          <li>A+</li>
+          <li>默认</li>
         </ul>
       </div>
-      <div>
+      <div class="bg_set">
         <ul>
+          <li>{{bgTitle}}</li>
           <li></li>
           <li></li>
           <li></li>
           <li></li>
-          <li></li>
+          <li><i class="iconfont epub-moonbyueliang"></i></li>
         </ul>
       </div>
     </div>
@@ -114,12 +115,13 @@ export default {
       tocList: [],
       seatchEvenFlag:false,
       ulTakeUpFlag:true,
-      setFontAndBG:false,
+      setFontAndBG:true,
       selected: "我的书架",
       seetingTitle:'字体大小',
+      bgTitle:'背景色',
       currentSectionIndex: 0,
       ifHiddenFlag: true,
-      topHiddenFlag: true,
+      HiddenFlag: true,
       displayed: "",
       decryptAfterToU8: [],
       epubText: ""
@@ -142,7 +144,8 @@ export default {
   },
   methods: {
     setBG () {
-
+      this.setFontAndBG = !this.setFontAndBG
+      console.log('sadcasdc')
     },
     /**
      * 收起
@@ -182,27 +185,40 @@ export default {
     getEpub() {
       return new Promise((resolve, ject) => {
         // 发请求拿授权及 epub 地址
+        // let params = {
+        //   Url: "http://218.249.32.238/content/authorize",
+        //   data: {
+        //     authorzieParameters: {
+        //       contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
+        //       organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
+        //       device: {
+        //         devicekey: 'i0TPLKk";saUBVG7',
+        //         DeviceType: 4,
+        //         Title: "电脑试读"
+        //       },
+        //       FromSalePlatformTitle: "可知",
+        //       userinfo: { nickname: "未登录", ExternalId: "未登录" }
+        //     }
+        //   }
+        // };
+
         let params = {
-          Url: "http://218.249.32.238/content/authorize",
-          data: {
-            authorzieParameters: {
-              contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
-              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
-              device: {
-                devicekey: 'i0TPLKk";saUBVG7',
-                DeviceType: 4,
-                Title: "电脑试读"
-              },
-              FromSalePlatformTitle: "可知",
-              userinfo: { nickname: "未登录", ExternalId: "未登录" }
-            }
+          Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
+          data:{
+              id:592770,
+              authorizeToken:'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
+              BridgePlatformName:'phei_zhongzhi_web_demo',
+              accessToken:'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
+              deviceToken:'3fe672e487314b34b1044825e46a0dd5',
+              decryptKey:'CrKBHyXVGtknYiXy',
+              AppId:11
           }
-        };
+        }
 
         let routeParams = window.location.href;
         let parseUrl = routeParams.split("?")[1];
         let QsParseUrl = Qs.parse(parseUrl);
-        console.log(Qs.stringify(params, { indices: false }), "模拟提交");
+        console.log(Qs.stringify(params, { indices: false }),"模拟提交");
 
         // console.log('QsParseUrl.data')
         $.ajax({
@@ -415,7 +431,7 @@ export default {
       _header = document.getElementsByClassName("header_wrap")[0];
       _footer = document.getElementsByClassName("foot_wrap")[0];
 
-      this.topHiddenFlag = !this.topHiddenFlag;
+      this.HiddenFlag = !this.HiddenFlag;
     }
   }
 };
@@ -488,7 +504,7 @@ div.epub-index-wrap {
         }
       }
       li:nth-child(1) {
-        flex: 0.8;
+        flex: 0.9;
         i.iconfont {
           font-size: 25px;
         }
@@ -509,6 +525,14 @@ div.epub-index-wrap {
       }
     }
   }
+  div.SetiingHiddenA {
+    transform: translateY(0);
+    transition: all .3s ease-in;
+  }
+  div.SetiingHiddenB {
+    transform: translateY(100%);
+    transition: all .3s ease-in;
+  }
   div.foot_wrap2 {
     width:100vw;
     height: 6rem;
@@ -520,6 +544,92 @@ div.epub-index-wrap {
     left: 0;
 
     z-index: 80;
+    flex:1;
+    div.font_set {
+      width:inherit;
+      height: 3rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-content: center;
+      flex: .5;
+      ul {
+        width: inherit;
+        height: inherit;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        li {
+          width:4rem;
+          height: 1.5rem;
+          border:1px solid RGBA(161, 161, 161, 1);
+          
+          border-radius: 2rem;
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        li:nth-child(1) {
+          width:5rem;
+          border:none;
+        }
+      }
+    }
+    div.bg_set {
+      width:inherit;
+      height: 3rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-content: center;
+      flex: .5;
+      ul {
+        width: inherit;
+        height: inherit;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        li {
+          width:1.5rem;
+          height: 1.5rem;
+          border-radius: 2rem;
+          border:1px solid RGBA(161, 161, 161, 1);
+
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+        }
+        li:nth-child(1) {
+          flex:.35;
+          border:none;
+        }
+        li:nth-child(2) {
+          border:1px solid RGBA(64, 71, 79, 1);
+          background: white;
+        }
+        li:nth-child(3) {
+          border:1px solid RGBA(240, 234, 198, 1);
+          background: RGBA(240, 234, 198, 1);
+        }
+        li:nth-child(4) {
+          border: 1px solid RGBA(178, 242, 225, 1);
+          background: RGBA(178, 242, 225, 1);
+        }
+        li:nth-child(5) {
+          border:1px solid RGBA(178, 199, 242, 1);
+          background: RGBA(178, 199, 242, 1)
+        }
+        li:nth-child(6) {
+          color: white;
+          display: flex;
+          justify-content: center;
+          align-items:center;
+          border:1px solid RGBA(64, 71, 79, 1);
+          background: RGBA(64, 71, 79, 1);
+        }
+      }
+    }
   }
   div.foot_wrap {
     width: 100vw;
