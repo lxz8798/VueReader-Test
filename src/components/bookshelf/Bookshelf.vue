@@ -56,10 +56,10 @@
     <div class="foot_wrap" v-if="setFontAndBG" :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
-        <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
         <li></li>
-        <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
-        <li><i class="iconfont epub-shezhi" @click="setBG()" ></i></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubnext()"></i></li>
+        <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
         <li class="setting_wrap"></li>
       </ul>
     </div>
@@ -76,7 +76,7 @@
       <div class="bg_set">
         <ul>
           <li>{{bgTitle}}</li>
-          <li></li>
+          <li @click="setBG()"></li>
           <li></li>
           <li></li>
           <li></li>
@@ -141,10 +141,15 @@ export default {
     await this.readyReader();
     await this.getBookUpdate();
     await this.topHidden();
+    await this.setBG()
   },
   methods: {
-    setBG () {
-      this.setFontAndBG = !this.setFontAndBG
+    
+    setBGFun () {
+      if (this.setFontAndBG) {
+        this.setFontAndBG = false
+      }
+      // this.setFontAndBG = !this.setFontAndBG
       console.log('sadcasdc')
     },
     /**
@@ -248,7 +253,8 @@ export default {
                   sessionStorage.removeItem("epubBookInfo");
                   sessionStorage.removeItem("PackageBaseUrl");
                   sessionStorage.resourceUrl = data.Data.Url;
-                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                  // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                  sessionStorage.PackageBaseUrl = 'http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops';
                   sessionStorage.epubBookInfo = JSON.stringify({
                     devicekey:
                       QsParseUrl.data.authorzieParameters.device.devicekey,
@@ -282,7 +288,7 @@ export default {
         // let _epubUrl = '';
 
         this.book = new ePub(_epubUrl);
-
+        
         this.rendition = this.book.renderTo("ePubArea", {
           width: "100vw",
           height: 600,
@@ -304,7 +310,8 @@ export default {
 
         // 当前位置之类的，可以做进度
         this.rendition.on("relocated", function(location) {
-          this.currentSectionIndex = location.start.displayed.page;
+          // console.log(location,'location')
+          
         });
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("120%");
@@ -331,6 +338,7 @@ export default {
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
+            console.log(this.book.PageList,'PageListPageList')
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
             this.book.loaded.navigation.then(getToc => {
@@ -374,9 +382,7 @@ export default {
     ePubNext() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.rendition.next().then(res => {
-            console.log(res);
-          });
+          this.rendition.next()
           // this.rendition.next();
           resolve();
         } catch (e) {
@@ -433,8 +439,16 @@ export default {
       _header = document.getElementsByClassName("header_wrap")[0];
       _footer = document.getElementsByClassName("foot_wrap")[0];
 
+      
+      this.setFontAndBG = true
       this.HiddenFlag = !this.HiddenFlag;
-    }
+    },
+    setBG(){
+      let changeBG = document.getElementsByTagName('body')[0]
+      changeBG.style.background = "red"
+      // this.rendition.themes.register("tan", "../../assets/theme/index.css");
+      // this.rendition.themes.select("tan");
+    },
   }
 };
 </script>
@@ -533,7 +547,7 @@ div.epub-index-wrap {
   }
   div.SetiingHiddenB {
     transform: translateY(100%);
-    transition: all .3s ease-in;
+    transition: all .3s ease-out;
   }
   div.foot_wrap2 {
     width:100vw;

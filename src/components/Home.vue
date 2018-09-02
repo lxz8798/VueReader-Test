@@ -8,20 +8,20 @@
 		</mt-tab-container>
 		
 		<!-- 原footer 现隐藏 -->
-		<!-- <mt-tabbar v-model="selected" class="footer" :fixed="true" :value="selected">
-			<mt-tab-item id="书架">
+		<mt-tabbar v-model="selected" class="footer" :fixed="true" :value="selected">
+			<!-- <mt-tab-item id="书架">
 				<img slot="icon" src="../assets/book.svg"> 书架
-			</mt-tab-item>
-			<mt-tab-item id="背景">
+			</mt-tab-item> -->
+			<!-- <mt-tab-item id="背景">
 				<img slot="icon" src="../assets/setting.svg"> 背景
-			</mt-tab-item>
-			<mt-tab-item id="字体">
+			</mt-tab-item> -->
+			<!-- <mt-tab-item id="字体">
 				<img slot="icon" src="../assets/font.svg"> 字体
 			</mt-tab-item>
 			<mt-tab-item id="我的">
 				<img slot="icon" src="../assets/my.svg"> 我的
-			</mt-tab-item>
-		</mt-tabbar> -->
+			</mt-tab-item> -->
+		</mt-tabbar>
 	</div>
 </template>
 

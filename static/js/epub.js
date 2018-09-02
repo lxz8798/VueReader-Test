@@ -16133,7 +16133,6 @@ var Archive = function () {
 			
 			if (entry) {
 				return entry.async("string").then(function (text) {
-					// console.log(text,'text==========16098')
 					return text;
 				});
 			} 
