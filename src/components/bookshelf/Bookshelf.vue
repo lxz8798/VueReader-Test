@@ -183,38 +183,37 @@ export default {
      * 李啸竹
      */
     getEpub() {
-<<<<<<< HEAD
       return new Promise((resolve, ject) => {
         // 发请求拿授权及 epub 地址
-        // let params = {
-        //   Url: "http://218.249.32.238/content/authorize",
-        //   data: {
-        //     authorzieParameters: {
-        //       contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
-        //       organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
-        //       device: {
-        //         devicekey: 'i0TPLKk";saUBVG7',
-        //         DeviceType: 4,
-        //         Title: "电脑试读"
-        //       },
-        //       FromSalePlatformTitle: "可知",
-        //       userinfo: { nickname: "未登录", ExternalId: "未登录" }
-        //     }
-        //   }
-        // };
-
         let params = {
-          Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
-          data:{
-              id:592770,
-              authorizeToken:'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
-              BridgePlatformName:'phei_zhongzhi_web_demo',
-              accessToken:'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
-              deviceToken:'3fe672e487314b34b1044825e46a0dd5',
-              decryptKey:'CrKBHyXVGtknYiXy',
-              AppId:11
+          Url: "http://218.249.32.238/content/authorize",
+          data: {
+            authorzieParameters: {
+              contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
+              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
+              device: {
+                devicekey: 'i0TPLKk";saUBVG7',
+                DeviceType: 4,
+                Title: "电脑试读"
+              },
+              FromSalePlatformTitle: "可知",
+              userinfo: { nickname: "未登录", ExternalId: "未登录" }
+            }
           }
-        }
+        };
+
+        // let params = {
+        //   Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
+        //   data:{
+        //       id:592770,
+        //       authorizeToken:'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
+        //       BridgePlatformName:'phei_zhongzhi_web_demo',
+        //       accessToken:'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
+        //       deviceToken:'3fe672e487314b34b1044825e46a0dd5',
+        //       decryptKey:'CrKBHyXVGtknYiXy',
+        //       AppId:11
+        //   }
+        // }
 
         let routeParams = window.location.href;
         let parseUrl = routeParams.split("?")[1];
@@ -265,76 +264,6 @@ export default {
           }
         });
       });
-=======
-      // return new Promise((resolve, ject) => {
-      //   // 发请求拿授权及 epub 地址
-      //   let params = {
-      //     Url: "http://218.249.32.238/content/authorize",
-      //     data: {
-      //       authorzieParameters: {
-      //         contentexternalid: "P00001-01-978-7-121-33314-9-Epub",
-      //         organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
-      //         device: {
-      //           devicekey: 'i0TPLKk";saUBVG7',
-      //           DeviceType: 4,
-      //           Title: "电脑试读"
-      //         },
-      //         FromSalePlatformTitle: "可知",
-      //         userinfo: { nickname: "未登录", ExternalId: "未登录" }
-      //       }
-      //     }
-      //   };
-
-      //   let routeParams = window.location.href;
-      //   let parseUrl = routeParams.split("?")[1];
-      //   let QsParseUrl = Qs.parse(parseUrl);
-      //   console.log(Qs.stringify(params, { indices: false }), "模拟提交");
-
-      //   // console.log('QsParseUrl.data')
-      //   $.ajax({
-      //     type: "post",
-      //     url: QsParseUrl.Url,
-      //     data: {
-      //       authorzieParameters: JSON.stringify(
-      //         QsParseUrl.data.authorzieParameters
-      //       )
-      //     },
-      //     success: function(data) {
-      //       try {
-      //         if (data) {
-      //           if (
-      //             !sessionStorage.epubBookInfo &&
-      //             !sessionStorage.resourceUrl
-      //           ) {
-      //             sessionStorage.resourceUrl = data.Data.Url;
-      //             sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-      //             sessionStorage.epubBookInfo = JSON.stringify({
-      //               devicekey:
-      //                 QsParseUrl.data.authorzieParameters.device.devicekey,
-      //                 decryptStr: data.Data.Key
-      //             });
-      //           } else {
-      //             sessionStorage.removeItem("resourceUrl");
-      //             sessionStorage.removeItem("epubBookInfo");
-      //             sessionStorage.removeItem("PackageBaseUrl");
-      //             sessionStorage.resourceUrl = data.Data.Url;
-      //             sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-      //             sessionStorage.epubBookInfo = JSON.stringify({
-      //               devicekey:
-      //                 QsParseUrl.data.authorzieParameters.device.devicekey,
-      //               decryptStr: data.Data.Key
-      //             });
-      //           }
-      //           Indicator.close();
-      //         }
-      //       } catch (e) {
-      //         console.log(e.message);
-      //       }
-      //       resolve();
-      //     }
-      //   });
-      // });
->>>>>>> 19738aab5b55c6e52258a26bcd1867a76a981525
     },
     /**
      * 添加目录显示隐藏事件
