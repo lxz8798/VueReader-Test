@@ -26,12 +26,14 @@
 		var slider = document.createElement("input");
 		var slide = function(){
 				var cfi = book.locations.cfiFromPercentage(slider.value / 100);
+				console.log(book.locations,"111111111111111111111111")
+				console.log(cfi,'2222222222222222222222222')
 				rendition.display(cfi);
 		};
 		var mouseDown = false;
 
 		// Load the opf
-		var book = ePub("http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub");
+		var book = ePub("http://aqr.keledge.com/files/encrypted/1b8/3cd9a18d6eee401faa637e395ab74d51_0_10564.epub.extracttoc.epub");
 		var rendition = book.renderTo("viewer", {
 			width: "100vw",
 			height:"94vh"
@@ -113,7 +115,9 @@
 				controls.appendChild(slider);
 
 				currentPage.addEventListener("change", function(){
+					
 					var cfi = book.locations.cfiFromPercentage(currentPage.value/100);
+					console.log(book.locations.percentageFromCfi(),'book.locations.cfiFromPercentage')
 					rendition.display(cfi);
 				}, false);
 
@@ -124,8 +128,8 @@
 						if(!mouseDown) {
 								slider.value = percentage;
 						}
-						currentPage.value = percentage;
-						console.log(location);
+						// currentPage.value = percentage;
+						// console.log(location);
 				});
 
 				// Save out the generated locations to JSON

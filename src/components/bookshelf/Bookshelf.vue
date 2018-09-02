@@ -72,22 +72,27 @@
         </li>
       </ul>
     </div>
-
+    
     <div class="foot_wrap"
          v-if="setFontAndBG"
          :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
+
+      <div class="percent_wrap">
+        <vue-slider v-model="value"></vue-slider>
+      </div>
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
-        <li class="percent_wrap">
-          <span class="slider_wrap"></span>
+        <li>
+          
         </li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext()"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
         <li class="setting_wrap"></li>
       </ul>
+      
     </div>
-
+    
     <div class="foot_wrap2"
          v-else
          :class="HiddenFlag ? 'SetiingHiddenA' : 'SetiingHiddenB'">
@@ -123,10 +128,12 @@
 </template>
 
 <script>
+import vueSlider from 'vue-slider-component';
 import Qs from 'qs'
 import { Indicator } from 'mint-ui'
 export default {
   name: 'Bookshelf',
+  components:{vueSlider},
   data() {
     return {
       fontColor:'#B9B9B9',
@@ -140,7 +147,8 @@ export default {
       selected: '我的书架',
       seetingTitle: '字体大小',
       bgTitle: '背景色',
-      currentSectionIndex: 0,
+      value: 0,
+      bgStyle: null,
       ifHiddenFlag: true,
       HiddenFlag: true,
       displayed: '',
@@ -157,6 +165,15 @@ export default {
     await this.getBookUpdate();
     await this.topHidden();
     // await this.setBG()
+  },
+  watch: {
+    value:function () {
+      let cfi =  this.book.locations.cfiFromPercentage(this.value / 100);
+      // console.log(this.book.locations,'1111111111111111111')
+      // console.log(cfi,'cficficficficficficficficficficficficficficficficficficficfi')
+      // console.log(this.book.locations,'this.book.locations') 
+      // this.rendition.display(cfi);
+    }
   },
   methods: {
     setFont (num) {
@@ -338,10 +355,11 @@ export default {
         // let _epubUrl = sessionStorage.resourceUrl;
         let _epubUrl =
           'http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub'
-        
+       
         this.book = new ePub(_epubUrl);
         
         this.rendition = this.book.renderTo("ePubArea", {
+          
           width: "100vw",
           height: 600,
           manager: 'continuous',
@@ -349,18 +367,36 @@ export default {
         })
         
         this.rendition.themes.default({
-          "p.center": {
-            color: '#333333'
+          h1:{
+            "font-size":"1.8rem",
+            color:"RGBA(234, 84, 4, 1)",
+            "text-align":"left",
+          },
+          p: {
+            "text-align":"left",
+            "line-height":"2.5rem",
+            "text-indent":"0 !important"
+          },
+          
+          a: {
+            color:"RGBA(51, 51, 51, 1)",
+            "text-decoration": "none"
           },
           img: {
-            width: '95%'
+            width: '98% !important'
           }
         })
-        console.log(this.book.locations,'currPagecurrPagecurrPagecurrPagecurrPagecurrPagecurrPage')
+        console.log(this.book)
+
+        // this.rendition.themes.register("p","blob:http://localhost:8080/43cab505-19fb-4f35-a318-882a533c8e57");
+        // this.rendition.themes.select("p");
+    
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
 
-        this.rendition.display(this.currentSectionIndex)
+        this.rendition.display()
+
+        
         // resolve();
       })
     },
@@ -375,11 +411,11 @@ export default {
       await this.readyReader()
     },
     readyReader() {
+      
       return new Promise((resolve, reject) => {
         let _getSpine
         // 阅读时的处理
         this.book.ready.then(content => {
-
           try {
             console.log(this.book.PageList,'PageListPageList')
             _getSpine = this.book.spine.items;
@@ -403,6 +439,7 @@ export default {
             console.log(e.message)
           }
         })
+
       })
     },
     gotoDisplay(id) {
@@ -710,6 +747,7 @@ div.epub-index-wrap {
       }
     }
   }
+  
   div.foot_wrap {
     width: 100vw;
     height: 3.5rem;
@@ -721,8 +759,29 @@ div.epub-index-wrap {
     left: 0;
 
     z-index: 80;
+    div.percent_wrap {
+      width:10rem;
+      height: 2px;
+      z-index: 99;
+
+      position: fixed;
+      bottom:60%;
+      left:23.3%;
+      .vue-slider-component .vue-slider-dot {
+        top:-7px !important;
+      }
+      .vue-slider-component .vue-slider {
+        height: 2px;
+        background: none;
+      }
+      .vue-slider-component.vue-slider-horizontal .vue-slider-process {
+        height: 2px;
+        background: RGBA(64, 71, 79, 1)
+      }
+      
+    }
     ul {
-      width: inherit;
+      width: 100vw;
       height: inherit;
       display: flex;
       justify-content: space-around;
@@ -746,9 +805,6 @@ div.epub-index-wrap {
       }
       li:nth-child(3) {
         flex: 1;
-        height: 2px;
-
-        background: RGBA(64, 71, 79, 1);
         
         span {
           display: inline-block;

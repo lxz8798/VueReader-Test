@@ -9,7 +9,6 @@ import store from './store'
 import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import vuescroll from 'vue-scroll'
-
 Vue.use(vuescroll)
 VueTouch.config.swipe = {
   direction: 'horizontal'
