@@ -2139,7 +2139,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       
       dataP.then(function (data) {
           
-          var _epubBookInfo,_epubSpine,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,_ifAesObj2,word,key,newDataObj
+          var _epubBookInfo,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,word,key
           
           
           try {
@@ -2156,6 +2156,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 console.log(_ifAesObj,'_ifAesObj')
                 
                 const OTHER_UINT8ARRAY = [86, 116, 222, 232, 115, 7, 94, 98, 180, 7]
+
                 const IF_ENCRY = {
                   normalxml:[60,63,120,109,108,32,118,101,114,115],
                   normalXML:[60,63,88,77,76,32,118,101,114,115],
@@ -2194,47 +2195,49 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                   }
                 }
                 // // 判断数组是否相等
-                let otherXML = function () {						
+                let otherDecrypt = function () {						
                   for (let i = 0; i < 10; i++) {
                     return _ifAesObj[i] == OTHER_UINT8ARRAY[i] ? true : false
                   }
                 }
-                
-                console.log(otherXML(),xmlEqual(),XMLEqual(),htmlEqual(),HTMLEqual(),'判断是否其他格式未加密的文件')
+                console.log(otherDecrypt(),xmlEqual(),XMLEqual(),htmlEqual(),HTMLEqual(),'判断是否其他格式未加密的文件')
 
-                if (otherXML()) {
-                  _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-                  // console.log(_epubBookInfo,'_epubBookInfo1')
-                  _decryptStr = _epubBookInfo.decryptStr
-                  console.log(_decryptStr,'_decryptStr2')
-                  _devicekey =  _epubBookInfo.devicekey
-                  console.log(_devicekey,'_devicekey3')                  
-                  _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
-                  // console.log(_decryptKey,'_decryptKey4')
-                  _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-                  // console.log(_decryptAfterKey,'_decryptAfterKey5')
-                  _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
-                  console.log(_decryptAfterKeyToStr,'解密完成的key')
-                  word = window.btoa(String.fromCharCode.apply(null, data))
-                  // console.log(word,'解密前的正文，应该是base64')
-                  key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
-                  // console.log(key,'解密完成的key7')
-                  _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-                  // console.log(_decrypt,'解密后的正文8，还是wordarray')
-                  let wordArrayToU8 = function () {
-                    let _words = _decrypt.words;
-                    let _sigBytes = _decrypt.sigBytes;
-                    let _decryptU8 = new Uint8Array(_sigBytes);
-                    for (let i = 0; i < _sigBytes; i++) {
-                      let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                      _decryptU8[i]=byte;
+                if (otherDecrypt()) {
+                  function newData () {
+                    _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+                    // console.log(_epubBookInfo,'_epubBookInfo1')
+                    _decryptStr = _epubBookInfo.decryptStr
+                    console.log(_decryptStr,'_decryptStr2')
+                    _devicekey =  _epubBookInfo.devicekey
+                    console.log(_devicekey,'_devicekey3')                  
+                    _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+                    // console.log(_decryptKey,'_decryptKey4')
+                    _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                    // console.log(_decryptAfterKey,'_decryptAfterKey5')
+                    _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+                    console.log(_decryptAfterKeyToStr,'解密完成的key')
+                    word = window.btoa(String.fromCharCode.apply(null, data))
+                    // console.log(word,'解密前的正文，应该是base64')
+                    key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+                    // console.log(key,'解密完成的key7')
+                    _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                    // console.log(_decrypt,'解密后的正文8，还是wordarray')
+                    let wordArrayToU8 = function () {
+                      let _words = _decrypt.words;
+                      let _sigBytes = _decrypt.sigBytes;
+                      let _decryptU8 = new Uint8Array(_sigBytes);
+                      for (let i = 0; i < _sigBytes; i++) {
+                        let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                        _decryptU8[i]=byte;
+                      }
+                      return _decryptU8;
                     }
-                    return _decryptU8;
+                    console.log(wordArrayToU8(),'正文wordArray处理完以后转成的u8')
+                    data = wordArrayToU8()
+                    console.log(data,'赋值以后的data')
+                    return data
                   }
-                  console.log(wordArrayToU8(),'正文wordArray处理完以后转成的u8')
-                  data = wordArrayToU8()
-                  console.log(data,'赋值以后的data')
-                  return data
+                  return newData()
                 } else {
                   return data
                 }

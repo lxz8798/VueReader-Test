@@ -1,19 +1,20 @@
 <template>
 	<div class="epub-index-wrap">
-
-    <div class="book_shelf_icon" @click="ifClickHidden()">
+    <!-- 功能没有，暂时隐藏 -->
+    <!-- <div class="book_shelf_icon" @click="ifClickHidden()">
         <i class="iconfont epub-ziyuan"></i>
-    </div>
+    </div> -->
 
     <!-- <mt-header fixed :title="selected" id="my_header"></mt-header> -->
     <div class="header_wrap" :class="topHiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
         <li><i class="iconfont epub-jiantou"></i></li>
-        <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
+        <!-- 暂时隐藏 -->
+        <!-- <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
           <i class="iconfont epub-fangdajing"></i>
         </li>
         <li><i class="iconfont epub-icon-test"></i></li>
-        <li><i class="iconfont epub-gengduo"></i></li>
+        <li><i class="iconfont epub-gengduo"></i></li> -->
       </ul>
       <span :class="seatchEvenFlag ? 'search-wrapA' : 'search-wrapB'">
         <input type="text" class="searchInput">
@@ -52,14 +53,35 @@
       </ul>      
     </div>
 
-    <div class="foot_wrap" :class="topHiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
+    <div class="foot_wrap" v-if="setFontAndBG" :class="topHiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
         <li></li>
         <li><i class="iconfont epub-sanjiaojiantoushang"></i></li>
-        <li><i class="iconfont epub-shezhi"></i></li>
+        <li><i class="iconfont epub-shezhi" @click="setBG()" ></i></li>
+        <li class="setting_wrap"></li>
       </ul>
+    </div>
+
+    <div class="foot_wrap2" v-else>
+      <div>
+        <ul>
+          <li>{{seetingTitle}}</li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div>
+      <div>
+        <ul>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div>
     </div>
 
     <div id="mask_wrap" @click="ifClickHidden()" v-if="!ifHiddenFlag">
@@ -92,7 +114,9 @@ export default {
       tocList: [],
       seatchEvenFlag:false,
       ulTakeUpFlag:true,
+      setFontAndBG:false,
       selected: "我的书架",
+      seetingTitle:'字体大小',
       currentSectionIndex: 0,
       ifHiddenFlag: true,
       topHiddenFlag: true,
@@ -117,6 +141,9 @@ export default {
     await this.topHidden();
   },
   methods: {
+    setBG () {
+
+    },
     /**
      * 收起
      * 李啸竹
@@ -482,6 +509,18 @@ div.epub-index-wrap {
       }
     }
   }
+  div.foot_wrap2 {
+    width:100vw;
+    height: 6rem;
+    background: white;
+    box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+    z-index: 80;
+  }
   div.foot_wrap {
     width: 100vw;
     height: 3.5rem;
@@ -498,7 +537,6 @@ div.epub-index-wrap {
       height: inherit;
       display: flex;
       justify-content: space-around;
-      flex-direction: row;
       align-items: center;
      
       li {
@@ -510,7 +548,7 @@ div.epub-index-wrap {
           color: RGBA(64, 71, 79, 1);
         }
       }
-
+      
       li:nth-child(1) {
         flex: 0.3;
       }
