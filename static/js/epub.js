@@ -3559,7 +3559,49 @@ function request(url, type, withCredentials, headers) {
 						r = new Blob([this.response]);
 					}
 				} else {
-					r = this.response;
+					console.log(this.response,'this.response');
+					var myUint8Array = new Uint8Array(this.response);
+					console.log(myUint8Array,'myUint8Array==');
+					// ----------------
+					let Uint8ToBase64 = function (u8Arr) {
+						var CHUNK_SIZE = 0x8000; //arbitrary number
+						var index = 0;
+						var length = u8Arr.length;
+						var result = "";
+						var slice;
+						while (index < length) {
+							slice = u8Arr.subarray(index, Math.min(index + CHUNK_SIZE, length));
+							result += String.fromCharCode.apply(null, slice);
+							index += CHUNK_SIZE;
+						}
+						return btoa(result);
+					};
+					var word = Uint8ToBase64(myUint8Array);
+					var key = CryptoJS.enc.Utf8.parse('1234567890123456');
+					var decryptedData = CryptoJS.AES.decrypt(word, key, {
+						mode: CryptoJS.mode.ECB,
+						padding: CryptoJS.pad.Pkcs7
+					});
+					// 再把wordArray转uint8Array
+					let wordArrayToU8 = function (_decrypt) {
+						let _words = _decrypt.words;
+						let _sigBytes = _decrypt.sigBytes;
+						let _decryptU8 = new Uint8Array(_sigBytes);
+						for (let i = 0; i < _sigBytes; i++) {
+							let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+							_decryptU8[i] = byte;
+						}
+						return _decryptU8;
+						//  return CryptoJS.enc.Utf8.stringify(_decrypt);
+					};
+					let jiemiUint8Array = wordArrayToU8(decryptedData);
+					console.log(wordArrayToU8(decryptedData),'decryptedData===');
+					let jiemiBuffer = jiemiUint8Array.buffer;
+					console.log(jiemiBuffer);
+					// ----------------
+
+					// r = this.response;
+					r = jiemiBuffer;
 				}
 
 				deferred.resolve(r);
@@ -10174,7 +10216,7 @@ var Book = function () {
 				this.url = new _url2.default(input);
 				opening = this.openContainer(CONTAINER_PATH).then(this.openPackaging.bind(this));
 			}
-
+			console.log(opening,'opening===')
 			return opening;
 		}
 
@@ -11364,11 +11406,12 @@ var Section = function () {
 			var request = _request || this.request || __webpack_require__(11);
 			var loading = new _core.defer();
 			var loaded = loading.promise;
-
 			if (this.contents) {
+				console.log(this.contents,'this.contents=========11353');
 				loading.resolve(this.contents);
 			} else {
 				request(this.url).then(function (xml) {
+					console.log(xml,'xml=============11372');
 					// var directory = new Url(this.url).directory;
 
 					this.document = xml;
@@ -11405,11 +11448,13 @@ var Section = function () {
 	}, {
 		key: "render",
 		value: function render(_request) {
+			// console.log(_request,'_request==');
 			var rendering = new _core.defer();
 			var rendered = rendering.promise;
 			this.output; // TODO: better way to return this from hooks?
 
 			this.load(_request).then(function (contents) {
+				console.log(contents,'contents=====11415');
 				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
 				var isIE = userAgent.indexOf('Trident') >= 0;
 				var Serializer;
@@ -16091,41 +16136,46 @@ var Archive = function () {
 			var entry = this.zip.file(decodededUrl);
 			
 			if (entry) {
-				// sessionStorage.fileName = url
-				// 原始的返回结果
-				// return entry.async("string").then(function (text) {
-				// 	console.log(decodededUrl,'这里是通过session写入文件名')
-				if (!sessionStorage.fileName) {
-					sessionStorage.fileName = url
-				} else {
-					sessionStorage.removeItem('fileName')
-					sessionStorage.fileName = url
-				}
-				// 	console.log(text)
-				// 	return text;
-				// });
-				
 				return entry.async("string").then(function (text) {
-					console.log(text,'texttexttexttexttexttexttexttexttexttexttext')
-					let regXml = /<\?\b\w+\b.*?>/
-					let cssReg = /^\.\b\w.*?\w\b\{[^\}]+\}/
-					if (regXml.test(text) || cssReg.test(text)) {
-						return text
-					} else {
-						if (!localStorage.isDecrypt) {
-							localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
-							console.log(regXml.test(text) || cssReg.test(text),'匹配正文以后不是标准格式就存boolean')
-							return entry.async("uint8array").then(function (u8) {
-								return u8								
-							})
-						} else {
-							localStorage.removeItem('isDecrypt')
-							localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
-						}
+					// console.log(text,'text==========16098')
+					return text;
+				});
+
+				// // sessionStorage.fileName = url
+				// // 原始的返回结果
+				// // return entry.async("string").then(function (text) {
+				// // 	console.log(decodededUrl,'这里是通过session写入文件名')
+				// if (!sessionStorage.fileName) {
+				// 	sessionStorage.fileName = url
+				// } else {
+				// 	sessionStorage.removeItem('fileName')
+				// 	sessionStorage.fileName = url
+				// }
+				// // 	console.log(text)
+				// // 	return text;
+				// // });
+				
+				// return entry.async("string").then(function (text) {
+				// 	// console.log(text,'texttexttexttexttexttexttexttexttexttexttext')
+				// 	let regXml = /<\?\b\w+\b.*?>/
+				// 	let cssReg = /^\.\b\w.*?\w\b\{[^\}]+\}/
+				// 	if (regXml.test(text) || cssReg.test(text)) {
+				// 		return text
+				// 	} else {
+				// 		if (!localStorage.isDecrypt) {
+				// 			localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
+				// 			// console.log(regXml.test(text) || cssReg.test(text),'匹配正文以后不是标准格式就存boolean')
+				// 			return entry.async("uint8array").then(function (u8) {
+				// 				return u8								
+				// 			})
+				// 		} else {
+				// 			localStorage.removeItem('isDecrypt')
+				// 			localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
+				// 		}
 						
-					}
+				// 	}
 					
-				})
+				// })
 				
 				// return entry.async("string").then(function (text) {
 				// 	try {
