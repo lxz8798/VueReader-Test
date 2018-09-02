@@ -14,7 +14,6 @@ Vue.use(vuescroll)
 VueTouch.config.swipe = {
   direction: 'horizontal'
 }
-
 Vue.use(VueTouch, {
   name: 'v-touch'
 })

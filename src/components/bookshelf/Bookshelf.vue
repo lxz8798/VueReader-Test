@@ -79,7 +79,9 @@
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
-        <li></li>
+        <li class="percent_wrap">
+          <span class="slider_wrap"></span>
+        </li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext()"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
         <li class="setting_wrap"></li>
@@ -121,18 +123,8 @@
 </template>
 
 <script>
-import api from '@/api/api'
-import moment from 'moment'
-import util from '@/utils/util'
 import Qs from 'qs'
-import {
-  SET_EPUB_BOOK,
-  SET_CURRENT_SOURCE,
-  SET_READ_BOOK
-} from '@/store/mutationsType'
 import { Indicator } from 'mint-ui'
-
-moment.locale('zh-cn')
 export default {
   name: 'Bookshelf',
   data() {
@@ -158,14 +150,6 @@ export default {
       defaultFont:20
     }
   },
-  filters: {
-    /**
-     * 使用moment格式化时间
-     */
-    ago(time) {
-      return moment(time).fromNow()
-    }
-  },
   async created() {
     await this.getEpub();
     await this.openEpub();
@@ -180,12 +164,10 @@ export default {
       switch (num) {
         case 'sub':
         this.count--
-        console.log(this.count,'countcount sub')
         this.rendition.themes.fontSize(this.count+'px');
         break;
         case 'add':
         this.count++
-        console.log(this.count,'countcount add')
         this.rendition.themes.fontSize(this.count+'px');
         break;
         case 'default':
@@ -235,6 +217,7 @@ export default {
      */
     getEpub() {
       return new Promise((resolve, ject) => {
+        
         // 发请求拿授权及 epub 地址
         let params = {
           title: 'zhongzhi',
@@ -355,8 +338,7 @@ export default {
         // let _epubUrl = sessionStorage.resourceUrl;
         let _epubUrl =
           'http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub'
-        // let _epubUrl = '';
-
+        
         this.book = new ePub(_epubUrl);
         
         this.rendition = this.book.renderTo("ePubArea", {
@@ -365,35 +347,25 @@ export default {
           manager: 'continuous',
           flow: 'paginated'
         })
-        // 其他样式风格
-
-        // this.rendition.themes.register("Other", "Other.css");
-
+        
         this.rendition.themes.default({
-          p: {
-            color: '#333333',
+          "p.center": {
+            color: '#333333'
           },
           img: {
             width: '95%'
           }
         })
-
-        // 当前位置之类的，可以做进度
-        this.rendition.on("relocated", function(location) {
-          // console.log(location,'location')
-          
-        });
+        console.log(this.book.locations,'currPagecurrPagecurrPagecurrPagecurrPagecurrPagecurrPage')
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
-
-        // this.rendition.themes.select("Other")
 
         this.rendition.display(this.currentSectionIndex)
         // resolve();
       })
     },
     async ifClickHidden() {
-      let _ul, _header, _ePubPrev, _ePubNext
+      let _ePubPrev, _ePubNext
 
       _ePubNext = document.getElementById('ePubNext')
       _ePubPrev = document.getElementById('ePubPrev')
@@ -407,6 +379,7 @@ export default {
         let _getSpine
         // 阅读时的处理
         this.book.ready.then(content => {
+
           try {
             console.log(this.book.PageList,'PageListPageList')
             _getSpine = this.book.spine.items;
@@ -754,7 +727,6 @@ div.epub-index-wrap {
       display: flex;
       justify-content: space-around;
       align-items: center;
-
       li {
         display: flex;
         justify-content: center;
@@ -777,6 +749,16 @@ div.epub-index-wrap {
         height: 2px;
 
         background: RGBA(64, 71, 79, 1);
+        
+        span {
+          display: inline-block;
+          width: 1rem;
+          height: 1rem;
+          background: white;
+          border:1px solid RGBA(0, 0, 0, 0.25);
+          box-shadow: 3px 1px 3px RGBA(0, 0, 0, 0.1);
+          border-radius: 3rem;
+        }
       }
       li:nth-child(4) {
         flex: 0.3;
