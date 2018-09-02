@@ -77,29 +77,11 @@
          v-if="setFontAndBG"
          :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
       <ul>
-<<<<<<< HEAD
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
         <li></li>
-        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubnext()"></i></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext()"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
-=======
-        <li>
-          <i class="iconfont epub-sort"
-             @click="ifClickHidden()"></i>
-        </li>
-        <li>
-          <i class="iconfont epub-sanjiaojiantoushang"></i>
-        </li>
-        <li></li>
-        <li>
-          <i class="iconfont epub-sanjiaojiantoushang"></i>
-        </li>
-        <li>
-          <i class="iconfont epub-shezhi"
-             @click="setBG()"></i>
-        </li>
->>>>>>> 2ff5dc73b577b64ebaa0d9469c2a82f64bc32d80
         <li class="setting_wrap"></li>
       </ul>
     </div>
@@ -110,19 +92,19 @@
       <div class="font_set">
         <ul>
           <li>{{seetingTitle}}</li>
-          <li>A-</li>
-          <li>A+</li>
-          <li>默认</li>
+          <li @click="setFont('sub')">A-</li>
+          <li @click="setFont('add')">A+</li>
+          <li @click="setFont('default')">默认</li>
         </ul>
       </div>
       <div class="bg_set">
         <ul>
           <li>{{bgTitle}}</li>
-          <li @click="setBG()"></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li>
+          <li @click="setBG(1)"></li>
+          <li @click="setBG(2)"></li>
+          <li @click="setBG(3)"></li>
+          <li @click="setBG(4)"></li>
+          <li @click="setBG(5)">
             <i class="iconfont epub-moonbyueliang"></i>
           </li>
         </ul>
@@ -155,6 +137,7 @@ export default {
   name: 'Bookshelf',
   data() {
     return {
+      fontColor:'#B9B9B9',
       books: [],
       book: {},
       rendition: {},
@@ -170,7 +153,9 @@ export default {
       HiddenFlag: true,
       displayed: '',
       decryptAfterToU8: [],
-      epubText: ''
+      epubText: '',
+      count:20,
+      defaultFont:20
     }
   },
   filters: {
@@ -187,16 +172,33 @@ export default {
     await this.readyReader();
     await this.getBookUpdate();
     await this.topHidden();
-    await this.setBG()
+    // await this.setBG()
   },
   methods: {
-    
+    setFont (num) {
+
+      switch (num) {
+        case 'sub':
+        this.count--
+        console.log(this.count,'countcount sub')
+        this.rendition.themes.fontSize(this.count+'px');
+        break;
+        case 'add':
+        this.count++
+        console.log(this.count,'countcount add')
+        this.rendition.themes.fontSize(this.count+'px');
+        break;
+        case 'default':
+        this.rendition.themes.fontSize(this.defaultFont+'px');
+        break;
+      }
+      
+    },
     setBGFun () {
       if (this.setFontAndBG) {
         this.setFontAndBG = false
       }
       // this.setFontAndBG = !this.setFontAndBG
-      console.log('sadcasdc')
     },
     /**
      * 收起
@@ -370,10 +372,10 @@ export default {
 
         this.rendition.themes.default({
           p: {
-            color: '#333333'
+            color: '#333333',
           },
           img: {
-            width: '96%'
+            width: '95%'
           }
         })
 
@@ -383,7 +385,7 @@ export default {
           
         });
         this.rendition.themes.font("MSYH");
-        this.rendition.themes.fontSize("120%");
+        this.rendition.themes.fontSize("20px");
 
         // this.rendition.themes.select("Other")
 
@@ -512,11 +514,31 @@ export default {
       this.setFontAndBG = true
       this.HiddenFlag = !this.HiddenFlag;
     },
-    setBG(){
+    setBG(num){
       let changeBG = document.getElementsByTagName('body')[0]
-      changeBG.style.background = "red"
-      // this.rendition.themes.register("tan", "../../assets/theme/index.css");
-      // this.rendition.themes.select("tan");
+      switch (num) {
+        case 1:
+          changeBG.style.background = "white"
+          changeBG.style.transition = "all 0.3s ease-in"
+        break;
+        case 2:
+          changeBG.style.background = "#f0eac6"
+          changeBG.style.transition = "all 0.3s ease-in"
+        break;
+        case 3:
+          changeBG.style.background = "#b2f2e1"
+          changeBG.style.transition = "all 0.3s ease-in"
+        break;
+        case 4:
+          changeBG.style.background = "#b2c7f2"
+          changeBG.style.transition = "all 0.3s ease-in"
+        break;
+        case 5:
+          changeBG.style.color = this.fontColor
+          changeBG.style.background = "#40474f"
+          changeBG.style.transition = "all 0.3s ease-in"
+        break;
+      }
     },
   }
 }
@@ -616,11 +638,7 @@ div.epub-index-wrap {
   }
   div.SetiingHiddenB {
     transform: translateY(100%);
-<<<<<<< HEAD
     transition: all .3s ease-out;
-=======
-    transition: all 0.3s ease-in;
->>>>>>> 2ff5dc73b577b64ebaa0d9469c2a82f64bc32d80
   }
   div.foot_wrap2 {
     width: 100vw;
