@@ -192,7 +192,6 @@ export default {
         this.rendition.themes.fontSize(this.defaultFont+'px');
         break;
       }
-      
     },
     setBGFun () {
       if (this.setFontAndBG) {
