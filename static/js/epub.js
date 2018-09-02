@@ -577,13 +577,20 @@ function parse(markup, mime, forceXMLDom) {
 	// Remove byte order mark before parsing
 	// https://www.w3.org/International/questions/qa-byte-order-mark
 	if (markup.charCodeAt(0) === 0xFEFF) {
-		if (!localStorage.isError) {
-			console.log(trye,'是否报错')
-			localStorage.isError = true
-		} else {
-			localStorage.removeItem('isError')
-			localStorage.isError = true
+		try {
+			
+		} catch (e) {
+			if (e) {
+				if (!localStorage.isError) {
+					console.log(trye,'是否报错')
+					localStorage.isError = true
+				} else {
+					localStorage.removeItem('isError')
+					localStorage.isError = true
+				}
+			}
 		}
+		
 		
 		markup = markup.slice(1);
 	}
@@ -9485,7 +9492,7 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 				var next = last && last.section.next();
 				
 				if (next) {
-					sessionStorage.sectionFlag = true
+					localStorage.sectionFlag = true
 					newViews.push(_this5.append(next));
 				}
 			};
@@ -16107,8 +16114,9 @@ var Archive = function () {
 					} else {
 						if (!localStorage.isDecrypt) {
 							localStorage.isDecrypt = regXml.test(text) || cssReg.test(text)
+							console.log(regXml.test(text) || cssReg.test(text),'匹配正文以后不是标准格式就存boolean')
 							return entry.async("uint8array").then(function (u8) {
-								console.log(u8,'是否是zip对象')
+								return u8								
 							})
 						} else {
 							localStorage.removeItem('isDecrypt')
