@@ -154,12 +154,12 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           .pipe(this.compression.uncompressWorker())
           .pipe(new DataLengthProbe("data_length"));
   
-          var that = this;
-          worker.on("end", function () {
-              if(this.streamInfo['data_length'] !== that.uncompressedSize) {
-                  throw new Error("Bug : uncompressed data size mismatch");
-              }
-          });
+          // var that = this;
+          // worker.on("end", function () {
+          //     if(this.streamInfo['data_length'] !== that.uncompressedSize) {
+          //         throw new Error("Bug : uncompressed data size mismatch");
+          //     }
+          // });
           return worker;
       },
       /**
@@ -2135,10 +2135,166 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       this.max = 0;
       this.data = null;
       this.type = "";
-  
       this._tickScheduled = false;
-  
+      
       dataP.then(function (data) {
+          
+          var _epubBookInfo,_decrypt,_decryptStr,_devicekey,_decryptKey,_decryptAfterKey,_decryptAfterKeyToStr,_ifAesObj,word,key
+          
+          
+          try {
+            var fileName = sessionStorage.fileName
+            var temp = fileName.split('.')
+            
+            if (temp[1] == "xhtml" || temp[1] == "xml" || temp[1] == "html") {
+              // data = []
+              function newData () {
+                let tempFileName = sessionStorage.fileName
+                console.log(tempFileName,'这里是文件名')
+                console.log(data,'刚进入口的原始u8')
+                _ifAesObj = Array.from(data.slice(0,10))
+                console.log(_ifAesObj,'_ifAesObj')
+                
+                const OTHER_UINT8ARRAY = [86, 116, 222, 232, 115, 7, 94, 98, 180, 7]
+
+                const IF_ENCRY = {
+                  normalxml:[60,63,120,109,108,32,118,101,114,115],
+                  normalXML:[60,63,88,77,76,32,118,101,114,115],
+                  normalhtml:[60,63,104,116,109,108,32,118,101,114],
+                  normalHTML:[60,63,72,84,77,76,32,118,101,114]
+                }
+                var {normalxml,normalXML,normalhtml,normalHTML} = IF_ENCRY
+                var isDecrypt = localStorage.isDecrypt
+                // 判断数组是否相等
+                let xmlEqual = function () {
+                  if (isDecrypt == 'false') {
+                    for (let i = 0; i < 10; i++) {
+                      return _ifAesObj[i] == normalxml[i] ? true : false
+                    }
+                  }
+                }
+                let XMLEqual = function () {						
+                  if (isDecrypt == 'false') {
+                    for (let i = 0; i < 10; i++) {
+                      return _ifAesObj[i] == normalXML[i] ? true : false
+                    }
+                  }
+                }
+                let htmlEqual = function () {						
+                  if (isDecrypt == 'false') {
+                    for (let i = 0; i < 10; i++) {
+                      return _ifAesObj[i] == normalhtml[i] ? true : false
+                    }
+                  }
+                }
+                let HTMLEqual = function () {						
+                  if (isDecrypt == 'false') {
+                    for (let i = 0; i < 10; i++) {
+                      return _ifAesObj[i] == normalHTML[i] ? true : false
+                    }
+                  }
+                }
+                // // 判断数组是否相等
+                let otherDecrypt = function () {						
+                  for (let i = 0; i < 10; i++) {
+                    return _ifAesObj[i] == OTHER_UINT8ARRAY[i] ? true : false
+                  }
+                }
+                console.log(otherDecrypt(),xmlEqual(),XMLEqual(),htmlEqual(),HTMLEqual(),'判断是否其他格式未加密的文件')
+
+                if (otherDecrypt()) {
+                  function newData () {
+                    _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+                    // console.log(_epubBookInfo,'_epubBookInfo1')
+                    _decryptStr = _epubBookInfo.decryptStr
+                    console.log(_decryptStr,'_decryptStr2')
+                    _devicekey =  _epubBookInfo.devicekey
+                    console.log(_devicekey,'_devicekey3')                  
+                    _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+                    // console.log(_decryptKey,'_decryptKey4')
+                    _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                    // console.log(_decryptAfterKey,'_decryptAfterKey5')
+                    _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+                    console.log(_decryptAfterKeyToStr,'解密完成的key')
+                    word = window.btoa(String.fromCharCode.apply(null, data))
+                    // console.log(word,'解密前的正文，应该是base64')
+                    key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+                    // console.log(key,'解密完成的key7')
+                    _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                    // console.log(_decrypt,'解密后的正文8，还是wordarray')
+                    let wordArrayToU8 = function () {
+                      let _words = _decrypt.words;
+                      let _sigBytes = _decrypt.sigBytes;
+                      let _decryptU8 = new Uint8Array(_sigBytes);
+                      for (let i = 0; i < _sigBytes; i++) {
+                        let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                        _decryptU8[i]=byte;
+                      }
+                      return _decryptU8;
+                    }
+                    console.log(wordArrayToU8(),'正文wordArray处理完以后转成的u8')
+                    data = wordArrayToU8()
+                    console.log(data,'赋值以后的data')
+                    return data
+                  }
+                  return newData()
+                } else {
+                  return data
+                }
+                // return
+              }
+              data = newData()
+            } else {
+              
+            }
+          } catch (e) {
+            throw e
+          }
+
+          // (function newData () {
+          //   let data2 = Promise.resolve(data)
+          //     console.log(data,'初始data')
+          //     data2.then(() => {
+          //       _epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+
+          //       _decryptStr = _epubBookInfo.decryptStr
+
+          //       _devicekey =  _epubBookInfo.devicekey
+               
+          //       _decryptKey = CryptoJS.enc.Utf8.parse(_devicekey)
+
+          //       _decryptAfterKey = CryptoJS.AES.decrypt(_decryptStr,_decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                
+          //       _decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(_decryptAfterKey).toString();
+
+          //       word = window.btoa(String.fromCharCode.apply(null, data))
+
+          //       key = CryptoJS.enc.Utf8.parse(_decryptAfterKeyToStr)
+
+          //       _decrypt = CryptoJS.AES.decrypt(word,key,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+                
+          //       let fnWordArrayToU8 = Promise.resolve(_decrypt)
+                
+          //       fnWordArrayToU8.then(() => {
+          //         let _words = _decrypt.words;
+          //         let _sigBytes = _decrypt.sigBytes;
+          //         let _decryptU8 = new Uint8Array(_sigBytes);
+
+          //         return new Promise((resolve, reject) => {
+          //           for (let i = 0; i < _sigBytes; i++) {
+          //             let byte = (_words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+          //             _decryptU8[i]=byte;
+          //           }
+          //           resolve()
+          //         })
+          //         return _decryptU8;
+          //       })
+                
+          //       return fnWordArrayToU8
+          //     })
+          //     return data2
+          // }())
+
           self.dataIsReady = true;
           self.data = data;
           self.max = data && data.length || 0;
