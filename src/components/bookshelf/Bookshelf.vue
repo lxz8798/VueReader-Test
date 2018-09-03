@@ -427,7 +427,7 @@ export default {
                       sessionStorage.resourceUrl = data.Data.Url;
                       // 正常获取图片的url
                       // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-                      // 测试书籍的url  
+                      // 测试书籍的url
                       sessionStorage.PackageBaseUrl = 'http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops'
                       sessionStorage.epubBookInfo = JSON.stringify({
                         devicekey: QsParseUrl.data.devicekey,
