@@ -178,10 +178,10 @@ export default {
         var currentPage = this.book.locations.percentageFromCfi(
           currentLocation.start.cfi
         );
-        this.value = currentPage;
-
-        console.log(this.book.locations.percentageFromCfi(), "this.value");
       });
+
+      var cfi = this.book.locations.cfiFromPercentage(this.value / 100);
+      console.log(this.book.locations, "book.locations.cfiFromPercentage");
     }
   },
   methods: {
@@ -240,124 +240,214 @@ export default {
      * 载入 epub
      * 李啸竹
      */
-    getEpub() {
-      return new Promise((resolve, ject) => {
-        // 发请求拿授权及 epub 地址
-        let params = {
-          title: "zhongzhi",
-          zhongzhiData: {
-            id: 592770,
-            authorizeToken: "oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ",
-            BridgePlatformName: "phei_zhongzhi_web_demo",
-            accessToken: "iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra",
-            deviceToken: "3fe672e487314b34b1044825e46a0dd5",
-            decryptKey: "CrKBHyXVGtknYiXy",
-            AppId: 11
-          },
-          Url: "http://218.249.32.238/content/authorize",
-          data: {
-            authorzieParameters: {
-              isOnline: "true",
-              contentexternalid: "P00003-01-28883-Epub",
-              organizationExternalId: "B5C6517D-8879-4DA0-A742-59A3E8E39582",
-              device: {
-                devicekey: 'i0TPLKk";saUBVG7',
-                DeviceType: "4",
-                Title: "电脑试读"
-              },
-              FromSalePlatformTitle: "可知",
-              userinfo: { nickname: "未登录", ExternalId: "未登录#/" }
-            }
-          }
-        };
+    // getEpub() {
+    //   return new Promise((resolve, ject) => {
+    //     // 发请求拿授权及 epub 地址
+    //     let params = {
+    //       title: "zhongzhi",
+    //       zhongzhiData: {
+    //         id: 592770,
+    //         authorizeToken: "oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ",
+    //         BridgePlatformName: "phei_zhongzhi_web_demo",
+    //         accessToken: "iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra",
+    //         deviceToken: "3fe672e487314b34b1044825e46a0dd5",
+    //         decryptKey: "CrKBHyXVGtknYiXy",
+    //         AppId: 11
+    //       },
+    //       Url: "http://218.249.32.238/content/authorize",
+    //       data: {
+    //         authorzieParameters: {
+    //           contentexternalid: "P00001-01-978-7-121-06976-5-Epub",
+    //           organizationExternalId: "",
+    //           isOnline: true,
+    //           device: {
+    //             devicekey: "22/-}:X}.KowW\\.E",
+    //             DeviceType: 4,
+    //             Title: "电脑试读"
+    //           },
+    //           FromSalePlatformTitle: "可知",
+    //           userinfo: { nickname: "未登录", ExternalId: "未登录" }
+    //         }
+    //       }
+    //     };
 
-        // let params = {
-        //   Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
-        //   data:{
-        //       id:592770,
-        //       authorizeToken:'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
-        //       BridgePlatformName:'phei_zhongzhi_web_demo',
-        //       accessToken:'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
-        //       deviceToken:'3fe672e487314b34b1044825e46a0dd5',
-        //       decryptKey:'CrKBHyXVGtknYiXy',
-        //       AppId:11
-        //   }
-        // }
+    //     // let params = {
+    //     //   Url:'http://demo.phei.api.kingchannels.cn/content/authorize',
+    //     //   data:{
+    //     //       id:592770,
+    //     //       authorizeToken:'oPl9wrSr^S)WAxF6Tn6!bIC_eOppw&)6&miMBOfZ',
+    //     //       BridgePlatformName:'phei_zhongzhi_web_demo',
+    //     //       accessToken:'iHG3#flPI5R8oWoUKFTRGOIwQuaX#fkVzzao)Fra',
+    //     //       deviceToken:'3fe672e487314b34b1044825e46a0dd5',
+    //     //       decryptKey:'CrKBHyXVGtknYiXy',
+    //     //       AppId:11
+    //     //   }
+    //     // }
 
-        let routeParams = window.location.href;
-        let parseUrl = routeParams.split("?")[1];
-        let QsParseUrl = Qs.parse(parseUrl);
-        console.log(Qs.stringify(params, { indices: false }), "模拟提交");
-        let mdata = {};
-        if (QsParseUrl.title === "zhongzhi") {
-          mdata = {
-            id: QsParseUrl.zhongzhiData.id,
-            authorizeToken: QsParseUrl.zhongzhiData.authorizeToken,
-            BridgePlatformName: QsParseUrl.zhongzhiData.BridgePlatformName,
-            accessToken: QsParseUrl.zhongzhiData.accessToken,
-            deviceToken: QsParseUrl.zhongzhiData.deviceToken,
-            deviceKey: QsParseUrl.zhongzhiData.deviceKey,
-            AppId: QsParseUrl.zhongzhiData.AppId
-          };
-        } else {
-          mdata = {
-            authorzieParameters: JSON.stringify(
-              QsParseUrl.data.authorzieParameters
-            )
-          };
-        }
-        // console.log('QsParseUrl.data')
-        $.ajax({
-          type: "post",
-          url: QsParseUrl.Url,
-          data: mdata,
-          success: function(data) {
-            try {
-              if (data) {
-                this.AllowReadPercentage =
-                  data.Data.AuthorizeStrategy.AllowReadPercentage;
-                this.totalLen = sessionStorage.TocLen;
+    //     let routeParams = window.location.href;
+    //     let parseUrl = routeParams.split("?")[1];
+    //     let QsParseUrl = Qs.parse(parseUrl);
+    //     console.log(Qs.stringify(params, { indices: false }), "模拟提交");
+    //     let mdata = {};
+    //     if (QsParseUrl.title === "zhongzhi") {
+    //       mdata = {
+    //         id: QsParseUrl.zhongzhiData.id,
+    //         authorizeToken: QsParseUrl.zhongzhiData.authorizeToken,
+    //         BridgePlatformName: QsParseUrl.zhongzhiData.BridgePlatformName,
+    //         accessToken: QsParseUrl.zhongzhiData.accessToken,
+    //         deviceToken: QsParseUrl.zhongzhiData.deviceToken,
+    //         deviceKey: QsParseUrl.zhongzhiData.deviceKey,
+    //         AppId: QsParseUrl.zhongzhiData.AppId
+    //       };
+    //     } else {
+    //       mdata = {
+    //         authorzieParameters: JSON.stringify(
+    //           QsParseUrl.data.authorzieParameters
+    //         )
+    //       };
+    //     }
+    //     // console.log('QsParseUrl.data')
+    //     $.ajax({
+    //       type: "post",
+    //       url: QsParseUrl.Url,
+    //       data: mdata,
+    //       success: function(data) {
+    //         try {
+    //           if (data) {
+    //             this.AllowReadPercentage =
+    //               data.Data.AuthorizeStrategy.AllowReadPercentage;
+    //             this.totalLen = sessionStorage.TocLen;
 
-                if (
-                  !sessionStorage.epubBookInfo &&
-                  !sessionStorage.resourceUrl
-                ) {
-                  sessionStorage.resourceUrl = data.Data.Url;
-                  sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-                  sessionStorage.epubBookInfo = JSON.stringify({
-                    devicekey:
-                      QsParseUrl.data.authorzieParameters.device.devicekey,
-                    decryptStr: data.Data.Key
-                  });
-                } else {
-                  sessionStorage.removeItem("resourceUrl");
-                  sessionStorage.removeItem("epubBookInfo");
-                  sessionStorage.removeItem("PackageBaseUrl");
-                  sessionStorage.resourceUrl = data.Data.Url;
-                  // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
-                  sessionStorage.PackageBaseUrl =
-                    "http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops";
-                  sessionStorage.epubBookInfo = JSON.stringify({
-                    devicekey:
-                      QsParseUrl.data.authorzieParameters.device.devicekey,
-                    decryptStr: data.Data.Key
-                  });
-                }
-                Indicator.close();
-              }
-            } catch (e) {
-              console.log(e.message);
-            }
-            resolve();
-          }
-        });
-      });
-    },
+    //             if (
+    //               !sessionStorage.epubBookInfo &&
+    //               !sessionStorage.resourceUrl
+    //             ) {
+    //               sessionStorage.resourceUrl = data.Data.Url;
+    //               sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+    //               sessionStorage.epubBookInfo = JSON.stringify({
+    //                 devicekey:
+    //                   QsParseUrl.data.authorzieParameters.device.devicekey,
+    //                 decryptStr: data.Data.Key
+    //               });
+    //             } else {
+    //               sessionStorage.removeItem("resourceUrl");
+    //               sessionStorage.removeItem("epubBookInfo");
+    //               sessionStorage.removeItem("PackageBaseUrl");
+    //               sessionStorage.resourceUrl = data.Data.Url;
+    //               // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+    //               sessionStorage.PackageBaseUrl =
+    //                 "http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops";
+    //               sessionStorage.epubBookInfo = JSON.stringify({
+    //                 devicekey:
+    //                   QsParseUrl.data.authorzieParameters.device.devicekey,
+    //                 decryptStr: data.Data.Key
+    //               });
+    //             }
+    //             Indicator.close();
+    //           }
+    //         } catch (e) {
+    //           console.log(e.message);
+    //         }
+    //         resolve();
+    //       }
+    //     });
+    //   });
+    // },
     /**
      * 添加目录显示隐藏事件
      * 李啸竹
      */
+    getEpub() {
+      return new Promise((resolve, ject) => {
+        let params = {}
+        params = function (url,contentexternalid,deviceStr,devicekey,DeviceType,BridgePlatformName,accessToken,appId) {
+          params = {
+            data:{
+              Url:'http://124.205.220.186:8001/content/authorize',
+              contentexternalid:'P00003-01-28883-Epub',
+              deviceStr:'yS4V+A97bRXHXAqWmxS4tt7wHa0inqyZDbVQxlA0sQE=',
+              devicekey:'i0TPLKk\";saUBVG7',
+              DeviceType:4,
+              BridgePlatformName:'',
+              accessToken:'',
+              appId:''
+            }
+          }
 
+          let routeParams = window.location.href;
+          let parseUrl = routeParams.split("?")[1];
+          let QsParseUrl = Qs.parse(parseUrl);
+
+          console.log(Qs.stringify(params, { traditional: true }), "模拟提交");
+          console.log(QsParseUrl.data.deviceStr,'模拟解析')
+          console.log(QsParseUrl.data.contentexternalid,'模拟解析的参数')
+          
+          $.ajax({
+            url:QsParseUrl.data.Url,
+            type:'POST',
+            data:{
+              authorzieParameters:JSON.stringify({
+                contentexternalid:QsParseUrl.data.contentexternalid,
+                organizationExternalId:"",
+                isOnline:true,
+                device:{
+                  devicekey:QsParseUrl.data.devicekey,
+                  DeviceType:QsParseUrl.data.DeviceType,
+                  Title:'电脑试读'
+                },
+                FromSalePlatformTitle:'可知',
+                userinfo:{
+                  nickname:'未登录',
+                  ExternalId:'未登录'
+                }
+              }),
+              BridgePlatformName:QsParseUrl.data.BridgePlatformName,
+              AccessToken:QsParseUrl.data.accessToken,
+              AppId:QsParseUrl.data.appId,
+            }, 
+            success: function(data) {
+              try {
+                if (data) {
+                  console.log(data,'授权成功的data')
+                  // 获取阅读权限，不是必须的
+                  // this.AllowReadPercentage = data.Data.AuthorizeStrategy.AllowReadPercentage;
+                  // this.totalLen = sessionStorage.TocLen;
+                  if (!sessionStorage.epubBookInfo && !sessionStorage.resourceUrl) {
+                      sessionStorage.resourceUrl = data.Data.Url;
+                      sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                      sessionStorage.epubBookInfo = JSON.stringify({
+                        devicekey: QsParseUrl.data.devicekey,
+                        decryptStr: QsParseUrl.data.deviceStr
+                      });
+                  } else {
+                      sessionStorage.removeItem("resourceUrl");
+                      sessionStorage.removeItem("epubBookInfo");
+                      sessionStorage.removeItem("PackageBaseUrl");
+
+                      sessionStorage.resourceUrl = data.Data.Url;
+                      // 正常获取图片的url
+                      // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                      // 测试书籍的url
+                      sessionStorage.PackageBaseUrl = 'http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops'
+                      sessionStorage.epubBookInfo = JSON.stringify({
+                        devicekey: QsParseUrl.data.devicekey,
+                        decryptStr: QsParseUrl.data.deviceStr
+                      })
+                  }
+                  resolve(data)
+                  Indicator.close(); 
+                }
+              } catch (error) {
+                throw error
+              }
+            }
+          })
+          return params
+        }
+        params()
+        // resolve()
+      })
+    },
     openEpub() {
       return new Promise((resolve, reject) => {
         // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
@@ -366,9 +456,8 @@ export default {
         // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
 
         // let _epubUrl = sessionStorage.resourceUrl;
-        let _epubUrl =
-          "http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub";
-
+        let _epubUrl = "http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub";
+        console.log(_epubUrl,'拿到授权data以后请求epub资源')
         this.book = new ePub(_epubUrl);
 
         this.rendition = this.book.renderTo("ePubArea", {

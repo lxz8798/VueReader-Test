@@ -3561,7 +3561,7 @@ function request(url, type, withCredentials, headers) {
 				} else {
 					// console.log(this.response,'this.response');
 					var myUint8Array = new Uint8Array(this.response);
-					// console.log(myUint8Array,'myUint8Array==');
+					console.log(this.response,'myUint8Array==');
 					// ----------------
 					let Uint8ToBase64 = function (u8Arr) {
 						var CHUNK_SIZE = 0x8000; //arbitrary number
@@ -3576,27 +3576,29 @@ function request(url, type, withCredentials, headers) {
 						}
 						return btoa(result);
 					};
-
 					var epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-					console.log(epubBookInfo,'epubBookInfo')
+					console.log(epubBookInfo,'epubBookInfo-----------3580')
 					var decryptStr = epubBookInfo.decryptStr
-					console.log(decryptStr,'decryptStr')
+					console.log(decryptStr,'decryptStr-------------3582')
 					var devicekey =  epubBookInfo.devicekey
-					console.log(devicekey,'devicekey')
+					console.log(devicekey,'devicekey--------------3584')
 					// 对divicekey进行处理
 					var decryptKey = CryptoJS.enc.Utf8.parse(devicekey)
 					// 解密完成以后的key
 					var decryptAfterKey = CryptoJS.AES.decrypt(decryptStr,decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
 					// 解密的key转成字符串
 					var decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(decryptAfterKey).toString();
-					console.log(decryptAfterKeyToStr,'解出来的key')
+					console.log(decryptAfterKeyToStr,'解出来的key-------------3591')
 
 					var word = Uint8ToBase64(myUint8Array);
+					console.log(word,'需要解密的正文-----------------3594')
 					var key = CryptoJS.enc.Utf8.parse('1234567890123456');
+					console.log(key,'解密的key--------------------3596')
 					var decryptedData = CryptoJS.AES.decrypt(word, key, {
 						mode: CryptoJS.mode.ECB,
 						padding: CryptoJS.pad.Pkcs7
 					});
+					console.log(decryptedData,'解密完成-------------------3061')
 					// 再把wordArray转uint8Array
 					let wordArrayToU8 = function (_decrypt) {
 						let _words = _decrypt.words;
@@ -3610,15 +3612,13 @@ function request(url, type, withCredentials, headers) {
 						//  return CryptoJS.enc.Utf8.stringify(_decrypt);
 					};
 					let jiemiUint8Array = wordArrayToU8(decryptedData);
-					// console.log(wordArrayToU8(decryptedData),'decryptedData===');
+					console.log(wordArrayToU8(decryptedData),'解密完成转成u8---------------3615');
 					let jiemiBuffer = jiemiUint8Array.buffer;
-					// console.log(jiemiBuffer);
+					console.log(jiemiBuffer,'转成araaybuffter----------------------3617');
 					// ----------------
-
 					// r = this.response;
-					r = jiemiBuffer;
+					r = jiemiBuffer;	
 				}
-
 				deferred.resolve(r);
 			} else {
 
@@ -11421,11 +11421,11 @@ var Section = function () {
 			var loading = new _core.defer();
 			var loaded = loading.promise;
 			if (this.contents) {
-				// console.log(this.contents,'this.contents=========11353');
+				console.log(this.contents,'this.contents=========11353');
 				loading.resolve(this.contents);
 			} else {
 				request(this.url).then(function (xml) {
-					// console.log(xml,'xml=============11372');
+					console.log(xml,'xml=============11372');
 					// var directory = new Url(this.url).directory;
 
 					this.document = xml;
