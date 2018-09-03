@@ -356,7 +356,7 @@ export default {
           manager: "continuous",
           flow: "paginated"
         });
-
+  
         this.rendition.themes.default({
           h1: {
             "font-size": "23px",
