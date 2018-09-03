@@ -344,10 +344,6 @@ export default {
      */
     openEpub() {
       return new Promise((resolve, reject) => {
-        // "http://demo.cabpv2.api.kingchannels.cn/files/encrypted/2c0/6dfe60feebd24297b1052bc65452715e_0_654595_encrypted.epub"
-        // "http://124.204.40.3:50693/files/encrypted/271/b81659cbfc054337be6be289966511cb_0_1185959_encrypted.epub"
-        // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
-        // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
 
         // let _epubUrl = sessionStorage.resourceUrl;
         let _epubUrl = "http://aqrv2.kingchannels.cn/files/encrypted/5ae/dea07bc2083c4b7392e888d2f08fb37d_0_126262_encrypted.epub.txt.web.epub";
