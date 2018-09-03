@@ -10,7 +10,7 @@
          :class="HiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
         <li>
-          <i class="iconfont epub-jiantou"></i>
+          <i class="iconfont epub-jiantou" @click="history.go(-1)"></i>
         </li>
         <!-- 暂时隐藏 -->
         <!-- <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
@@ -77,9 +77,9 @@
          v-if="setFontAndBG"
          :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
 
-      <div class="percent_wrap">
+      <!-- <div class="percent_wrap">
         <vue-slider v-model="value"></vue-slider>
-      </div>
+      </div> -->
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
@@ -243,7 +243,7 @@ export default {
     getEpub() {
       return new Promise((resolve, ject) => {
         let params = {}
-        params = function (url,PackageBaseUrl,devicekey) {
+        params = function (url,PackageBaseUrl,realKey,AllowReadPercentage) {
           params = {
             data:{
               // 这里只存在
@@ -253,7 +253,8 @@ export default {
               // 外部解出真实的key 不需要授权地址了
               // contentexternalid:'P00001-01-978-7-121-31432-2-Epub',
               // deviceStr:'rSSRKj203qIR2F6fuHXtgoGfK5ELx810Auuk2k1UkiI=',
-              devicekey:'1234567890123456'
+              realKey:'1234567890123456',
+              AllowReadPercentage:0.6
             }
           }
 
@@ -297,8 +298,9 @@ export default {
                   // this.totalLen = sessionStorage.TocLen;
                   if (!sessionStorage.resourceUrl && !sessionStorage.epubBookInfo) {
                       sessionStorage.resourceUrl = QsParseUrl.data.Url;
-                      sessionStorage.PackageBaseUrl = QsParseUrl.Data.PackageBaseUrl;
-                      sessionStorage.devicekey = QsParseUrl.data.devicekey
+                      sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl;
+                      sessionStorage.realKey = QsParseUrl.data.realKey
+                      sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
                       // sessionStorage.epubBookInfo = JSON.stringify({
                       //   devicekey: QsParseUrl.data.devicekey,
                       //   decryptStr: QsParseUrl.data.deviceStr
@@ -307,13 +309,16 @@ export default {
                       sessionStorage.removeItem("resourceUrl");
                       sessionStorage.removeItem("devicekey");
                       sessionStorage.removeItem("PackageBaseUrl");
+                      sessionStorage.removeItem("AllowReadPercentage");
 
                       sessionStorage.resourceUrl = QsParseUrl.data.Url;
                       // 正常获取图片的url
                       // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
                       // 测试书籍的url
                       sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl
-                      sessionStorage.devicekey = QsParseUrl.data.devicekey
+                      sessionStorage.realKey = QsParseUrl.data.realKey
+                      sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
+
                       // sessionStorage.epubBookInfo = JSON.stringify({
                       //   devicekey: QsParseUrl.data.devicekey,
                       //   decryptStr: QsParseUrl.data.deviceStr
@@ -344,8 +349,8 @@ export default {
         // "http://demo.cabpv2.api.kingchannels.cn/files/test/源文件.epub"
         // "http://demo.cabpv2.api.kingchannels.cn/files/test/二次加密.epub"
 
-        let _epubUrl = sessionStorage.resourceUrl;
-        // let _epubUrl = "http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub";
+        // let _epubUrl = sessionStorage.resourceUrl;
+        let _epubUrl = "http://aqrv2.kingchannels.cn/files/encrypted/5ae/dea07bc2083c4b7392e888d2f08fb37d_0_126262_encrypted.epub.txt.web.epub";
         console.log(_epubUrl,'拿到授权data以后请求epub资源')
         this.book = new ePub(_epubUrl);
 
@@ -360,23 +365,27 @@ export default {
           h1: {
             "font-size": "23px",
             color: "RGBA(234, 84, 4, 1)",
-            "text-align": "left"
+            "text-align": "left !important;",
+            "text-indent":"0"
           },
           h2: {
             "font-size": "21px",
             color: "RGBA(234, 84, 4, 1)",
-            "text-align": "left"
+            "text-align": "left !important;",
+            "text-indent":"0"
           },
           h3: {
             "font-size": "20px",
             color: "RGBA(234, 84, 4, 1)",
-            "text-align": "left"
+            "text-align": "left !important;",
+            "text-indent":"0"
           },
           h4: {
             "margin-top": "0 !important",
             "font-size": "18px",
             color: "RGBA(234, 84, 4, 1)",
-            "text-align": "left"
+            "text-align": "left !important;",
+            "text-indent":"0"
           },
           p: {
             "text-align": "left;",
@@ -398,8 +407,9 @@ export default {
 
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
-
+        
         this.rendition.display();
+
         // resolve();
       });
     },
@@ -425,7 +435,9 @@ export default {
 
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
+            
             this.book.loaded.navigation.then(getToc => {
+              
               if (!localStorage.toc) {
                 localStorage.toc = JSON.stringify(getToc.toc);
                 localStorage.spine = JSON.stringify(_getSpine);
@@ -499,12 +511,12 @@ export default {
       for (let bookId in localShelf) {
         bookListArray.push(bookId);
       }
-      return bookListArray;图片
+      return bookListArray;//图片
     },
     getBookUpdate() {
       let localShelf,
         that = this;
-      Indicator.open();
+      
       api.getUpdate(this.getBookList()).then(response => {
         for (let i in response) {
           localShelf = util.getLocalStroageData("followBookList");

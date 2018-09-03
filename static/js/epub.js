@@ -3590,10 +3590,10 @@ function request(url, type, withCredentials, headers) {
 					// // 解密的key转成字符串
 					// var decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(decryptAfterKey).toString();
 					// console.log(decryptAfterKeyToStr,'解出来的key-------------3591')
-					console.log(sessionStorage.devicekey,'sessionStorage.devicekey')
+					console.log(sessionStorage.realKey,'sessionStorage.realKey')
 					var word = Uint8ToBase64(myUint8Array);
 					console.log(word,'需要解密的正文-----------------3594')
-					var key = CryptoJS.enc.Utf8.parse(sessionStorage.devicekey);
+					var key = CryptoJS.enc.Utf8.parse('Tr_js1KPB3MBXtZ7');
 					console.log(key,'解密的key--------------------3596')
 					var decryptedData = CryptoJS.AES.decrypt(word, key, {
 						mode: CryptoJS.mode.ECB,
