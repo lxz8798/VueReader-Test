@@ -3576,23 +3576,24 @@ function request(url, type, withCredentials, headers) {
 						}
 						return btoa(result);
 					};
-					var epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
-					console.log(epubBookInfo,'epubBookInfo-----------3580')
-					var decryptStr = epubBookInfo.decryptStr
-					console.log(decryptStr,'decryptStr-------------3582')
-					var devicekey =  epubBookInfo.devicekey
-					console.log(devicekey,'devicekey--------------3584')
-					// 对divicekey进行处理
-					var decryptKey = CryptoJS.enc.Utf8.parse(devicekey)
-					// 解密完成以后的key
-					var decryptAfterKey = CryptoJS.AES.decrypt(decryptStr,decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
-					// 解密的key转成字符串
-					var decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(decryptAfterKey).toString();
-					console.log(decryptAfterKeyToStr,'解出来的key-------------3591')
 
+					// var epubBookInfo = JSON.parse(sessionStorage.epubBookInfo)
+					// console.log(epubBookInfo,'epubBookInfo-----------3580')
+					// var decryptStr = epubBookInfo.decryptStr
+					// console.log(decryptStr,'decryptStr-------------3582')
+					// var devicekey =  epubBookInfo.devicekey
+					// console.log(devicekey,'devicekey--------------3584')
+					// // 对divicekey进行处理
+					// var decryptKey = CryptoJS.enc.Utf8.parse(devicekey)
+					// // 解密完成以后的key
+					// var decryptAfterKey = CryptoJS.AES.decrypt(decryptStr,decryptKey,{mode:CryptoJS.mode.ECB,padding:CryptoJS.pad.Pkcs7})
+					// // 解密的key转成字符串
+					// var decryptAfterKeyToStr = CryptoJS.enc.Utf8.stringify(decryptAfterKey).toString();
+					// console.log(decryptAfterKeyToStr,'解出来的key-------------3591')
+					console.log(sessionStorage.devicekey,'sessionStorage.devicekey')
 					var word = Uint8ToBase64(myUint8Array);
 					console.log(word,'需要解密的正文-----------------3594')
-					var key = CryptoJS.enc.Utf8.parse('1234567890123456');
+					var key = CryptoJS.enc.Utf8.parse(sessionStorage.devicekey);
 					console.log(key,'解密的key--------------------3596')
 					var decryptedData = CryptoJS.AES.decrypt(word, key, {
 						mode: CryptoJS.mode.ECB,
