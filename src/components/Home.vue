@@ -3,7 +3,8 @@
 		<mt-tab-container v-model="selected" :swipeable="false" :value="selected">
 			<mt-tab-container-item id="书架">
 				<!-- <mt-header fixed :title="selected" class="book_shelf_header"></mt-header> -->
-				<Bookshelf class="tab-container" @addBook="changeSelected"></Bookshelf>
+				<Bookshelf class="tab-container" :epub-data="epubData" v-if="epubFlag"></Bookshelf>
+				<!-- <epub></epub> -->
 			</mt-tab-container-item>
 		</mt-tab-container>
 		
@@ -34,20 +35,27 @@ import Bookshelf from './bookshelf/Bookshelf'
 export default {
   name: 'home',
   components: {
-    Bookshelf,
+
+		Bookshelf,
     // Bookcategory,
     // Ranklist,
     // Search
   },
   data () {
     return {
+			epubData:{
+				url:'http://aqrv2.kingchannels.cn/files/encrypted/dcd/9ac84e4d2ab84388bb9efa382475e6b9_0_40767_encrypted.epub.txt.web.epub1',
+				PackageBaseUrl:'http://aqrv2.kingchannels.cn/files/encrypted/dcd/9ac84e4d2ab84388bb9efa382475e6b9_0_40767_encrypted_epub2',
+				realKey:'gf_OuRXuZ9o1NikG',
+				AllowReadPercentage:0.6
+			},
       selected: '书架'
     }
   },
   methods: {
     changeSelected (data) {
       this.selected = data
-    }
+		}
   },
   mounted () {
     this.selected = this.$store.state.previousPosition

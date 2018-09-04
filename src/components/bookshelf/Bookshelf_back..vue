@@ -129,17 +129,15 @@
 
 <script>
 import vueSlider from "vue-slider-component";
-import { Indicator } from "mint-ui";
 import Qs from "qs";
+import { Indicator } from "mint-ui";
 export default {
-  name: "epub",
-  props:['epubData'],
+  name: "Bookshelf",
   components: { vueSlider },
   data() {
     return {
       fontColor: "#B9B9B9",
       books: [],
-      bookData:{},
       book: {},
       rendition: {},
       tocList: [],
@@ -165,7 +163,6 @@ export default {
   async created() {
     await this.getEpub();
     await this.openEpub();
-    
     await this.readyReader();
     await this.getBookUpdate();
     await this.topHidden();
@@ -184,6 +181,7 @@ export default {
       });
 
       var cfi = this.book.locations.cfiFromPercentage(this.value * 100);
+      console.log(this.book.locations, "book.locations.cfiFromPercentage");
     }
   },
   methods: {
@@ -206,6 +204,7 @@ export default {
       if (this.setFontAndBG) {
         this.setFontAndBG = false;
       }
+      // this.setFontAndBG = !this.setFontAndBG
     },
     /**
      * 收起
@@ -213,7 +212,7 @@ export default {
      */
     TakeUp(id) {
       let temp = document.getElementById(id).parentNode;
-      
+      console.log(temp, "temptemptemp");
       if (this.ulTakeUpFlag) {
         this.ulTakeUpFlag = false;
         temp.style.height = "3rem";
@@ -244,58 +243,94 @@ export default {
     getEpub() {
       return new Promise((resolve, ject) => {
         let params = {}
-        let _this = this
         params = function (url,PackageBaseUrl,realKey,AllowReadPercentage) {
-          console.log(_this.epubData.url)
-          console.log(_this.epubData.PackageBaseUrl)
-          console.log(_this.epubData.realKey)
-          console.log(_this.epubData.AllowReadPercentage)
           params = {
-            // 参数
             data:{
-              Url:url,
-              PackageBaseUrl:PackageBaseUrl,
-              realKey:realKey,
-              AllowReadPercentage:AllowReadPercentage
-
-              // Url:url ? url : epubData.url,
-              // PackageBaseUrl:PackageBaseUrl ? PackageBaseUrl : epubData.PackageBaseUrl,
-              // realKey:realKey ? realKey : epubData.realKey,
-              // AllowReadPercentage:AllowReadPercentage ? AllowReadPercentage : epubData.AllowReadPercentage
+              Url:'http://kezhiv2.api.kingchannels.cn/files/removed_image2.epub',
+              PackageBaseUrl:'http://kezhiv2.api.kingchannels.cn/files/removed_image2_epub/ops',
+              realKey:'1234567890123456',
+              AllowReadPercentage:0.6
             }
           }
+
           let routeParams = window.location.href;
           let parseUrl = routeParams.split("?")[1];
           let QsParseUrl = Qs.parse(parseUrl);
-          // console.log(this.epubData.url, "temptemptemp");
-          try {
-            
-            if (QsParseUrl.data) {
-              // 把参数存在起来
-              if (!sessionStorage.resourceUrl && !sessionStorage.epubBookInfo) {
-                  sessionStorage.resourceUrl = QsParseUrl.data.Url;
-                  sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl;
-                  sessionStorage.realKey = QsParseUrl.data.realKey
-                  sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
-              } else {
-                  sessionStorage.removeItem("resourceUrl");
-                  sessionStorage.removeItem("devicekey");
-                  sessionStorage.removeItem("PackageBaseUrl");
-                  sessionStorage.removeItem("AllowReadPercentage");
 
-                  sessionStorage.resourceUrl = QsParseUrl.data.Url;
-                  sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl
-                  sessionStorage.realKey = QsParseUrl.data.realKey
-                  sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
+          console.log(Qs.stringify(params, { traditional: true }), "模拟提交");
+          console.log(QsParseUrl.data.PackageBaseUrl,'模拟解析')
+          console.log(QsParseUrl.data.Url,'模拟解析的参数')
+          
+          // $.ajax({
+          //   url:QsParseUrl.data.Url,
+          //   type:'POST',
+          //   data:{
+          //     authorzieParameters:JSON.stringify({
+          //       contentexternalid:QsParseUrl.data.contentexternalid,
+          //       organizationExternalId:"",
+          //       isOnline:true,
+          //       device:{
+          //         devicekey:QsParseUrl.data.devicekey,
+          //         DeviceType:QsParseUrl.data.DeviceType,
+          //         Title:'电脑试读'
+          //       },
+          //       FromSalePlatformTitle:'可知',
+          //       userinfo:{
+          //         nickname:'未登录',
+          //         ExternalId:'未登录'
+          //       }
+          //     }),
+          //     BridgePlatformName:QsParseUrl.data.BridgePlatformName,
+          //     AccessToken:QsParseUrl.data.accessToken,
+          //     AppId:QsParseUrl.data.appId,
+          //   }, 
+          //   success: function(data) {
+              try {
+                if (QsParseUrl.data) {
+                  // console.log(QsParseUrl.data,'得到资源地址和真实的key来解密epub')
+                  // 获取阅读权限，不是必须的
+                  // this.AllowReadPercentage = data.Data.AuthorizeStrategy.AllowReadPercentage;
+                  // this.totalLen = sessionStorage.TocLen;
+                  if (!sessionStorage.resourceUrl && !sessionStorage.epubBookInfo) {
+                      sessionStorage.resourceUrl = QsParseUrl.data.Url;
+                      sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl;
+                      sessionStorage.realKey = QsParseUrl.data.realKey
+                      sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
+                      // sessionStorage.epubBookInfo = JSON.stringify({
+                      //   devicekey: QsParseUrl.data.devicekey,
+                      //   decryptStr: QsParseUrl.data.deviceStr
+                      // });
+                  } else {
+                      sessionStorage.removeItem("resourceUrl");
+                      sessionStorage.removeItem("devicekey");
+                      sessionStorage.removeItem("PackageBaseUrl");
+                      sessionStorage.removeItem("AllowReadPercentage");
+
+                      sessionStorage.resourceUrl = QsParseUrl.data.Url;
+                      // 正常获取图片的url
+                      // sessionStorage.PackageBaseUrl = data.Data.PackageBaseUrl;
+                      // 测试书籍的url
+                      sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl
+                      sessionStorage.realKey = QsParseUrl.data.realKey
+                      sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
+
+                      // sessionStorage.epubBookInfo = JSON.stringify({
+                      //   devicekey: QsParseUrl.data.devicekey,
+                      //   decryptStr: QsParseUrl.data.deviceStr
+                      // })
+                  }
+                  resolve(QsParseUrl.data)
+                  Indicator.close(); 
+                }
+              } catch (error) {
+                throw error
               }
-              resolve(QsParseUrl.data)
-              Indicator.close(); 
-            }
-          } catch (error) {
-            throw error
-          }
+          //   }
+          // })
+          // return params
         }
         params()
+        // resolve()
       })
     },
      /**
@@ -304,9 +339,12 @@ export default {
      */
     openEpub() {
       return new Promise((resolve, reject) => {
-        let _epubUrl = sessionStorage.resourceUrl;
+
+        // let _epubUrl = sessionStorage.resourceUrl;
+        let _epubUrl = "http://aqrv2.kingchannels.cn/files/encrypted/5ae/dea07bc2083c4b7392e888d2f08fb37d_0_126262_encrypted.epub.txt.web.epub";
+        // console.log(_epubUrl,'拿到授权data以后请求epub资源')
         this.book = new ePub(_epubUrl);
-        
+
         this.rendition = this.book.renderTo("ePubArea", {
           width: "100vw",
           height: 600,
@@ -360,6 +398,11 @@ export default {
 
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
+
+        this.rendition.hooks.content.register(function(contents, view) {
+          console.log(contents,'hooks rendition')
+          console.log(view,'hooks view')
+        })
         
         this.rendition.display();
 
@@ -382,7 +425,9 @@ export default {
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
+            // let totalLi = document.getElementById('toc').childNodes
             let totalLi = $("li");
+            // console.log(totalLi, "totalLi");
 
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
@@ -449,6 +494,35 @@ export default {
           resolve();
         } catch (e) {
           console.log(e.message);
+        }
+      });
+    },
+    /**
+     * 返回追更新的书本id
+     * @author 李啸竹
+     */
+    getBookList() {
+      let localShelf = util.getLocalStroageData("followBookList");
+      let bookListArray = [];
+      for (let bookId in localShelf) {
+        bookListArray.push(bookId);
+      }
+      return bookListArray;//图片
+    },
+    getBookUpdate() {
+      let localShelf,
+        that = this;
+      
+      api.getUpdate(this.getBookList()).then(response => {
+        for (let i in response) {
+          localShelf = util.getLocalStroageData("followBookList");
+          response[i].then(book => {
+            Object.assign(book.data, localShelf[book._id]);
+            book.data.cover = util.staticPath + book.data.cover;
+            that.books.push(book.data);
+
+            Indicator.close();
+          });
         }
       });
     },
