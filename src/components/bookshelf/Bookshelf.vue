@@ -128,13 +128,13 @@
 </template>
 
 <script>
-import vueSlider from "vue-slider-component";
+// import vueSlider from "vue-slider-component";
 import { Indicator } from "mint-ui";
 import Qs from "qs";
 export default {
   name: "epub",
   props:['epubData'],
-  components: { vueSlider },
+  // components: { vueSlider },
   data() {
     return {
       fontColor: "#B9B9B9",
@@ -246,22 +246,14 @@ export default {
         let params = {}
         let _this = this
         params = function (url,PackageBaseUrl,realKey,AllowReadPercentage) {
-          console.log(_this.epubData.url)
-          console.log(_this.epubData.PackageBaseUrl)
-          console.log(_this.epubData.realKey)
-          console.log(_this.epubData.AllowReadPercentage)
+          
           params = {
             // 参数
             data:{
-              Url:url,
-              PackageBaseUrl:PackageBaseUrl,
-              realKey:realKey,
-              AllowReadPercentage:AllowReadPercentage
-
-              // Url:url ? url : epubData.url,
-              // PackageBaseUrl:PackageBaseUrl ? PackageBaseUrl : epubData.PackageBaseUrl,
-              // realKey:realKey ? realKey : epubData.realKey,
-              // AllowReadPercentage:AllowReadPercentage ? AllowReadPercentage : epubData.AllowReadPercentage
+              Url:url ? url : _this.epubData.url,
+              PackageBaseUrl:PackageBaseUrl ? PackageBaseUrl : _this.epubData.PackageBaseUrl,
+              realKey:realKey ? realKey : _this.epubData.realKey,
+              AllowReadPercentage:AllowReadPercentage ? _this.AllowReadPercentage : _this.epubData.AllowReadPercentage
             }
           }
           let routeParams = window.location.href;
@@ -270,23 +262,23 @@ export default {
           // console.log(this.epubData.url, "temptemptemp");
           try {
             
-            if (QsParseUrl.data) {
+            if (_this.epubData) {
               // 把参数存在起来
               if (!sessionStorage.resourceUrl && !sessionStorage.epubBookInfo) {
-                  sessionStorage.resourceUrl = QsParseUrl.data.Url;
-                  sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl;
-                  sessionStorage.realKey = QsParseUrl.data.realKey
-                  sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
+                  sessionStorage.resourceUrl = _this.epubData.url;
+                  sessionStorage.PackageBaseUrl = _this.epubData.PackageBaseUrl;
+                  sessionStorage.realKey = _this.epubData.realKey
+                  sessionStorage.AllowReadPercentage = _this.epubData.AllowReadPercentage
               } else {
                   sessionStorage.removeItem("resourceUrl");
                   sessionStorage.removeItem("devicekey");
                   sessionStorage.removeItem("PackageBaseUrl");
                   sessionStorage.removeItem("AllowReadPercentage");
 
-                  sessionStorage.resourceUrl = QsParseUrl.data.Url;
-                  sessionStorage.PackageBaseUrl = QsParseUrl.data.PackageBaseUrl
-                  sessionStorage.realKey = QsParseUrl.data.realKey
-                  sessionStorage.AllowReadPercentage = QsParseUrl.data.AllowReadPercentage
+                  sessionStorage.resourceUrl = _this.epubData.url;
+                  sessionStorage.PackageBaseUrl = _this.epubData.PackageBaseUrl
+                  sessionStorage.realKey = _this.epubData.realKey
+                  sessionStorage.AllowReadPercentage = _this.epubData.AllowReadPercentage
               }
               resolve(QsParseUrl.data)
               Indicator.close(); 
@@ -400,7 +392,25 @@ export default {
                 localStorage.toc = JSON.stringify(getToc.toc);
                 localStorage.spine = JSON.stringify(_getSpine);
                 localStorage.TocLen = getToc.length;
+                
+                let TocListWrap = $("#toc")
+                let TocList = () => {
+                  let list1,list2,list3
 
+                  for(let i in getToc.toc){
+                    list1 = getToc.toc[i]
+                    console.log(list1,'list1')
+                    // if (list1.subitems.length > 0) {
+                    //   for (let j in list1) {
+                    //     list2 = list1.subitems
+                    //   }
+                      
+                    // }
+                    
+                  }
+                }
+                console.log(TocList(),'TocList')
+                console.log(getToc.toc)
                 this.tocList = getToc.toc;
               }
               resolve(getToc.length);

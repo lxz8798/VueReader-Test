@@ -3,7 +3,7 @@
 		<mt-tab-container v-model="selected" :swipeable="false" :value="selected">
 			<mt-tab-container-item id="书架">
 				<!-- <mt-header fixed :title="selected" class="book_shelf_header"></mt-header> -->
-				<Bookshelf class="tab-container" :epub-data="epubData" v-if=""></Bookshelf>
+				<Bookshelf class="tab-container" :epub-data="epubData" v-if="epubDataFlag ? false : true"></Bookshelf>
 				<!-- <epub></epub> -->
 			</mt-tab-container-item>
 		</mt-tab-container>
@@ -43,6 +43,7 @@ export default {
   },
   data () {
     return {
+			epubDataFlag:false,
 			epubData:{
 				url:'http://aqrv2.kingchannels.cn/files/encrypted/dcd/9ac84e4d2ab84388bb9efa382475e6b9_0_40767_encrypted.epub.txt.web.epub',
 				PackageBaseUrl:'http://aqrv2.kingchannels.cn/files/encrypted/dcd/9ac84e4d2ab84388bb9efa382475e6b9_0_40767_encrypted_epub',
