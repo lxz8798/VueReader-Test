@@ -3,7 +3,7 @@
 		<mt-tab-container v-model="selected" :swipeable="false" :value="selected">
 			<mt-tab-container-item id="书架">
 				<!-- <mt-header fixed :title="selected" class="book_shelf_header"></mt-header> -->
-				<Bookshelf class="tab-container" :epub-data="epubData" v-if="epubFlag"></Bookshelf>
+				<Bookshelf class="tab-container" :epub-data="epubData" v-if=""></Bookshelf>
 				<!-- <epub></epub> -->
 			</mt-tab-container-item>
 		</mt-tab-container>
@@ -64,9 +64,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-div.epub_reader_footer {
-	
-}
 .tab-container {
 	width:100vw;
 	height:100vh;
