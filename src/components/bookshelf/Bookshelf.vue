@@ -10,7 +10,7 @@
          :class="HiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
         <li>
-          <i class="iconfont epub-jiantou" @click="history.go(-1)"></i>
+          <i class="iconfont epub-jiantou" @click="backGo()"></i>
         </li>
         <!-- 暂时隐藏 -->
         <!-- <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
@@ -124,13 +124,15 @@
 
     </div>
 
+    <div id="loadding_wrap"></div>
+
   </div>
 </template>
 
 <script>
 // import vueSlider from "vue-slider-component";
 import { Indicator } from "mint-ui";
-import Qs from "qs";
+// import Qs from "qs";
 export default {
   name: "epub",
   props:['epubData'],
@@ -173,6 +175,9 @@ export default {
     // await this.setBG()
   },
   watch: {
+    epubData:function (n,o) {
+      console.log(n)
+    },
     value: function(n) {
       var displayed = this.rendition.display();
 
@@ -187,6 +192,9 @@ export default {
     }
   },
   methods: {
+    backGo(){
+      this.$router.back(-1)
+    },
     setFont(num) {
       switch (num) {
         case "sub":
@@ -250,16 +258,12 @@ export default {
           params = {
             // 参数
             data:{
-              Url:url ? url : _this.epubData.url,
-              PackageBaseUrl:PackageBaseUrl ? PackageBaseUrl : _this.epubData.PackageBaseUrl,
-              realKey:realKey ? realKey : _this.epubData.realKey,
-              AllowReadPercentage:AllowReadPercentage ? _this.AllowReadPercentage : _this.epubData.AllowReadPercentage
+              Url:_this.epubData.url,
+              PackageBaseUrl:_this.epubData.PackageBaseUrl,
+              realKey:_this.epubData.realKey,
+              AllowReadPercentage:_this.epubData.AllowReadPercentage
             }
           }
-          let routeParams = window.location.href;
-          let parseUrl = routeParams.split("?")[1];
-          let QsParseUrl = Qs.parse(parseUrl);
-          // console.log(this.epubData.url, "temptemptemp");
           try {
             
             if (_this.epubData) {
@@ -280,14 +284,24 @@ export default {
                   sessionStorage.realKey = _this.epubData.realKey
                   sessionStorage.AllowReadPercentage = _this.epubData.AllowReadPercentage
               }
-              resolve(QsParseUrl.data)
-              Indicator.close(); 
+              resolve(_this.epubData)
             }
           } catch (error) {
             throw error
           }
         }
         params()
+      })
+    },
+    loaddingFn () {
+      this.rendition.on("rendered",sections => {
+        if (!sections.output) {
+          Indicator.open({
+            text:'Loading'
+          })
+        } else {
+          Indicator.close()
+        }
       })
     },
      /**
@@ -298,12 +312,16 @@ export default {
       return new Promise((resolve, reject) => {
         let _epubUrl = sessionStorage.resourceUrl;
         this.book = new ePub(_epubUrl);
-        
+
+        Indicator.open({
+          text:'Loading'
+        })
+
         this.rendition = this.book.renderTo("ePubArea", {
           width: "100vw",
           height: 600,
-          manager: "continuous",
-          flow: "paginated"
+          flow: "paginated",
+          restore: true
         });
   
         this.rendition.themes.default({
@@ -350,9 +368,11 @@ export default {
           }
         });
 
+        this.loaddingFn()
+
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
-        
+               
         this.rendition.display();
 
         // resolve();
@@ -374,11 +394,9 @@ export default {
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
-            let totalLi = $("li");
-
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
-            
+                       
             this.book.loaded.navigation.then(getToc => {
               
               if (!localStorage.toc) {
@@ -393,24 +411,16 @@ export default {
                 localStorage.spine = JSON.stringify(_getSpine);
                 localStorage.TocLen = getToc.length;
                 
-                let TocListWrap = $("#toc")
                 let TocList = () => {
                   let list1,list2,list3
-
-                  for(let i in getToc.toc){
-                    list1 = getToc.toc[i]
-                    console.log(list1,'list1')
-                    // if (list1.subitems.length > 0) {
-                    //   for (let j in list1) {
-                    //     list2 = list1.subitems
-                    //   }
-                      
-                    // }
-                    
-                  }
+                  // 1级目录
+                  list1 = getToc.toc
+                  // 2级目录
+                  list2 = list1.forEach((item,index) => {
+                    console.log(item)
+                  });
                 }
-                console.log(TocList(),'TocList')
-                console.log(getToc.toc)
+                // console.log(TocList(),'TocList')
                 this.tocList = getToc.toc;
               }
               resolve(getToc.length);
@@ -426,7 +436,9 @@ export default {
         console.log(id, "href");
         if (this.rendition) {
           try {
-            this.rendition.display(id);
+            this.rendition.display(id).then(
+              this.ifHiddenFlag = true
+            );
             resolve();
           } catch (e) {
             throw e;
@@ -473,7 +485,7 @@ export default {
     },
     setBG(num) {
       let changeBG = document.getElementsByTagName("body")[0];
-      let domColor = $("p");
+      let domColor = changeBG.getElementsByTagName("p");
       switch (num) {
         case 1:
           changeBG.style.background = "white";
@@ -523,7 +535,7 @@ div.epub-index-wrap {
 
   div.header_wrap {
     width: 100vw;
-    height: 2.5rem;
+    height: 1.2rem;
     background: white;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 
@@ -604,9 +616,10 @@ div.epub-index-wrap {
   }
   div.foot_wrap2 {
     width: 100vw;
-    height: 3rem;
+    height: 2.4rem;
     background: white;
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
+    font-size: .4rem;
 
     position: fixed;
     bottom: 0;
@@ -616,43 +629,12 @@ div.epub-index-wrap {
     flex: 1;
     div.font_set {
       width: inherit;
-      height: 3rem;
+      height: 1.2rem;
       display: flex;
       flex-direction: row;
       justify-content: center;
       align-content: center;
-      flex: 0.5;
-      ul {
-        width: inherit;
-        height: inherit;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        li {
-          width: 4rem;
-          height: 1.5rem;
-          border: 1px solid RGBA(161, 161, 161, 1);
-
-          border-radius: 2rem;
-
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        li:nth-child(1) {
-          width: 5rem;
-          border: none;
-        }
-      }
-    }
-    div.bg_set {
-      width: inherit;
-      height: 3rem;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-content: center;
-      flex: 0.5;
+      flex: 1;
       ul {
         width: inherit;
         height: inherit;
@@ -661,7 +643,39 @@ div.epub-index-wrap {
         align-items: center;
         li {
           width: 1.5rem;
-          height: 1.5rem;
+          height: .7rem;
+          border: 1px solid RGBA(161, 161, 161, 1);
+
+          border-radius: 1rem;
+
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        li:nth-child(1) {
+          width: 2rem;
+          border: none;
+        }
+      }
+    }
+    div.bg_set {
+      width: inherit;
+      height: 1.2rem;
+      font-size:.4rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-content: center;
+      flex: 0.5;
+      ul {
+        width: inherit;
+        height: inherit;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        li {
+          width: .5rem;
+          height: .5rem;
           border-radius: 2rem;
           border: 1px solid RGBA(161, 161, 161, 1);
 
@@ -703,7 +717,8 @@ div.epub-index-wrap {
 
   div.foot_wrap {
     width: 100vw;
-    height: 3rem;
+    height: 1.2rem;
+    font-size: 0.4rem;
     background: white;
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
 
@@ -831,7 +846,7 @@ div.epub-index-wrap {
 
     width: 70vw;
     height: 100vh;
-
+    font-size: .4rem;
     background: rgb(248, 248, 248);
 
     // transform: translateX(100%);
@@ -841,7 +856,7 @@ div.epub-index-wrap {
     overflow-y: scroll;
     div.toc_title_wrap {
       width: inherit;
-      height: 3rem;
+      height: 1.5rem;
 
       background: #40474f;
       color: white;
@@ -851,8 +866,8 @@ div.epub-index-wrap {
       align-items: center;
 
       span {
-        height: 3rem;
-        line-height: 3rem;
+        height: 1.5rem;
+        line-height: 1.5rem;
         flex: 1;
         text-align: center;
       }
@@ -870,12 +885,12 @@ div.epub-index-wrap {
 
     ul#toc {
       width: 70vw;
-      margin-bottom: 1rem;
-      font-size: 0.8rem;
+      margin-bottom: .4rem;
+      font-size: 0.4rem;
 
       li {
         width: inherit;
-
+        
         ul {
           width: inherit;
         }
@@ -889,9 +904,12 @@ div.epub-index-wrap {
         span {
           width: 64vw;
           padding: 3vw;
-          height: 2rem;
-          line-height: 2.2rem;
+          height: 1rem;
+          line-height: 1rem;
           display: inline-block;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
         span:hover {
           color: #2053e4;
@@ -901,10 +919,9 @@ div.epub-index-wrap {
   }
   div#touch-wrap {
     position: fixed;
-    top: 10%;
     width: 100vw;
-    height: calc(100vh - 140px);
-    z-index: 70;
+    height: 100vh;
+    z-index: 60;
     display: flex;
     flex-direction: row;
     justify-content: center;
