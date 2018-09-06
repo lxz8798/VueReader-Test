@@ -177,18 +177,6 @@ export default {
   watch: {
     epubData:function (n,o) {
       console.log(n)
-    },
-    value: function(n) {
-      var displayed = this.rendition.display();
-
-      displayed.then(() => {
-        var currentLocation = this.rendition.currentLocation();
-        var currentPage = this.book.locations.percentageFromCfi(
-          currentLocation.start.cfi
-        );
-      });
-
-      var cfi = this.book.locations.cfiFromPercentage(this.value * 100);
     }
   },
   methods: {
@@ -316,15 +304,25 @@ export default {
         Indicator.open({
           text:'Loading'
         })
-
+        
         this.rendition = this.book.renderTo("ePubArea", {
           width: "100vw",
-          height: 600,
-          flow: "paginated",
+          height: "100vh",
+          // flow: "paginated",
+          manager: "continuous",
+          spread: "always",
           restore: true
         });
   
         this.rendition.themes.default({
+          "div.center":{
+            "width":"100% !important",
+            "height":"100% !important",
+            "display":"flex !important",
+            "justify-content": "center !important",
+            "align-items": "center !important",
+            "flex-direction":"column !important"
+          },
           h1: {
             "font-size": "23px",
             color: "RGBA(234, 84, 4, 1)",
@@ -370,6 +368,10 @@ export default {
 
         this.loaddingFn()
 
+        this.rendition.on("relocated", function(location){console.log(location,'location')})
+        this.rendition.on("layout", function(layout) {console.log(layout,'layout')})
+        this.rendition.on("rendered", function(section){console.log(section,'section')})
+        
         this.rendition.themes.font("MSYH");
         this.rendition.themes.fontSize("20px");
                
@@ -394,6 +396,7 @@ export default {
         // 阅读时的处理
         this.book.ready.then(content => {
           try {
+            this.rendition.on("selected", function(range) {console.log(range,'range')})
             _getSpine = this.book.spine.items;
             // 加载时的处理，添加目录
                        
@@ -410,15 +413,13 @@ export default {
                 localStorage.toc = JSON.stringify(getToc.toc);
                 localStorage.spine = JSON.stringify(_getSpine);
                 localStorage.TocLen = getToc.length;
-                
-                let TocList = () => {
-                  let list1,list2,list3
-                  // 1级目录
-                  list1 = getToc.toc
-                  // 2级目录
-                  list2 = list1.forEach((item,index) => {
-                    console.log(item)
-                  });
+                console.log(getToc,'toc')
+                let TocList = (v,k) => {
+                  let list = []
+                  function fnTocList (v,k) {
+                    
+                  }
+                  
                 }
                 // console.log(TocList(),'TocList')
                 this.tocList = getToc.toc;
@@ -520,6 +521,32 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
+#ePubArea {
+  width: 100%;
+  height: 100vh;
+  box-shadow: 0 0 4px #ccc;
+  background: #F7F7F7;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+// @media only screen
+//   and (min-device-width : 320px)
+//   and (max-device-width : 667px) {
+//     #ePubArea {
+//       height: 96.5%;
+//     }
+//     #ePubArea iframe {
+//       pointer-events: none;
+//     }
+//     .arrow {
+//       position: inherit;
+//       display: none;
+//     }
+// }
 div.epub-index-wrap {
   div#mask_wrap {
     position: fixed;
