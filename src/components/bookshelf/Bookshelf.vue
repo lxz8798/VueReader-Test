@@ -483,6 +483,7 @@ export default {
         let _this = this;
         if (_this.rendition) {
           try {
+            console.log('限制成功还差样式')
             _this.ifHiddenFlag = true
             if (key >= _this.chapterPageNum) {
               return
