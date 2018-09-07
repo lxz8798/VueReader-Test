@@ -429,8 +429,6 @@ export default {
         _this.rendition.themes.font("MSYH");
         _this.rendition.themes.fontSize("18px");
 
-        
-
         // resolve();
       });
     },
