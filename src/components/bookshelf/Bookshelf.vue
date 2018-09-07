@@ -6,8 +6,7 @@
     </div> -->
 
     <!-- <mt-header fixed :title="selected" id="my_header"></mt-header> -->
-    <div class="header_wrap"
-         :class="HiddenFlag ? 'headerHiddenB' : 'headerHiddenA'">
+    <div class="header_wrap" :class="HAndFFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
         <li>
           <i class="iconfont epub-jiantou" @click="backGo()"></i>
@@ -28,17 +27,9 @@
     </div>
 
     <div id="touch-wrap">
-      <v-touch class="l"
-               @tap="ePubPrev()"
-               @swipeleft="ePubPrev()"
-               @swiperight="ePubnext()"></v-touch>
-      <v-touch class="c"
-               id="touch-center"
-               @tap="topHidden()"></v-touch>
-      <v-touch class="r"
-               @tap="ePubNext()"
-               @swipeleft="ePubNext()"
-               @swiperight="ePubPrev()"></v-touch>
+      <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubNext()"></v-touch>
+      <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
+      <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch>
     </div>
 
     <div id="ePubArea"></div>
@@ -52,15 +43,13 @@
         <!-- <span>历史</span> -->
       </div>
       <ul id="toc">
-        <li v-for="(item,index) in tocList" :title="item.label" @click="gotoDisplay(item.href,index)" :class="isLimit ? 'isLimitA' : 'isLimitB'">
+        <li v-for="(item,index) in tocList" :title="item.label" @click="gotoDisplay(item.href,index)" class="isLimitB">
           {{item.label}}
         </li>
       </ul>
     </div>
     
-    <div class="foot_wrap"
-         v-if="setFontAndBG"
-         :class="HiddenFlag ? 'footerHiddenB' : 'footerHiddenA'">
+    <div class="foot_wrap" v-if="setFontAndBG" :class="HAndFFlag ? 'footerHiddenB' : 'footerHiddenA'">
 
       <!-- <div class="percent_wrap">
         <vue-slider v-model="value"></vue-slider>
@@ -78,9 +67,7 @@
       
     </div>
     
-    <div class="foot_wrap2"
-         v-else
-         :class="HiddenFlag ? 'SetiingHiddenA' : 'SetiingHiddenB'">
+    <div class="foot_wrap2" v-else>
       <div class="font_set">
         <ul>
           <li>{{seetingTitle}}</li>
@@ -105,11 +92,21 @@
 
     <div id="mask_wrap"
          @click="ifClickHidden()"
-         v-if="!ifHiddenFlag">
+         v-if="ifMaskHidden">
 
     </div>
 
-    <div id="loadding_wrap"></div>
+    <div id="Recommendation_wrap" v-if="RecommendationFlag">
+      <ul>
+        <li class="rqcode">
+          <slot name="RecommendQRCode"><img src="http://124.193.177.45:50695/kezhiRQcode.jpg" alt="二维码地址"></slot>
+        </li>
+        <li class="title">
+          {{RecommendationTitle}}
+        </li>
+        <li class="RecommendationButton" @click="RecommendationFlag=false">确定</li>
+      </ul>
+    </div>
 
   </div>
 </template>
@@ -137,15 +134,18 @@ export default {
       seatchEvenFlag: false,
       ulTakeUpFlag: true,
       setFontAndBG: true,
-      isLimit:false,
+      RecommendationFlag:false,
+      ifMaskHidden:false,
+      ifHiddenFlag: true,
+      HiddenFlag: false,
+      HAndFFlag:true,
       bookTitle: "我的书架",
       seetingTitle: "字体大小",
       bgTitle: "背景色",
+      RecommendationTitle: "下载客户端,体验全书阅读",
       value: 10,
       bgStyle: null,
-      chapterPageNum:0,
-      ifHiddenFlag: true,
-      HiddenFlag: false,
+      chapterPageNum:0,      
       displayed: "",
       decryptAfterToU8: [],
       epubText: "",
@@ -278,10 +278,12 @@ export default {
         text: "Loading"
       });
       _this.rendition.on("rendered", function(section) {
+        console.log(section,'section')
         if (!section.output) {
           _this.IndicatorFlag = false
           Indicator.open({
-            text: "Loading"
+            text: "Loading",
+            spinnerType:"fading-circle"
           });
         } else {
           _this.IndicatorFlag = true
@@ -306,8 +308,8 @@ export default {
 
         _this.rendition = _this.book.renderTo("ePubArea", {
           width: "100vw",
-          height: "100vh",
-          // flow: "paginated",
+          height: "100%",
+          flow: "scrolled-continuous",
           manager: "continuous",
           spread: "always",
           restore: true
@@ -328,7 +330,7 @@ export default {
         })
         .then(locations => {
           this.displayed.then(() => {
-            var currentLocation = _this.rendition.currentLocation();
+            var currentLocation = _this.rendition.currentLocation();_this.rendition.currentLocation();
             var currentPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi);
 
             _this.value = currentPage
@@ -353,38 +355,45 @@ export default {
         _this.loaddingFn()
 
         _this.rendition.themes.default({
+          "div > p":{
+            "padding-bottom":"1rem"
+          },
           "div.center": {
             width: "100% !important",
-            height: "100% !important",
+            height: "auto !important",
             display: "flex !important",
+            "margin-top":"2rem !important",
             "justify-content": "center !important",
             "align-items": "center !important",
             "flex-direction": "column !important"
           },
           h1: {
-            "font-size": "23px",
+            "font-size": "22px",
             "line-height": "100% !important;",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
-            "text-indent": "0"
+            "text-indent": "0",
+            "margin-top":"2rem !important"
           },
           h2: {
-            "font-size": "21px",
-            "line-height": "100% !important;",
-            color: "RGBA(234, 84, 4, 1)",
-            "text-align": "left !important;",
-            "text-indent": "0"
-          },
-          h3: {
             "font-size": "20px",
             "line-height": "100% !important;",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
+            "margin-top":"2rem !important",
             "text-indent": "0"
+          },
+          h3: {
+            "font-size": "18px",
+            "line-height": "100% !important;",
+            color: "RGBA(234, 84, 4, 1)",
+            "text-align": "left !important;",
+            "margin-top":"2rem !important",
+            "text-indent": "0"            
           },
           h4: {
             "margin-top": "0 !important",
-            "font-size": "18px",
+            "font-size": "16px",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "text-indent": "0"
@@ -403,22 +412,22 @@ export default {
             "text-decoration": "none;"
           },
           img: {
-            width: "98% !important;"
+            width: "98% !important;",
+            height:'auto !important;'
           }
         });
 
-        
         // _this.rendition.on("layout", function(layout) {
         //   console.log(layout, "layout");
         // });
-        
 
         _this.book.loaded.metadata.then(function(meta) {
           _this.bookTitle = meta.title
+          
         });
 
         _this.rendition.themes.font("MSYH");
-        _this.rendition.themes.fontSize("20px");
+        _this.rendition.themes.fontSize("18px");
 
         
 
@@ -431,7 +440,13 @@ export default {
       _ePubNext = document.getElementById("ePubNext");
       _ePubPrev = document.getElementById("ePubPrev");
 
-      this.ifHiddenFlag = !this.ifHiddenFlag;
+      if (this.ifHiddenFlag) {
+        this.ifHiddenFlag = false
+        this.ifMaskHidden = true
+      } else {
+        this.ifHiddenFlag = true
+        this.ifMaskHidden = false
+      }
 
       await this.readyReader();
     },
@@ -450,6 +465,7 @@ export default {
                 localStorage.removeItem('limit')
                 localStorage.limit = limit
               }
+
               // 处理目录
               function handleTocList (v) {
                 var list = []
@@ -469,9 +485,10 @@ export default {
                 next(v)
                 return list
               }
-
+              
               _this.tocList = handleTocList(getToc.toc)
-              resolve(getToc.length);
+              // console.log(_this.tocList,'_this.tocList')
+              resolve(getToc.length)
             });
           } catch (e) {
             console.log(e.message);
@@ -481,13 +498,16 @@ export default {
     gotoDisplay(id,key) {
       return new Promise((resolve, rejcet) => {
         let _this = this;
+        
         if (_this.rendition) {
+          _this.ifHiddenFlag = true
+          _this.ifMaskHidden = false
           try {
-            console.log('限制成功还差样式')
-            _this.ifHiddenFlag = true
             if (key >= _this.chapterPageNum) {
+              _this.RecommendationFlag = true
               return
             } else {
+              _this.RecommendationFlag = false
               _this.rendition.display(id);
             }     
             resolve();
@@ -505,6 +525,7 @@ export default {
       return new Promise((resolve, rejcet) => {
         let _this = this;
         try {
+          this.HiddenFlag = false
           _this.rendition.next();
           resolve();
         } catch (e) {
@@ -519,6 +540,7 @@ export default {
     ePubPrev() {
       return new Promise((resolve, rejcet) => {
         try {
+          this.HiddenFlag = false
           this.rendition.prev();
           resolve();
         } catch (e) {
@@ -531,8 +553,10 @@ export default {
 
       _header = document.getElementsByClassName("header_wrap")[0];
       _footer = document.getElementsByClassName("foot_wrap")[0];
-
+      
+      this.HAndFFlag = !this.HAndFFlag
       this.setFontAndBG = true;
+      // this.ifMaskHidden = true;
       this.HiddenFlag = !this.HiddenFlag;
     },
     setBG(num) {
@@ -598,11 +622,73 @@ div#ePubArea {
 //     }
 // }
 div.epub-index-wrap {
+
+  div#Recommendation_wrap {
+    width:100vw;
+    height: 100vh;
+       
+    background: rgba(0, 0, 0, 0.3);
+    position:fixed;
+    top:0;
+    left:0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index:90;
+    ul {
+      width:5rem;
+      height: 6.5rem;
+      background: white;
+      border-radius: 0 0 .2rem .2rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-direction: column;
+      li {
+        width:3.5rem;
+      }
+      li.rqcode {
+        margin-top: 1rem;
+        width: inherit;
+        height: 3.5rem;
+
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        img {
+          width: 3.5rem;
+          height: 3.5rem;
+        }
+      }
+      li.title {
+        width: inherit;
+        height: 2rem;
+        line-height: 2rem;
+        padding-bottom: .5rem;
+        text-align: center;
+        font-size: .3rem;
+        height: .5rem;
+        line-height: .5rem;
+      }
+      li.RecommendationButton {
+        width: inherit;
+        height: 1rem;
+        line-height: 1rem;
+        text-align: center;
+        font-size: .4rem;
+        color:white;
+        background: rgb(237, 90, 10);
+        border-radius: 0 0 .2rem .2rem;
+      }
+    }
+  }
   div#mask_wrap {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 70;
+    z-index: 80;
 
     width: 100vw;
     height: 100vh;
@@ -638,7 +724,7 @@ div.epub-index-wrap {
         width: inherit;
         height: inherit;
         border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 20px;
+        border-radius: 18px;
       }
     }
     span.search-wrapB {
@@ -660,11 +746,11 @@ div.epub-index-wrap {
       li:nth-child(1) {
         flex:.3;
         i.iconfont {
-          font-size: 25px;
+          font-size: 20px;
         }
       }
       li:nth-child(2).bookTitle {
-        font-size: 25px;
+        font-size: 18px;
       }
       li.searchAnimateA {
         transform: translateX(-650%) !important;
@@ -695,7 +781,7 @@ div.epub-index-wrap {
     height: 2.4rem;
     background: white;
     box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
-    font-size: 0.4rem;
+    font-size: 0.3rem;
 
     position: fixed;
     bottom: 0;
@@ -738,7 +824,7 @@ div.epub-index-wrap {
     div.bg_set {
       width: inherit;
       height: 1.2rem;
-      font-size: 0.4rem;
+      font-size: 0.3rem;
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -839,7 +925,7 @@ div.epub-index-wrap {
         justify-content: center;
         align-items: center;
         i.iconfont {
-          font-size: 25px;
+          font-size: 20px;
           color: RGBA(64, 71, 79, 1);
         }
       }
@@ -933,7 +1019,7 @@ div.epub-index-wrap {
     overflow-y: scroll;
     div.toc_title_wrap {
       width: inherit;
-      height: 1.5rem;
+      height: 1.2rem;
 
       background: #40474f;
       color: white;
@@ -943,8 +1029,8 @@ div.epub-index-wrap {
       align-items: center;
 
       span {
-        height: 1.5rem;
-        line-height: 1.5rem;
+        height: 1rem;
+        line-height: 1rem;
         flex: 1;
         text-align: center;
       }
@@ -963,7 +1049,7 @@ div.epub-index-wrap {
     ul#toc {
       width: 70vw;
       margin-bottom: 0.4rem;
-      font-size: 0.4rem;
+      font-size: 0.3rem;
       li.isLimitA {
         width: 64vw;
         padding: 3vw;
