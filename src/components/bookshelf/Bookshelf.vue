@@ -52,7 +52,7 @@
         <!-- <span>历史</span> -->
       </div>
       <ul id="toc">
-        <li v-for="item in tocList" :title="item.label" @click="gotoDisplay(item.href)">
+        <li v-for="(item,index) in tocList" :title="item.label" @click="gotoDisplay(item.href,index)" :class="isLimit ? 'isLimitA' : 'isLimitB'">
           {{item.label}}
         </li>
       </ul>
@@ -137,11 +137,13 @@ export default {
       seatchEvenFlag: false,
       ulTakeUpFlag: true,
       setFontAndBG: true,
+      isLimit:false,
       bookTitle: "我的书架",
       seetingTitle: "字体大小",
       bgTitle: "背景色",
       value: 10,
       bgStyle: null,
+      chapterPageNum:0,
       ifHiddenFlag: true,
       HiddenFlag: false,
       displayed: "",
@@ -275,7 +277,6 @@ export default {
       Indicator.open({
         text: "Loading"
       });
-
       _this.rendition.on("rendered", function(section) {
         if (!section.output) {
           _this.IndicatorFlag = false
@@ -336,6 +337,11 @@ export default {
           })
           localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
         })
+
+        // 监听章节渲染
+        _this.rendition.on("rendered", function(section) {
+          _this.chapterPageNum = localStorage.limit
+        });
 
         _this.rendition.on("relocated", function(location) {
           var percent = _this.book.locations.percentageFromCfi(location.start.cfi);
@@ -405,8 +411,7 @@ export default {
         // _this.rendition.on("layout", function(layout) {
         //   console.log(layout, "layout");
         // });
-        // _this.rendition.on("rendered", function(section) {
-        // });
+        
 
         _this.book.loaded.metadata.then(function(meta) {
           _this.bookTitle = meta.title
@@ -435,9 +440,16 @@ export default {
       return new Promise((resolve, reject) => {
         // 阅读时的处理
           try {
+            
             // 加载时的处理，添加目录
             _this.book.loaded.navigation.then(getToc => {
-              
+              let ReadPercentage = sessionStorage.AllowReadPercentage,total = getToc.length,limit = Math.ceil(total * ReadPercentage)
+              if (!localStorage.limit) {
+                localStorage.limit = limit
+              } else {
+                localStorage.removeItem('limit')
+                localStorage.limit = limit
+              }
               // 处理目录
               function handleTocList (v) {
                 var list = []
@@ -466,13 +478,17 @@ export default {
           }
       });
     },
-    gotoDisplay(id) {
+    gotoDisplay(id,key) {
       return new Promise((resolve, rejcet) => {
         let _this = this;
-        
-        if (this.rendition) {
+        if (_this.rendition) {
           try {
-            this.rendition.display(id).then((this.ifHiddenFlag = true));
+            _this.ifHiddenFlag = true
+            if (key >= _this.chapterPageNum) {
+              return
+            } else {
+              _this.rendition.display(id);
+            }     
             resolve();
           } catch (e) {
             throw e;
@@ -488,11 +504,7 @@ export default {
       return new Promise((resolve, rejcet) => {
         let _this = this;
         try {
-          _this.rendition.next().then(() => {
-            if (_this.IndicatorFlag) {
-              _this.IndicatorFlag = false
-            }
-          });
+          _this.rendition.next();
           resolve();
         } catch (e) {
           console.log(e.message);
@@ -951,8 +963,18 @@ div.epub-index-wrap {
       width: 70vw;
       margin-bottom: 0.4rem;
       font-size: 0.4rem;
-
-      li {
+      li.isLimitA {
+        width: 64vw;
+        padding: 3vw;
+        height: 1rem;
+        line-height: 1rem;
+        display: inline-block;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        color: #6d6666;
+      }
+      li.isLimitB {
         width: 64vw;
         padding: 3vw;
         height: 1rem;
