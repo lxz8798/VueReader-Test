@@ -138,7 +138,7 @@ export default {
       ifMaskHidden:false,
       ifHiddenFlag: true,
       HiddenFlag: false,
-      HAndFFlag:true,
+      HAndFFlag:false,
       bookTitle: "我的书架",
       seetingTitle: "字体大小",
       bgTitle: "背景色",
@@ -308,10 +308,10 @@ export default {
 
         _this.rendition = _this.book.renderTo("ePubArea", {
           width: "100vw",
-          height: "100%",
+          height: "100vh",
           flow: "scrolled-continuous",
           manager: "continuous",
-          spread: "always",
+          // spread: "always",
           restore: true
         });
 
@@ -355,14 +355,18 @@ export default {
         _this.loaddingFn()
 
         _this.rendition.themes.default({
-          "div > p":{
-            "padding-bottom":"1rem"
+          body : {
+            "column-fill":"auto",
+            "column-gap":"40px",
+            "column-width":"485px",
+            "height":"100vw !imortant;",
           },
           "div.center": {
             width: "100% !important",
             height: "auto !important",
             display: "flex !important",
-            "margin-top":"2rem !important",
+            "padding":".5rem 0 !important",
+            "margin-top":"1rem !important",
             "justify-content": "center !important",
             "align-items": "center !important",
             "flex-direction": "column !important"
@@ -373,14 +377,14 @@ export default {
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "text-indent": "0",
-            "margin-top":"2rem !important"
+            "padding":".5rem 0 !important"
           },
           h2: {
             "font-size": "20px",
             "line-height": "100% !important;",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
-            "margin-top":"2rem !important",
+            "padding":".5rem !important",
             "text-indent": "0"
           },
           h3: {
@@ -388,7 +392,7 @@ export default {
             "line-height": "100% !important;",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
-            "margin-top":"2rem !important",
+            "padding":".5rem !important",
             "text-indent": "0"            
           },
           h4: {
@@ -399,13 +403,15 @@ export default {
             "text-indent": "0"
           },
           p: {
-            "text-align": "left;",
-            "line-height": "2.5rem;",
-            "text-indent": "0 !important;",
-            "margin-top": "1.5rem !important;"
+            "display": "block",
+            "line-height":"2.3rem",
+            "padding":".5rem 0 .5rem 0 !important"
           },
           div: {
-            "line-height": "2.5rem !important;"
+            "line-height": "2rem !important;",
+            "column-fill":"auto",
+            "column-gap":"40px",
+            "column-width":"485px"
           },
           a: {
             color: "RGBA(51, 51, 51, 1) !important;",
@@ -591,6 +597,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
+
 .mint-indicator {
   z-index:70;
   .mint-indicator-mask {
@@ -606,21 +613,12 @@ div#ePubArea {
   align-items: center;
   flex-direction: column;
   background: #F7F7F7;
+
+  div.epub-view {
+    width:100vw !important;
+    padding:.5rem 0 .5rem 0;
+  }
 }
-// @media only screen
-//   and (min-device-width : 320px)
-//   and (max-device-width : 667px) {
-//     #ePubArea {
-//       height: 96.5%;
-//     }
-//     #ePubArea iframe {
-//       pointer-events: none;
-//     }
-//     .arrow {
-//       position: inherit;
-//       display: none;
-//     }
-// }
 div.epub-index-wrap {
 
   div#Recommendation_wrap {
