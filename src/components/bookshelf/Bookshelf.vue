@@ -302,7 +302,6 @@ export default {
             var cfi = _this.book.locations.cfiFromPercentage(_this.value / 100);
             _this.rendition.display(cfi);
         }
-
         var _epubUrl = sessionStorage.resourceUrl;
         _this.book = new ePub(_epubUrl);
 
