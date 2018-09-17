@@ -126,26 +126,26 @@ export default {
       bookData: {},
       book: {},
       rendition: {},
-      displayed:{},
+      displayed: {},
       tocList: [],
       AllowReadPercentage: 0,
       totalLen: 0,
-      IndicatorFlag:false,
+      IndicatorFlag: false,
       seatchEvenFlag: false,
       ulTakeUpFlag: true,
       setFontAndBG: true,
-      RecommendationFlag:false,
-      ifMaskHidden:false,
+      RecommendationFlag: false,
+      ifMaskHidden: false,
       ifHiddenFlag: true,
       HiddenFlag: false,
-      HAndFFlag:true,
+      HAndFFlag: false,
       bookTitle: "我的书架",
       seetingTitle: "字体大小",
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
       value: 10,
       bgStyle: null,
-      chapterPageNum:0,      
+      chapterPageNum: 0,
       displayed: "",
       decryptAfterToU8: [],
       epubText: "",
@@ -154,14 +154,13 @@ export default {
     };
   },
   async created() {
-    
     await this.getEpub();
     await this.openEpub();
-    await this.loaddingFn();
-    await this.readyReader();
-    await this.getBookUpdate();
-    await this.topHidden();
-    await this.percentTotal();
+    // await this.loaddingFn();
+    // await this.readyReader();
+    // await this.getBookUpdate();
+    // await this.topHidden();
+    // await this.percentTotal();
     // await this.setBG()
   },
   watch: {
@@ -275,21 +274,21 @@ export default {
       let _this = this;
 
       Indicator.open({
-        text: "Loading"
+        text: "Loading",
+        spinnerType: "fading-circle"
       });
       _this.rendition.on("rendered", function(section) {
-        console.log(section,'section')
         if (!section.output) {
-          _this.IndicatorFlag = false
+          _this.IndicatorFlag = false;
           Indicator.open({
             text: "Loading",
-            spinnerType:"fading-circle"
+            spinnerType: "fading-circle"
           });
         } else {
-          _this.IndicatorFlag = true
-          Indicator.close()
+          _this.IndicatorFlag = true;
+          Indicator.close();
         }
-      })
+      });
     },
     /**
      * 添加目录显示隐藏事件
@@ -298,10 +297,10 @@ export default {
     openEpub() {
       let _this = this;
       return new Promise((resolve, reject) => {
-        var slide = function () {
-            var cfi = _this.book.locations.cfiFromPercentage(_this.value / 100);
-            _this.rendition.display(cfi);
-        }
+        var slide = function() {
+          var cfi = _this.book.locations.cfiFromPercentage(_this.value / 100);
+          _this.rendition.display(cfi);
+        };
         var _epubUrl = sessionStorage.resourceUrl;
         _this.book = new ePub(_epubUrl);
 
@@ -316,52 +315,67 @@ export default {
 
         _this.displayed = _this.rendition.display();
 
-        _this.book.ready.then(() => {
-          // 从什么地方获取
-          console.log(_this.book.key(),'尝试拿到cfi')
-          var bookKey = _this.book.key() + '-locations';
-          var stored = localStorage.getItem(bookKey);
-          if (stored) {
-            return _this.book.locations.load(stored);
-          } else {
-            return _this.book.locations.generate(1600);
-          }
-        })
-        .then(locations => {
-          this.displayed.then(() => {
-            var currentLocation = _this.rendition.currentLocation();_this.rendition.currentLocation();
-            var currentPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi);
+        // _this.book.ready.then(() => {
+        // 从什么地方获取
+        // console.log(_this.book.key(),'尝试拿到cfi')
+        // var bookKey = _this.book.key() + '-locations';
+        // var stored = localStorage.getItem(bookKey);
+        // if (stored) {
+        //   return _this.book.locations.load(stored);
+        // } else {
+        //   return _this.book.locations.generate(1600);
+        // }
+        // })
+        // .then(locations => {
+        // this.displayed.then(() => {
+        //   var currentLocation = _this.rendition.currentLocation();_this.rendition.currentLocation();
+        //   var currentPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi);
 
-            _this.value = currentPage
-            // 当前页面
-            console.log(currentPage,'currentLocation')
-          })
-          localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
-        })
+        //   _this.value = currentPage
+        //   // 当前页面
+        //   console.log(currentPage,'currentLocation')
+        // })
+        // localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
+        // })
 
         // 监听章节渲染
         _this.rendition.on("rendered", function(section) {
-          _this.chapterPageNum = localStorage.limit
+          console.log(section, "监听章节渲染,每次翻页都会加载");
+          // 默认开启loading
+          Indicator.open({
+            text: "Loading",
+            spinnerType: "fading-circle"
+          });
+          _this.chapterPageNum = localStorage.limit;
         });
 
-        _this.rendition.on("relocated", function(location) {
-          var percent = _this.book.locations.percentageFromCfi(location.start.cfi);
-          var percentage = Math.floor(percent * 100);
-          // slider.value = percentage;
-          console.log(percentage,'percent')
+        _this.rendition.on("relocated", function(relocated) {
+          console.log(relocated, "relocated1111");
+          let startCfi = relocated.start.cfi,
+            startIndex = relocated.start.index,
+            startPercen = relocated.end.percentage,
+            endCfi = relocated.end.cfi,
+            endIndex = relocated.end.index;
+          console.log(_this.chapterPageNum, "_this.chapterPageNum");
+          if (relocated.atStart) {
+            Indicator.close();
+          } else {
+          }
+          // _this.loaddingFn()
+
+          // var percent = _this.book.locations.percentageFromCfi(location.start.cfi);
+          // var percentage = Math.floor(percent * 100);
         });
-        
-        _this.loaddingFn()
 
         _this.rendition.themes.default({
-          "div > p":{
-            "padding-bottom":"1rem"
+          "div > p": {
+            "padding-bottom": "1rem"
           },
           "div.center": {
             width: "100% !important",
             height: "auto !important",
             display: "flex !important",
-            "margin-top":"2rem !important",
+            "margin-top": "2rem !important",
             "justify-content": "center !important",
             "align-items": "center !important",
             "flex-direction": "column !important"
@@ -372,14 +386,14 @@ export default {
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "text-indent": "0",
-            "margin-top":"2rem !important"
+            "margin-top": "2rem !important"
           },
           h2: {
             "font-size": "20px",
             "line-height": "100% !important;",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
-            "margin-top":"2rem !important",
+            "margin-top": "2rem !important",
             "text-indent": "0"
           },
           h3: {
@@ -387,8 +401,8 @@ export default {
             "line-height": "100% !important;",
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
-            "margin-top":"2rem !important",
-            "text-indent": "0"            
+            "margin-top": "2rem !important",
+            "text-indent": "0"
           },
           h4: {
             "margin-top": "0 !important",
@@ -412,7 +426,7 @@ export default {
           },
           img: {
             width: "98% !important;",
-            height:'auto !important;'
+            height: "auto !important;"
           }
         });
 
@@ -421,8 +435,7 @@ export default {
         // });
 
         _this.book.loaded.metadata.then(function(meta) {
-          _this.bookTitle = meta.title
-          
+          _this.bookTitle = meta.title;
         });
 
         _this.rendition.themes.font("MSYH");
@@ -438,11 +451,11 @@ export default {
       _ePubPrev = document.getElementById("ePubPrev");
 
       if (this.ifHiddenFlag) {
-        this.ifHiddenFlag = false
-        this.ifMaskHidden = true
+        this.ifHiddenFlag = false;
+        this.ifMaskHidden = true;
       } else {
-        this.ifHiddenFlag = true
-        this.ifMaskHidden = false
+        this.ifHiddenFlag = true;
+        this.ifMaskHidden = false;
       }
 
       await this.readyReader();
@@ -451,62 +464,64 @@ export default {
       let _this = this;
       return new Promise((resolve, reject) => {
         // 阅读时的处理
-          try {
-            
-            // 加载时的处理，添加目录
-            _this.book.loaded.navigation.then(getToc => {
-              let ReadPercentage = sessionStorage.AllowReadPercentage,total = getToc.length,limit = Math.ceil(total * ReadPercentage)
-              if (!localStorage.limit) {
-                localStorage.limit = limit
-              } else {
-                localStorage.removeItem('limit')
-                localStorage.limit = limit
-              }
+        try {
+          // 加载时的处理，添加目录
+          _this.book.loaded.navigation.then(getToc => {
+            let ReadPercentage = sessionStorage.AllowReadPercentage,
+              total = getToc.length,
+              limit = Math.ceil(total * ReadPercentage);
+            if (!localStorage.limit) {
+              localStorage.limit = limit;
+            } else {
+              localStorage.removeItem("limit");
+              localStorage.limit = limit;
+            }
 
-              // 处理目录
-              function handleTocList (v) {
-                var list = []
-                function next (v) {
-                  for (let i = 0; i < v.length; i++) {
-                    list.push({
-                      label:v[i].label,
-                      id:v[i].id,
-                      href:v[i].href,
-                      length:v[i].subitems.length
-                    })
-                    if (v[i].subitems.length) {
-                      next(v[i].subitems)
-                    }
+            // 处理目录
+            function handleTocList(v) {
+              var list = [];
+              function next(v) {
+                for (let i = 0; i < v.length; i++) {
+                  list.push({
+                    label: v[i].label,
+                    id: v[i].id,
+                    href: v[i].href,
+                    length: v[i].subitems.length
+                  });
+                  if (v[i].subitems.length) {
+                    next(v[i].subitems);
                   }
                 }
-                next(v)
-                return list
               }
-              
-              _this.tocList = handleTocList(getToc.toc)
-              // console.log(_this.tocList,'_this.tocList')
-              resolve(getToc.length)
-            });
-          } catch (e) {
-            console.log(e.message);
-          }
+              next(v);
+              return list;
+            }
+
+            _this.tocList = handleTocList(getToc.toc);
+            // console.log(_this.tocList,'_this.tocList')
+            resolve(getToc.length);
+          });
+        } catch (e) {
+          console.log(e.message);
+        }
       });
     },
-    gotoDisplay(id,key) {
+    gotoDisplay(id, key) {
       return new Promise((resolve, rejcet) => {
         let _this = this;
-        
+
         if (_this.rendition) {
-          _this.ifHiddenFlag = true
-          _this.ifMaskHidden = false
+          _this.ifHiddenFlag = true;
+          _this.ifMaskHidden = false;
           try {
+            console.log(_this.chapterPageNum, "next里面的_this.chapterPageNum");
             if (key >= _this.chapterPageNum) {
-              _this.RecommendationFlag = true
-              return
+              _this.RecommendationFlag = true;
+              return;
             } else {
-              _this.RecommendationFlag = false
+              _this.RecommendationFlag = false;
               _this.rendition.display(id);
-            }     
+            }
             resolve();
           } catch (e) {
             throw e;
@@ -522,7 +537,7 @@ export default {
       return new Promise((resolve, rejcet) => {
         let _this = this;
         try {
-          this.HiddenFlag = false
+          this.HiddenFlag = false;
           _this.rendition.next();
           resolve();
         } catch (e) {
@@ -537,7 +552,7 @@ export default {
     ePubPrev() {
       return new Promise((resolve, rejcet) => {
         try {
-          this.HiddenFlag = false
+          this.HiddenFlag = false;
           this.rendition.prev();
           resolve();
         } catch (e) {
@@ -550,8 +565,8 @@ export default {
 
       _header = document.getElementsByClassName("header_wrap")[0];
       _footer = document.getElementsByClassName("foot_wrap")[0];
-      
-      this.HAndFFlag = !this.HAndFFlag
+
+      this.HAndFFlag = !this.HAndFFlag;
       this.setFontAndBG = true;
       // this.ifMaskHidden = true;
       this.HiddenFlag = !this.HiddenFlag;
@@ -589,7 +604,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
 .mint-indicator {
-  z-index:70;
+  z-index: 70;
   .mint-indicator-mask {
     z-index: 70;
   }
@@ -602,7 +617,7 @@ div#ePubArea {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: #F7F7F7;
+  background: #f7f7f7;
 }
 // @media only screen
 //   and (min-device-width : 320px)
@@ -619,41 +634,40 @@ div#ePubArea {
 //     }
 // }
 div.epub-index-wrap {
-
   div#Recommendation_wrap {
-    width:100vw;
+    width: 100vw;
     height: 100vh;
-       
+
     background: rgba(0, 0, 0, 0.3);
-    position:fixed;
-    top:0;
-    left:0;
+    position: fixed;
+    top: 0;
+    left: 0;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    z-index:90;
+    z-index: 90;
     ul {
-      width:5rem;
+      width: 5rem;
       height: 6.5rem;
       background: white;
-      border-radius: 0 0 .2rem .2rem;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
+      border-radius: 0 0 0.2rem 0.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       flex-direction: column;
       li {
-        width:3.5rem;
+        width: 3.5rem;
       }
       li.rqcode {
         margin-top: 1rem;
         width: inherit;
         height: 3.5rem;
 
-        display:flex;
-        justify-content:center;
-        align-items:center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         img {
           width: 3.5rem;
           height: 3.5rem;
@@ -663,21 +677,21 @@ div.epub-index-wrap {
         width: inherit;
         height: 2rem;
         line-height: 2rem;
-        padding-bottom: .5rem;
+        padding-bottom: 0.5rem;
         text-align: center;
-        font-size: .3rem;
-        height: .5rem;
-        line-height: .5rem;
+        font-size: 0.3rem;
+        height: 0.5rem;
+        line-height: 0.5rem;
       }
       li.RecommendationButton {
         width: inherit;
         height: 1rem;
         line-height: 1rem;
         text-align: center;
-        font-size: .4rem;
-        color:white;
+        font-size: 0.4rem;
+        color: white;
         background: rgb(237, 90, 10);
-        border-radius: 0 0 .2rem .2rem;
+        border-radius: 0 0 0.2rem 0.2rem;
       }
     }
   }
@@ -739,9 +753,9 @@ div.epub-index-wrap {
       justify-content: space-around;
       align-items: center;
       flex: 1;
-      font-size: 25px; 
+      font-size: 25px;
       li:nth-child(1) {
-        flex:.3;
+        flex: 0.3;
         i.iconfont {
           font-size: 20px;
         }
@@ -814,7 +828,6 @@ div.epub-index-wrap {
         li:nth-child(1) {
           width: 2rem;
           border: none;
-          
         }
       }
     }
