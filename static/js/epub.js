@@ -7553,16 +7553,16 @@ var Rendition = function () {
 			contents.addStylesheetRules({
 				"img": {
 					"max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-					"max-height": height + "px" + "!important",
-					"object-fit": "contain",
-					"page-break-inside": "avoid",
-					"break-inside": "avoid"
+					// "max-height": height + "px" + "!important",
+					// "object-fit": "contain",
+					// "page-break-inside": "avoid",
+					// "break-inside": "avoid"
 				},
 				"svg": {
 					"max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-					"max-height": height + "px" + "!important",
-					"page-break-inside": "avoid",
-					"break-inside": "avoid"
+					// "max-height": height + "px" + "!important",
+					// "page-break-inside": "avoid",
+					// "break-inside": "avoid"
 				}
 			});
 
@@ -8341,7 +8341,8 @@ var IframeView = function () {
 			// Render Chain
 			return this.sectionRender.then(function (contents) {
 				// 使用正则替换img地址
-				contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
+				contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi, '<img data-src=\"' + sessionStorage.PackageBaseUrl + '/$2?width=500.0&quality=100\" $1src="http://124.193.177.45:50695/epub/book-open.svg"')
+				// contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
 				return this.load(contents);
 			}.bind(this)).then(function () {
 				var _this = this;

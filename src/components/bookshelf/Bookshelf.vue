@@ -12,7 +12,7 @@
           <i class="iconfont epub-jiantou" @click="backGo()"></i>
         </li>
         <li class="bookTitle">{{bookTitle}}</li>
-        <li style="visibility: hidden; width:30px;"></li>
+        <li style="visibility: hidden; width:80px; border:1px solid red;"></li>
         <!-- 暂时隐藏 -->
         <!-- <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
           <i class="iconfont epub-fangdajing"></i>
@@ -144,10 +144,10 @@ export default {
       seetingTitle: "字体大小",
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
-      currPercentage: 10,
       rangeDis:false,
       bgStyle: null,
-      chapterPageNum: 0,
+      currPercentage: 0,
+      totalPageNum:0,
       displayed: "",
       decryptAfterToU8: [],
       epubText: "",
@@ -170,16 +170,9 @@ export default {
       console.log(n);
     },
     currPercentage:function(e){
-      let _this = this,limit = Math.ceil(e)
-      console.log(_this.chapterPageNum,'_this.chapterPageNum')
-      console.log(limit,'当前位置')
-      if (limit <= _this.chapterPageNum) {
-        this.slide()
-      } else {
-        _this.RecommendationFlag = true
-        _this.rangeDis = true
-        return
-      }
+      let _this = this 
+      console.log(_this.currPercentage,'这里是watch')
+      _this.rendition.display(_this.currPercentage)
     }
   },
   methods: {
@@ -304,13 +297,6 @@ export default {
         }
       });
     },
-    slide () {
-      let _this = this
-
-      var cfi = _this.book.locations.cfiFromPercentage(_this.currPercentage / 100);
-      _this.rendition.display(cfi);
-
-    },
     /**
      * 添加目录显示隐藏事件
      * 李啸竹
@@ -338,9 +324,9 @@ export default {
           spinnerType: "fading-circle"
         });
 
-        _this.displayed = _this.rendition.display();
+        _this.displayed = _this.rendition.display(_this.currPercentage);
 
-        // ready
+        // 在ready里面获取cfi
         _this.book.ready.then(() => {
           // Load in stored locations from json or local storage
           var key = _this.book.key()+'-locations';
@@ -354,7 +340,7 @@ export default {
             return _this.book.locations.generate(1600);
           }
         })
-        // locations
+        // 通过locations保存cfi
         .then(locations => {
           // console.log(_this.book.locations.save(),'通过key()拿到cfi')
           localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
@@ -362,7 +348,31 @@ export default {
 
         // 监听章节渲染
         _this.rendition.on("rendered", function(section) {
-          _this.chapterPageNum = localStorage.limit;
+          _this.totalPageNum = localStorage.limit;
+          
+          let doc = document
+            .querySelector("iframe")
+            .contentWindow.document.getElementsByTagName("body")[0];
+          let imgs = doc.querySelectorAll("img");
+          
+          for (let i = 0; i < imgs.length; i++) {
+            imgs[i].src = imgs[i].dataset.src;
+          }
+
+          try {
+            if (_this.currPercentage >= _this.totalPageNum) {
+              console.log(_this.currPercentage,'这里是要display的currPercentage')
+              // _this.rangeDis = true
+              _this.RecommendationFlag = true
+              _this.rendition.display(_this.totalPageNum)
+              // _this.rendition.display((e) => {
+              //   e.preventDefault()
+              // })
+            } 
+          } catch (e) {
+            throw e
+          }
+
         });
 
         // 拿到precent
@@ -372,8 +382,12 @@ export default {
               startPercen = locations.end.percentage,
               endCfi = locations.end.cfi,
               endIndex = locations.end.index
-              
-          _this.currPercentage = locations.start.percentage
+
+          // _this.currPercentage = Math.floor(startPercen * 100) / 100  
+          _this.currPercentage = Math.ceil(startPercen)
+
+          // console.log(_this.currPercentage,'当前章节')
+          // console.log(startPercen,'locations')
 
           if (locations.atStart) {
             Indicator.close();
@@ -391,9 +405,8 @@ export default {
           },
           "div.center": {
             width: "100% !important",
-            height: "auto !important",
             display: "flex !important",
-            "margin-top": "2rem !important",
+            "margin": "2rem 0 !important",
             "justify-content": "center !important",
             "align-items": "center !important",
             "flex-direction": "column !important"
@@ -435,6 +448,12 @@ export default {
             "text-indent": "0 !important;",
             "margin-top": "1.5rem !important;"
           },
+          html:{
+            "margin-top": "1.5rem !important;"
+          },
+          body:{
+            "padding":"0"
+          },
           div: {
             "line-height": "2.5rem !important;"
           },
@@ -444,7 +463,7 @@ export default {
           },
           img: {
             width: "98% !important;",
-            height: "auto !important;"
+            height:"100% !important;"
           }
         });
 
@@ -532,8 +551,7 @@ export default {
           _this.ifHiddenFlag = true;
           _this.ifMaskHidden = false;
           try {
-            console.log(_this.chapterPageNum, "next里面的_this.chapterPageNum");
-            if (key >= _this.chapterPageNum) {
+            if (key >= _this.currPercentage) {
               _this.RecommendationFlag = true;
               return;
             } else {
@@ -555,7 +573,7 @@ export default {
       return new Promise((resolve, rejcet) => {
         let _this = this;
         try {
-          this.HiddenFlag = false;
+          _this.HiddenFlag = false;
           _this.rendition.next();
           resolve();
         } catch (e) {
@@ -568,10 +586,11 @@ export default {
      * @author 李啸竹
      */
     ePubPrev() {
+      let _this = this;
       return new Promise((resolve, rejcet) => {
         try {
-          this.HiddenFlag = false;
-          this.rendition.prev();
+          _this.HiddenFlag = false;
+          _this.rendition.prev();
           resolve();
         } catch (e) {
           console.log(e.message);
