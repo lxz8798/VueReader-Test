@@ -27,9 +27,9 @@
     </div>
 
     <div id="touch-wrap">
-      <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubNext()"></v-touch>
+      <!-- <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubNext()"></v-touch> -->
       <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
-      <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch>
+      <!-- <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch> -->
     </div>
 
     <div id="ePubArea"></div>
@@ -57,8 +57,8 @@
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
-        <li>
-          
+        <li class="range">
+          <mt-range v-model="currPercentage" :disabled="rangeDis"></mt-range>
         </li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext()"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
@@ -114,6 +114,7 @@
 <script>
 // import vueSlider from "vue-slider-component";
 import { Indicator } from "mint-ui";
+import { Range } from 'mint-ui';
 // import Qs from "qs";
 export default {
   name: "epub",
@@ -143,7 +144,8 @@ export default {
       seetingTitle: "字体大小",
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
-      value: 10,
+      currPercentage: 10,
+      rangeDis:false,
       bgStyle: null,
       chapterPageNum: 0,
       displayed: "",
@@ -166,6 +168,18 @@ export default {
   watch: {
     epubData: function(n, o) {
       console.log(n);
+    },
+    currPercentage:function(e){
+      let _this = this,limit = Math.ceil(e)
+      console.log(_this.chapterPageNum,'_this.chapterPageNum')
+      console.log(limit,'当前位置')
+      if (limit <= _this.chapterPageNum) {
+        this.slide()
+      } else {
+        _this.RecommendationFlag = true
+        _this.rangeDis = true
+        return
+      }
     }
   },
   methods: {
@@ -290,6 +304,13 @@ export default {
         }
       });
     },
+    slide () {
+      let _this = this
+
+      var cfi = _this.book.locations.cfiFromPercentage(_this.currPercentage / 100);
+      _this.rendition.display(cfi);
+
+    },
     /**
      * 添加目录显示隐藏事件
      * 李啸竹
@@ -297,11 +318,9 @@ export default {
     openEpub() {
       let _this = this;
       return new Promise((resolve, reject) => {
-        var slide = function() {
-          var cfi = _this.book.locations.cfiFromPercentage(_this.value / 100);
-          _this.rendition.display(cfi);
-        };
+               
         var _epubUrl = sessionStorage.resourceUrl;
+
         _this.book = new ePub(_epubUrl);
 
         _this.rendition = _this.book.renderTo("ePubArea", {
@@ -313,57 +332,56 @@ export default {
           restore: true
         });
 
+        // 默认开启loading
+        Indicator.open({
+          text: "Loading",
+          spinnerType: "fading-circle"
+        });
+
         _this.displayed = _this.rendition.display();
 
-        // _this.book.ready.then(() => {
-        // 从什么地方获取
-        // console.log(_this.book.key(),'尝试拿到cfi')
-        // var bookKey = _this.book.key() + '-locations';
-        // var stored = localStorage.getItem(bookKey);
-        // if (stored) {
-        //   return _this.book.locations.load(stored);
-        // } else {
-        //   return _this.book.locations.generate(1600);
-        // }
-        // })
-        // .then(locations => {
-        // this.displayed.then(() => {
-        //   var currentLocation = _this.rendition.currentLocation();_this.rendition.currentLocation();
-        //   var currentPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi);
-
-        //   _this.value = currentPage
-        //   // 当前页面
-        //   console.log(currentPage,'currentLocation')
-        // })
-        // localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
-        // })
+        // ready
+        _this.book.ready.then(() => {
+          // Load in stored locations from json or local storage
+          var key = _this.book.key()+'-locations';
+          var stored = localStorage.getItem(key);
+          if (stored) {
+            return _this.book.locations.load(stored);
+          } else {
+            // Or generate the locations on the fly
+            // Can pass an option number of chars to break sections by
+            // default is 150 chars
+            return _this.book.locations.generate(1600);
+          }
+        })
+        // locations
+        .then(locations => {
+          // console.log(_this.book.locations.save(),'通过key()拿到cfi')
+          localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
+        })
 
         // 监听章节渲染
         _this.rendition.on("rendered", function(section) {
-          console.log(section, "监听章节渲染,每次翻页都会加载");
-          // 默认开启loading
-          Indicator.open({
-            text: "Loading",
-            spinnerType: "fading-circle"
-          });
           _this.chapterPageNum = localStorage.limit;
         });
 
-        _this.rendition.on("relocated", function(relocated) {
-          console.log(relocated, "relocated1111");
-          let startCfi = relocated.start.cfi,
-            startIndex = relocated.start.index,
-            startPercen = relocated.end.percentage,
-            endCfi = relocated.end.cfi,
-            endIndex = relocated.end.index;
-          console.log(_this.chapterPageNum, "_this.chapterPageNum");
-          if (relocated.atStart) {
+        // 拿到precent
+        _this.rendition.on("relocated", function(locations) {
+          let startCfi = locations.start.cfi,
+              startIndex = locations.start.index,
+              startPercen = locations.end.percentage,
+              endCfi = locations.end.cfi,
+              endIndex = locations.end.index
+              
+          _this.currPercentage = locations.start.percentage
+
+          if (locations.atStart) {
             Indicator.close();
-          } else {
           }
+
           // _this.loaddingFn()
 
-          // var percent = _this.book.locations.percentageFromCfi(location.start.cfi);
+          // var percent = _this.book.locations.percentageFromCfi(locations.start.cfi);
           // var percentage = Math.floor(percent * 100);
         });
 
@@ -800,6 +818,7 @@ div.epub-index-wrap {
 
     z-index: 80;
     flex: 1;
+
     div.font_set {
       width: inherit;
       height: 1.2rem;
@@ -949,15 +968,28 @@ div.epub-index-wrap {
       }
       li:nth-child(3) {
         flex: 1;
+        width:200px;
 
-        span {
-          display: inline-block;
-          width: 1rem;
-          height: 1rem;
-          background: white;
-          border: 1px solid RGBA(0, 0, 0, 0.25);
-          box-shadow: 3px 1px 3px RGBA(0, 0, 0, 0.1);
-          border-radius: 3rem;
+        div.mt-range {
+          width: inherit;
+          div.mt-range-content {
+            width:inherit;
+            margin-right:20px;
+            div.mt-range-runway {
+              right: -20px;
+            }
+            div.mt-range-progress {
+              background: #40474F;
+            }
+            div.mt-range-thumb {
+              position: absolute;
+              top: 10%;
+              width:20px;
+              height: 20px;
+              border:1px solid rgba(0,0,0,.1);
+              box-shadow: 1px 2px 3px rgba(0,0,0,.4);
+            }
+          }
         }
       }
       li:nth-child(4) {
@@ -1095,8 +1127,8 @@ div.epub-index-wrap {
   }
   div#touch-wrap {
     position: fixed;
-    width: 100vw;
-    height: 100vh;
+    width: 30vw;
+    height: 30vh;
     z-index: 60;
     display: flex;
     flex-direction: row;
