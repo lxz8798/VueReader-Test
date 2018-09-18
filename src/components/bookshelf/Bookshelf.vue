@@ -58,7 +58,7 @@
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev()"></i></li>
         <li class="range">
-          <mt-range v-model="currPercentage" :disabled="rangeDis"></mt-range>
+          <mt-range v-model="currPercentage"></mt-range>
         </li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext()"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
@@ -144,7 +144,6 @@ export default {
       seetingTitle: "字体大小",
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
-      rangeDis:false,
       bgStyle: null,
       currPercentage: 0,
       totalPageNum:0,
@@ -170,7 +169,7 @@ export default {
       console.log(n);
     },
     currPercentage:function(e){
-      let _this = this 
+      let _this = this;
       console.log(_this.currPercentage,'这里是watch')
       _this.rendition.display(_this.currPercentage)
     }
@@ -298,6 +297,41 @@ export default {
       });
     },
     /**
+     * 监听章节渲染
+     * 李啸竹
+     */
+    listenSectionRenditions () {
+      let _this = this
+      console.log(_this.rendition,'listenSectionRenditions里面的')
+      _this.rendition.on("rendered", function(section) {
+        
+        _this.totalPageNum = localStorage.limit;
+        
+        let doc = document.querySelector("iframe").contentWindow.document.getElementsByTagName("body")[0];
+        let imgs = doc.querySelectorAll("img");
+        let rangeThumb = document.querySelector('div.mt-range-thumb');
+        let rangeProgress = document.querySelector('div.mt-range-progress');
+        let ReadPercentage = sessionStorage.AllowReadPercentage;
+        
+        for (let i = 0; i < imgs.length; i++) {
+          imgs[i].src = imgs[i].dataset.src;
+        }
+        
+        try {
+          console.log(_this.currPercentage,'rendered里面的_this.currPercentage')
+          if (_this.currPercentage >= _this.totalPageNum && ReadPercentage != 1) {
+            rangeThumb.style.left = _this.totalPageNum + '%'
+            rangeProgress.style.width = _this.totalPageNum + '%'
+            _this.RecommendationFlag = true
+            _this.rendition.display(_this.totalPageNum)
+          } 
+        } catch (e) {
+          throw e
+        }
+
+      });
+    },
+    /**
      * 添加目录显示隐藏事件
      * 李啸竹
      */
@@ -346,34 +380,7 @@ export default {
           localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
         })
 
-        // 监听章节渲染
-        _this.rendition.on("rendered", function(section) {
-          _this.totalPageNum = localStorage.limit;
-          
-          let doc = document
-            .querySelector("iframe")
-            .contentWindow.document.getElementsByTagName("body")[0];
-          let imgs = doc.querySelectorAll("img");
-          
-          for (let i = 0; i < imgs.length; i++) {
-            imgs[i].src = imgs[i].dataset.src;
-          }
-
-          try {
-            if (_this.currPercentage >= _this.totalPageNum) {
-              console.log(_this.currPercentage,'这里是要display的currPercentage')
-              // _this.rangeDis = true
-              _this.RecommendationFlag = true
-              _this.rendition.display(_this.totalPageNum)
-              // _this.rendition.display((e) => {
-              //   e.preventDefault()
-              // })
-            } 
-          } catch (e) {
-            throw e
-          }
-
-        });
+        _this.listenSectionRenditions()
 
         // 拿到precent
         _this.rendition.on("relocated", function(locations) {
@@ -544,26 +551,50 @@ export default {
       });
     },
     gotoDisplay(id, key) {
-      return new Promise((resolve, rejcet) => {
-        let _this = this;
+      let _this = this
+      let ReadPercentage = sessionStorage.AllowReadPercentage;
+      let stored = _this.book.key()+'-locations';
+      let cfi = JSON.parse(localStorage.getItem(stored));
+      
+      _this.totalPageNum = localStorage.limit;
+      
+      if (key <= _this.totalPageNum && ReadPercentage != 1) {
+        _this.ifHiddenFlag = true;
+        _this.ifMaskHidden = false;
+        _this.RecommendationFlag = false;
+        _this.rendition.display(cfi[key])
+        console.log('走key')
+      } else {
+        console.log('走totalPageNum')
+        _this.RecommendationFlag = true;
+        _this.rendition.display(_this.totalPageNum)
+      }
+      // return new Promise((resolve, rejcet) => {
+      //   let _this = this;
+        
+      //   _this.totalPageNum = localStorage.limit;
 
-        if (_this.rendition) {
-          _this.ifHiddenFlag = true;
-          _this.ifMaskHidden = false;
-          try {
-            if (key >= _this.currPercentage) {
-              _this.RecommendationFlag = true;
-              return;
-            } else {
-              _this.RecommendationFlag = false;
-              _this.rendition.display(id);
-            }
-            resolve();
-          } catch (e) {
-            throw e;
-          }
-        }
-      });
+      //   _this.rendition.display(key)
+
+        // console.log(_this.currPercentage,'_this.currPercentage')
+
+        // if (_this.rendition) {
+        //   _this.ifHiddenFlag = true;
+        //   _this.ifMaskHidden = false;
+        //   try {
+        //     if (key >= _this.currPercentage) {
+        //       _this.RecommendationFlag = true;
+        //       return;
+        //     } else {
+        //       _this.RecommendationFlag = false;
+        //       _this.rendition.display(id);
+        //     }
+        //     resolve();
+        //   } catch (e) {
+        //     throw e;
+        //   }
+        // }
+      // });
     },
     /**
      * 下一页
