@@ -169,7 +169,7 @@ export default {
       console.log(n);
     },
     currPage:function(e){
-      console.log(e,'123123123')
+      // console.log(e,'123123123')
       let _this = this;
       let cfi = _this.book.locations.cfiFromPercentage(_this.currPage/100);
       // console.log(cfi)
@@ -332,15 +332,21 @@ export default {
         // 获得当前书籍的试读比例
         let ReadPercentage = sessionStorage.AllowReadPercentage;
         // 计算出比例
-        let limit = _this.book.locations.total * ReadPercentage
+        let limit = _this.book.locations.total * ReadPercentage + 3
+
+        if (!localStorage.limit) {
+          localStorage.limit = limit
+        } else {
+          localStorage.removeItem('limit')
+          localStorage.limit = limit
+        }
         
-        _this.totalPageNum = limit + 3; 
+        _this.totalPageNum = limit; 
+        
         if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
           _this.RecommendationFlag = true
           _this.rendition.display(0)
-          _this.displayed.then(e => {
-            e.preventDefault()
-          })
+          
           // _this.book.destroy()
         } 
       })
@@ -506,7 +512,18 @@ export default {
         try {
           // 加载时的处理，添加目录
           _this.book.loaded.navigation.then(getToc => {
-
+            let limit = localStorage.limit
+            let tocUl = document.getElementById('toc')
+            let LiList = tocUl.getElementsByTagName('li')
+            
+            _this.$nextTick(() => {
+              for (let i = 0; i < LiList.length; i++) {
+                if (i >= limit) {
+                  LiList[i].style.color = "#cecece"
+                }
+              }
+            })
+            
             // 处理目录
             function handleTocList(v) {
               var list = [];
@@ -528,7 +545,6 @@ export default {
             }
 
             _this.tocList = handleTocList(getToc.toc);
-            // console.log(_this.tocList,'_this.tocList')
             resolve(getToc.length);
           });
         } catch (e) {
