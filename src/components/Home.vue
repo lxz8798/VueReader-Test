@@ -48,7 +48,7 @@ export default {
 				url:'http://aqrv2.kingchannels.cn/files/encrypted/f35/76556149e2884f1fac736253b5eef121_0_907_encrypted.epub.txt.web.epub',
 				PackageBaseUrl:'http://aqrv2.kingchannels.cn/files/encrypted/f35/76556149e2884f1fac736253b5eef121_0_907_encrypted_epub',
 				realKey:'XE!#oJ9#Fp!FNcWO',
-				AllowReadPercentage:0.6
+				AllowReadPercentage:0.2
 			},
       selected: '书架'
     }
