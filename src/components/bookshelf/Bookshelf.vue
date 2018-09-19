@@ -312,7 +312,7 @@ export default {
       })
       
       _this.rendition.on("rendered", function(section) {        
-        console.log(section)
+        // console.log(section)
         let doc = document.querySelectorAll("iframe");
         for (let i = 0; i < doc.length; i++) {
           let imgs = doc[i].contentWindow.document.getElementsByTagName("body")[0].querySelectorAll("img");
@@ -506,15 +506,6 @@ export default {
         try {
           // 加载时的处理，添加目录
           _this.book.loaded.navigation.then(getToc => {
-            let ReadPercentage = sessionStorage.AllowReadPercentage,
-              total = getToc.length,
-              limit = Math.ceil(total * ReadPercentage);
-            if (!localStorage.limit) {
-              localStorage.limit = limit;
-            } else {
-              localStorage.removeItem("limit");
-              localStorage.limit = limit;
-            }
 
             // 处理目录
             function handleTocList(v) {
@@ -556,13 +547,11 @@ export default {
         _this.ifHiddenFlag = true;
         _this.ifMaskHidden = false;
         _this.RecommendationFlag = false;
-        liActive[key].style.color = '#2053e4'
         _this.rendition.display(id);
       } else {
         _this.ifHiddenFlag = true;
         _this.ifMaskHidden = false;
         _this.RecommendationFlag = true;
-        liActive[key].style.color = '#2053e4';
         _this.rendition.display(_this.totalPageNum);
       }
     },
@@ -1164,11 +1153,11 @@ div.epub-index-wrap {
       height: inherit;
     }
     div.c {
-      width: 30vw;
+      width: 50vw;
       height: 30vh;
       position: fixed;
       top:35%;
-      left:35%;
+      left:25%;
     }
     div.r {
       width: 35vw;
