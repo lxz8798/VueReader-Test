@@ -8341,7 +8341,7 @@ var IframeView = function () {
 			// Render Chain
 			return this.sectionRender.then(function (contents) {
 				// 使用正则替换img地址
-				contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi, '<img data-src=\"' + sessionStorage.PackageBaseUrl + '/$2?width=500.0&quality=100\" $1src="http://124.193.177.45:50695/epub/book-open.svg"')
+				contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi, '<img data-src=\"' + sessionStorage.PackageBaseUrl + '/$2?width=500.0&quality=100\" src="http://124.193.177.45:50695/epub/book-open.svg" $3>')
 				// contents = contents.replace(/<img([^>]+)src=\"[/]?([^"]+)\"([^>]*)>|<( *)img( *)[/>|>]/gi,'<img $1src=\"'+sessionStorage.PackageBaseUrl+'/$2?width=400.0&quality=100\" $3>')
 				return this.load(contents);
 			}.bind(this)).then(function () {
