@@ -58,7 +58,9 @@
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev($event)"></i></li>
         <li class="range">
-          <mt-range v-model="currPercentage"></mt-range>
+          <mt-range v-model="currPage">
+            <div slot="end">{{currPage}}</div>
+          </mt-range>
         </li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext($event)"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
@@ -144,7 +146,8 @@ export default {
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
       bgStyle: null,
-      currPercentage: 0,
+      currPage: 0,
+      currPercentage:0,
       totalPageNum:0,
       displayed: "",
       decryptAfterToU8: [],
@@ -168,9 +171,12 @@ export default {
     epubData: function(n, o) {
       console.log(n);
     },
-    currPercentage:function(e){
+    currPage:function(e){
+      console.log(e,'123123123')
       let _this = this;
-      _this.rendition.display(_this.currPercentage)
+      let cfi = _this.book.locations.cfiFromPercentage(_this.currPage/100);
+      // console.log(cfi)
+      _this.rendition.display(cfi)
     }
   },
   methods: {
@@ -302,13 +308,16 @@ export default {
      */
     listenSectionRenditions () {
       let _this = this
+
+      _this.displayed.then(() => {
+        let currentLocation = _this.rendition.currentLocation();
+        // let currentPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi)
+        _this.currPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi)
+      })
       
       _this.rendition.on("rendered", function(section) {        
-        _this.totalPageNum = localStorage.limit;
+        console.log(section)
         let doc = document.querySelectorAll("iframe");
-        let rangeThumb = document.querySelector('div.mt-range-thumb');
-        let rangeProgress = document.querySelector('div.mt-range-progress');
-        let ReadPercentage = sessionStorage.AllowReadPercentage;
 
         for (let i = 0; i < doc.length; i++) {
           let imgs = doc[i].contentWindow.document.getElementsByTagName("body")[0].querySelectorAll("img");
@@ -320,16 +329,30 @@ export default {
         if (section.output != undefined) {
           Indicator.close()
         }
-
-        // if (_this.currPercentage >= _this.totalPageNum && ReadPercentage != 1) {
-        if (section.index >= _this.totalPageNum && ReadPercentage != 1) {
-          rangeThumb.style.left = _this.totalPageNum + '%'
-          rangeProgress.style.width = _this.totalPageNum + '%'
-          _this.RecommendationFlag = true
-          _this.rendition.display(_this.totalPageNum);
-        } 
-
       });
+
+      _this.rendition.on('relocated', function(location){
+        let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
+        let percentage = Math.floor(percent * 100);        
+
+        _this.currPage = percentage
+
+        // 获得当前书籍的试读比例
+        let ReadPercentage = sessionStorage.AllowReadPercentage;
+        // 计算出比例
+        let limit = _this.book.locations.total * ReadPercentage
+        
+        _this.totalPageNum = limit + 3; 
+
+        if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
+          _this.RecommendationFlag = true
+          _this.rendition.display(0)
+          _this.displayed.then(e => {
+            e.preventDefault()
+          })
+          // _this.book.destroy()
+        } 
+      })
     },
     /**
      * 添加目录显示隐藏事件
@@ -362,7 +385,7 @@ export default {
         // 在ready里面获取cfi
         _this.book.ready.then(() => {
           // Load in stored locations from json or local storage
-          var key = _this.book.key()+'-locations';
+          var key = _this.book.key();
           var stored = localStorage.getItem(key);
 
           if (stored) {
@@ -376,16 +399,15 @@ export default {
         })
         // 通过locations保存cfi
         .then(locations => {
-          // console.log(_this.book.locations.save(),'通过key()拿到cfi')
-          localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
+          _this.listenSectionRenditions()
+
+          localStorage.setItem(_this.book.key(), _this.book.locations.save());
         })
 
-        _this.listenSectionRenditions()
-
         // 拿到precent
-        _this.rendition.on("relocated", function(locations) {
-          // _this.currPercentage = locations.start.cfi
-        });
+        // _this.rendition.on("relocated", function(locations) {
+          // _this.currPage = locations.start.cfi
+        // });
 
         _this.rendition.themes.default({
           "div > p": {
@@ -492,15 +514,6 @@ export default {
         try {
           // 加载时的处理，添加目录
           _this.book.loaded.navigation.then(getToc => {
-            let ReadPercentage = sessionStorage.AllowReadPercentage,
-              total = getToc.length,
-              limit = Math.ceil(total * ReadPercentage);
-            if (!localStorage.limit) {
-              localStorage.limit = limit;
-            } else {
-              localStorage.removeItem("limit");
-              localStorage.limit = limit;
-            }
 
             // 处理目录
             function handleTocList(v) {
@@ -534,7 +547,7 @@ export default {
     gotoDisplay(id, key) {
       let _this = this
       let ReadPercentage = sessionStorage.AllowReadPercentage;
-      let stored = _this.book.key()+'-locations';
+      let stored = _this.book.key();
       let cfi = JSON.parse(localStorage.getItem(stored));
       let liActive = document.querySelectorAll('.isLimitB');
       
@@ -542,7 +555,6 @@ export default {
         _this.ifHiddenFlag = true;
         _this.ifMaskHidden = false;
         _this.RecommendationFlag = false;
-        _this.listenSectionRenditions();
         liActive[key].style.color = '#2053e4'
         _this.rendition.display(id);
       } else {
@@ -550,7 +562,6 @@ export default {
         _this.ifMaskHidden = false;
         _this.RecommendationFlag = true;
         liActive[key].style.color = '#2053e4';
-        _this.listenSectionRenditions();
         _this.rendition.display(_this.totalPageNum);
       }
     },
@@ -564,7 +575,7 @@ export default {
         try {
           _this.HiddenFlag = false;
           _this.rendition.next().then(() => {
-            // _this.currPercentage = 0
+            // _this.currPage = 0
             e.preventDefault()
           })
           resolve();
@@ -991,7 +1002,7 @@ div.epub-index-wrap {
               right: -20px;
             }
             div.mt-range-progress {
-              background: #40474F;
+              background: #fb7124;
             }
             div.mt-range-thumb {
               position: absolute;
@@ -1000,6 +1011,7 @@ div.epub-index-wrap {
               height: 20px;
               border:1px solid rgba(0,0,0,.1);
               box-shadow: 1px 2px 3px rgba(0,0,0,.4);
+              display:none;
             }
           }
         }
@@ -1151,11 +1163,11 @@ div.epub-index-wrap {
       height: inherit;
     }
     div.c {
-      width: 30vw;
-      height: 30vh;
+      width: 50vw;
+      height: 50vh;
       position: fixed;
-      top:35%;
-      left:35%;
+      top:25%;
+      left:25%;
     }
     div.r {
       width: 35vw;
