@@ -44,7 +44,7 @@
       </div>
       <ul id="toc">
         <li v-for="(item,index) in tocList" :title="item.label" @click="gotoDisplay(item.href,index)" class="isLimitB">
-          {{item.label}}
+          <span>{{item.label}}</span>
         </li>
       </ul>
     </div>
@@ -139,6 +139,7 @@ export default {
       ifHiddenFlag: true,
       HiddenFlag: false,
       HAndFFlag: false,
+      liLock:false,
       bookTitle: "我的书架",
       seetingTitle: "字体大小",
       bgTitle: "背景色",
@@ -327,26 +328,27 @@ export default {
       });
       _this.rendition.on('relocated', function(location){
         let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
-        let percentage = Math.floor(percent * 100);        
+        let percentage = Math.floor(percent * 100);
+        console.log(_this.currPage,'_this.currPage') 
         _this.currPage = percentage
         // 获得当前书籍的试读比例
         let ReadPercentage = sessionStorage.AllowReadPercentage;
         // 计算出比例
         let limit = _this.book.locations.total * ReadPercentage + 3
-
+        console.log(_this.book.locations,'_this.book.locations.total')
         if (!localStorage.limit) {
           localStorage.limit = limit
         } else {
           localStorage.removeItem('limit')
           localStorage.limit = limit
         }
-        
+
         _this.totalPageNum = limit; 
         
         if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
           _this.RecommendationFlag = true
-          _this.rendition.display(0)
           
+          _this.rendition.display(0)
           // _this.book.destroy()
         } 
       })
@@ -518,7 +520,18 @@ export default {
             
             _this.$nextTick(() => {
               for (let i = 0; i < LiList.length; i++) {
+                let liLock = document.createElement('span')
+                
                 if (i >= limit) {
+
+                  let getSpan = LiList[i].getElementsByTagName('span')[1]
+                  
+                  if (!getSpan) {
+                    LiList[i].appendChild(liLock).innerHTML = '<img src="http://124.193.177.45:50695/epub/lock.svg" alt="">'
+                  } else {
+                    return
+                  }
+                  
                   LiList[i].style.color = "#cecece"
                 }
               }
@@ -1144,10 +1157,20 @@ div.epub-index-wrap {
         overflow: hidden;
         ul {
           width: inherit;
-        }
-        ul {
-          width: inherit;
           display: inline-block;
+        }
+      }
+      li {
+
+        span:nth-child(2) {
+          width: .2rem;
+          height: .1rem;
+          display:inline-block;
+          margin-left: .15rem;
+          img {
+            width: inherit;
+            height: initial;
+          }
         }
       }
       li:hover {
@@ -1169,11 +1192,11 @@ div.epub-index-wrap {
       height: inherit;
     }
     div.c {
-      width: 50vw;
-      height: 30vh;
+      width: 30vw;
+      height: 80vh;
       position: fixed;
-      top:35%;
-      left:25%;
+      top:10%;
+      left:35%;
     }
     div.r {
       width: 35vw;

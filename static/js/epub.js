@@ -12403,7 +12403,8 @@ var Packaging = function () {
 				tocId = spineNode.getAttribute("toc");
 				if (tocId) {
 					// node = manifestNode.querySelector("item[id='" + tocId + "']");
-					node = manifestNode.getElementById(tocId);
+					node = manifestNode.getElementsByTagName("item")[tocId] || manifestNode.getElementById(tocId)
+					
 				}
 			}
 
