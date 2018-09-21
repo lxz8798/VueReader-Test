@@ -27,9 +27,9 @@
     </div>
 
     <div id="touch-wrap">
-      <!-- <v-touch class="l" @tap="ePubPrev()" @swipeleft="ePubPrev()" @swiperight="ePubNext()"></v-touch> -->
+      <v-touch class="l" @tap="ePubPrev($event)" @swipeleft="ePubPrev($event)" @swiperight="ePubNext($event)"></v-touch>
       <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
-      <!-- <v-touch class="r" @tap="ePubNext()" @swipeleft="ePubNext()" @swiperight="ePubPrev()"></v-touch> -->
+      <v-touch class="r" @tap="ePubNext($event)" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)"></v-touch>
     </div>
 
     <div id="ePubArea"></div>
@@ -58,7 +58,9 @@
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev($event)"></i></li>
         <li class="range">
-          <mt-range v-model="currPage"></mt-range>
+          <mt-range v-model="currPage">
+            <div slot="end" class="currEndPage">{{currPage + '%'}}</div>
+          </mt-range>
         </li>
         <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext($event)"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()" ></i></li>
@@ -335,7 +337,7 @@ export default {
         let ReadPercentage = sessionStorage.AllowReadPercentage;
         // 计算出比例
         let limit = _this.book.locations.total * ReadPercentage + 3
-        console.log(_this.book.locations,'_this.book.locations.total')
+        
         if (!localStorage.limit) {
           localStorage.limit = limit
         } else {
@@ -347,9 +349,9 @@ export default {
         
         if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
           _this.RecommendationFlag = true
-          
-          _this.rendition.display(0)
-          // _this.book.destroy()
+          let temp = document.querySelector('iframe')
+          console.log(temp)
+          return false
         } 
       })
     },
@@ -367,10 +369,10 @@ export default {
 
         _this.rendition = _this.book.renderTo("ePubArea", {
           width: "100vw",
-          height: "100%",
-          flow: "scrolled-continuous",
+          height: "600",
+          flow: "scrolled",
           manager: "continuous",
-          spread: "always"
+          // spread: "always"
         });
 
         // 默认开启loading
@@ -423,23 +425,21 @@ export default {
           },
           h1: {
             "font-size": "22px",
-            "line-height": "100% !important;",
+            
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "text-indent": "0",
             "margin-top": "2rem !important"
           },
           h2: {
-            "font-size": "20px",
-            "line-height": "100% !important;",
+            "font-size": "20px",            
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "margin-top": "2rem !important",
             "text-indent": "0"
           },
           h3: {
-            "font-size": "18px",
-            "line-height": "100% !important;",
+            "font-size": "18px",            
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "margin-top": "2rem !important",
@@ -447,22 +447,22 @@ export default {
           },
           h4: {
             "margin-top": "0 !important",
-            "font-size": "16px",
+            "font-size": "16px",            
             color: "RGBA(234, 84, 4, 1)",
             "text-align": "left !important;",
             "text-indent": "0"
           },
           p: {
             "text-align": "left;",
-            "line-height": "2.5rem;",
+            "line-height": "1.8rem;",
             "text-indent": "0 !important;",
             "margin-top": "1.5rem !important;"
           },
           html:{
-            "margin-top": "1.5rem !important;"
+            
           },
           body:{
-            "padding":"0"
+            
           },
           div: {
             "line-height": "2.5rem !important;"
@@ -593,11 +593,7 @@ export default {
         let _this = this;
         try {
           _this.HiddenFlag = false;
-          _this.rendition.next().then(() => {
-            // _this.currPage = 0
-            e.preventDefault()
-          })
-          resolve();
+          _this.rendition.next()
         } catch (e) {
           console.log(e.message);
         }
@@ -612,9 +608,7 @@ export default {
       return new Promise((resolve, rejcet) => {
         try {
           _this.HiddenFlag = false;
-          _this.rendition.prev().then(() => {
-            e.preventDefault()
-          });
+          _this.rendition.prev();
           resolve();
         } catch (e) {
           console.log(e.message);
@@ -672,13 +666,16 @@ export default {
 }
 div#ePubArea {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   box-shadow: 0 0 4px #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  
   background: #f7f7f7;
+  div.epub-container {
+    
+  }
+  div.epub-view {
+    height: 100% !important;
+  }
 }
 // @media only screen
 //   and (min-device-width : 320px)
@@ -1014,6 +1011,13 @@ div.epub-index-wrap {
 
         div.mt-range {
           width: inherit;
+          div.currEndPage {
+            color:#fb7124;
+            font-size: 12px;
+            position: absolute;
+            top:40%;
+            left:48%;
+          }
           div.mt-range-content {
             width:inherit;
             margin-right:20px;
@@ -1182,7 +1186,7 @@ div.epub-index-wrap {
     position: fixed;
     top:0;
     left:0;
-    
+    height:100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1193,10 +1197,7 @@ div.epub-index-wrap {
     }
     div.c {
       width: 30vw;
-      height: 80vh;
-      position: fixed;
-      top:10%;
-      left:35%;
+      height:100%;
     }
     div.r {
       width: 35vw;
