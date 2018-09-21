@@ -174,10 +174,9 @@ export default {
       console.log(n);
     },
     currPage:function(e){
-      // console.log(e,'123123123')
       let _this = this;
       let cfi = _this.book.locations.cfiFromPercentage(_this.currPage/100);
-      // console.log(cfi)
+      console.log(cfi)
       _this.rendition.display(cfi)
     }
   },
@@ -335,25 +334,10 @@ export default {
             imgs[j].src = imgs[j].dataset.src;
           }
         }
-        
-        // try {
-        //   var getCfi = window.setInterval(() => {
-        //     getCfi = !localStorage.getItem(_this.book.key()) ? false : true
-        //     if (section.output != undefined && getCfi == true) {
-        //       Indicator.close()
-        //     } 
-        //   },1000)   
-        // } catch (e) {
-        //   throw e
-        // }
 
-        try {
-          if (section.output != undefined) {
-            Indicator.close()
-          } 
-        } catch (e) {
-          throw e
-        }
+        if (section.output != undefined) {
+          Indicator.close()
+        } 
         
         // 开始处理限制章节阅读，先进入页面的时候先拿到目录长度
         _this.book.loaded.navigation.then(toc => {
@@ -361,10 +345,10 @@ export default {
           let limit = toc.length * ReadPercentage
 
           if (!localStorage.limit) {
-            localStorage.limit = limit
+            localStorage.limit = Math.floor(limit + 4)
           } else {
             localStorage.removeItem('limit')
-            localStorage.limit = limit
+            localStorage.limit = Math.floor(limit + 4)
           }
         })
         // 获得限制比例
@@ -375,7 +359,7 @@ export default {
         let ReadPercentage = sessionStorage.AllowReadPercentage;
         // 对章节进行限制阅读并弹出窗口
         if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
-          _this.rendition.display(_this.currPageCfi)
+          // _this.rendition.display(_this.currPageCfi)
           _this.RecommendationFlag = true
         } 
       });
@@ -427,20 +411,13 @@ export default {
             // Or generate the locations on the fly
             // Can pass an option number of chars to break sections by
             // default is 150 chars
-            return _this.book.locations.generate(1600);
+            return _this.book.locations.generate();
           }
         })
         // 通过locations保存cfi
         .then(locations => {
           // console.log(_this.book.locations.save(),'通过key()拿到cfi')
           let storageCfi = _this.book.key()
-
-          if (!storageCfi) {
-            localStorage.setItem(storageCfi, _this.book.locations.save());
-          } else {
-            localStorage.removeItem(storageCfi)
-            localStorage.setItem(storageCfi, _this.book.locations.save());
-          }
         })
 
         _this.listenSectionRenditions()
@@ -487,6 +464,21 @@ export default {
             "text-align": "left !important;",
             "text-indent": "0"
           },
+          "div.contents1": {
+            "text-indent": "0",
+            "margin":"0",
+            "font-size": "20px", 
+          },
+          "div.contents2": {
+            "text-indent": "0",
+            "margin":"0",
+            "font-size": "20px", 
+          },
+          "div.contents3": {
+            "text-indent": "0",
+            "margin":"0",
+            "font-size": "20px", 
+          },
           p: {
             "text-align": "left;",
             "line-height": "1.8rem;",
@@ -521,7 +513,6 @@ export default {
         });
 
         _this.book.loaded.metadata.then(function(meta) {
-          console.log(meta,'meta')
           _this.bookTitle = meta.title;
         });
 
@@ -581,7 +572,7 @@ export default {
             // 处理目录
             function handleTocList(v) {
               var list = [];
-              function next(v) {
+              function nextToc(v) {
                 for (let i = 0; i < v.length; i++) {
                   list.push({
                     label: v[i].label,
@@ -590,11 +581,11 @@ export default {
                     length: v[i].subitems.length
                   });
                   if (v[i].subitems.length) {
-                    next(v[i].subitems);
+                    nextToc(v[i].subitems);
                   }
                 }
               }
-              next(v);
+              nextToc(v);
               return list;
             }
 
@@ -606,18 +597,18 @@ export default {
         }
       });
     },
-    gotoDisplay(id, key) {
+    gotoDisplay(href, key) {
       let _this = this
       let ReadPercentage = sessionStorage.AllowReadPercentage;
       let stored = _this.book.key();
       let cfi = JSON.parse(localStorage.getItem(stored));
       let liActive = document.querySelectorAll('.isLimitB');
-      
+      console.log(href)
       if (key <= _this.totalPageNum && ReadPercentage != 1) {
         _this.ifHiddenFlag = true;
         _this.ifMaskHidden = false;
         _this.RecommendationFlag = false;
-        _this.rendition.display(id);
+        _this.rendition.display(href);
       } else {
         _this.ifHiddenFlag = true;
         _this.ifMaskHidden = false;
@@ -634,7 +625,7 @@ export default {
         let _this = this;
         try {
           _this.HiddenFlag = false;
-          _this.rendition.next()
+          _this.rendition.next();
         } catch (e) {
           console.log(e.message);
         }
