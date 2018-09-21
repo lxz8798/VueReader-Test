@@ -148,6 +148,7 @@ export default {
       RecommendationTitle: "下载客户端,体验全书阅读",
       bgStyle: null,
       currPage: 0,
+      currPageCfi:'',
       totalPageNum:0,
       displayed: "",
       decryptAfterToU8: [],
@@ -308,14 +309,15 @@ export default {
      */
     listenSectionRenditions () {
       let _this = this
+
       _this.displayed.then(() => {
         let currentLocation = _this.rendition.currentLocation();
-        // let currentPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi)
+        console.log(currentLocation,'currentLocation')
         _this.currPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi)
       })
       
-      _this.rendition.on("rendered", function(section) {        
-        // console.log(section)
+      _this.rendition.on("rendered", function(section) {
+        
         let doc = document.querySelectorAll("iframe");
         for (let i = 0; i < doc.length; i++) {
           let imgs = doc[i].contentWindow.document.getElementsByTagName("body")[0].querySelectorAll("img");
@@ -327,32 +329,36 @@ export default {
         if (section.output != undefined) {
           Indicator.close()
         }
+
+        // 开始处理限制章节阅读，先进入页面的时候先拿到目录长度
+        _this.book.loaded.navigation.then(toc => {
+          // 计算出比例
+          let limit = toc.length * ReadPercentage
+
+          if (!localStorage.limit) {
+            localStorage.limit = limit
+          } else {
+            localStorage.removeItem('limit')
+            localStorage.limit = limit
+          }
+        })
+        // 获得限制比例
+        _this.totalPageNum = localStorage.limit; 
+        // 获得限制比例的cfi
+        _this.currPageCfi = _this.book.locations.cfiFromPercentage(_this.totalPageNum / 100)
+        // 获得当前书籍的试读比例
+        let ReadPercentage = sessionStorage.AllowReadPercentage;
+        // 对章节进行限制阅读并弹出窗口
+        if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
+          _this.rendition.display(_this.currPageCfi - 0.1)
+        } 
       });
+
       _this.rendition.on('relocated', function(location){
         let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
         let percentage = Math.floor(percent * 100);
-        console.log(_this.currPage,'_this.currPage') 
+        // 获得进得条的数值
         _this.currPage = percentage
-        // 获得当前书籍的试读比例
-        let ReadPercentage = sessionStorage.AllowReadPercentage;
-        // 计算出比例
-        let limit = _this.book.locations.total * ReadPercentage + 3
-        
-        if (!localStorage.limit) {
-          localStorage.limit = limit
-        } else {
-          localStorage.removeItem('limit')
-          localStorage.limit = limit
-        }
-
-        _this.totalPageNum = limit; 
-        
-        if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
-          _this.RecommendationFlag = true
-          let temp = document.querySelector('iframe')
-          console.log(temp)
-          return false
-        } 
       })
     },
     /**
@@ -386,7 +392,7 @@ export default {
         // 在ready里面获取cfi
         _this.book.ready.then(() => {
           // Load in stored locations from json or local storage
-          var key = _this.book.key()+'-locations';
+          var key = _this.book.key();
           var stored = localStorage.getItem(key);
 
           if (stored) {
@@ -401,15 +407,14 @@ export default {
         // 通过locations保存cfi
         .then(locations => {
           // console.log(_this.book.locations.save(),'通过key()拿到cfi')
-          localStorage.setItem(_this.book.key()+'-locations', _this.book.locations.save());
+          localStorage.setItem(_this.book.key(), _this.book.locations.save());
         })
 
         _this.listenSectionRenditions()
 
         // 拿到precent
-        _this.rendition.on("relocated", function(locations) {
-          // _this.currPage = locations.start.cfi
-        });
+        // _this.rendition.on("relocated", function(locations) {
+        // });
 
         _this.rendition.themes.default({
           "div > p": {
@@ -476,10 +481,6 @@ export default {
             height:"100% !important;"
           }
         });
-
-        // _this.rendition.on("layout", function(layout) {
-        //   console.log(layout, "layout");
-        // });
 
         _this.book.loaded.metadata.then(function(meta) {
           _this.bookTitle = meta.title;
