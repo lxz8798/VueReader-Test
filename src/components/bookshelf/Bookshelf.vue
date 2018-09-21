@@ -12,7 +12,7 @@
           <i class="iconfont epub-jiantou" @click="backGo()"></i>
         </li>
         <li class="bookTitle">{{bookTitle}}</li>
-        <li style="visibility: hidden; width:80px; border:1px solid red;"></li>
+        <li></li>
         <!-- 暂时隐藏 -->
         <!-- <li @click="searchEven()" :class="seatchEvenFlag ? 'searchAnimateA' : 'searchAnimateB'">
           <i class="iconfont epub-fangdajing"></i>
@@ -27,9 +27,9 @@
     </div>
 
     <div id="touch-wrap">
-      <v-touch class="l" @tap="ePubPrev($event)" @swipeleft="ePubPrev($event)" @swiperight="ePubNext($event)"></v-touch>
+      <v-touch class="l" @tap="ePubPrev($event)" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)"></v-touch>
       <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
-      <v-touch class="r" @tap="ePubNext($event)" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)"></v-touch>
+      <v-touch class="r" @tap="ePubNext($event)" @swiperight="ePubPrev($event)" @swipeleft="ePubNext($event)"></v-touch>
     </div>
 
     <div id="ePubArea"></div>
@@ -105,7 +105,7 @@
         <li class="title">
           {{RecommendationTitle}}
         </li>
-        <li class="RecommendationButton" @click="RecommendationFlag=false">确定</li>
+        <li class="RecommendationButton" @click="goPay()">确定</li>
       </ul>
     </div>
 
@@ -147,6 +147,7 @@ export default {
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
       bgStyle: null,
+      goPayUrl:'http://www.keledge.com/static/public/guidance.html',
       currPage: 0,
       currPageCfi:'',
       totalPageNum:0,
@@ -184,6 +185,14 @@ export default {
     
     backGo() {
       this.$router.back(-1);
+    },
+    goPay(){
+      let _this = this
+
+      if (_this.RecommendationFlag) {
+        _this.RecommendationFlag = false
+        window.location.href = _this.goPayUrl
+      }
     },
     setFont(num) {
       switch (num) {
@@ -308,17 +317,18 @@ export default {
      * 李啸竹
      */
     listenSectionRenditions () {
+
       let _this = this
 
       _this.displayed.then(() => {
         let currentLocation = _this.rendition.currentLocation();
-        console.log(currentLocation,'currentLocation')
         _this.currPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi)
       })
-      
+
       _this.rendition.on("rendered", function(section) {
         
         let doc = document.querySelectorAll("iframe");
+      
         for (let i = 0; i < doc.length; i++) {
           let imgs = doc[i].contentWindow.document.getElementsByTagName("body")[0].querySelectorAll("img");
           for (let j = 0; j < imgs.length; j++) {
@@ -326,10 +336,25 @@ export default {
           }
         }
         
-        if (section.output != undefined) {
-          Indicator.close()
-        }
+        // try {
+        //   var getCfi = window.setInterval(() => {
+        //     getCfi = !localStorage.getItem(_this.book.key()) ? false : true
+        //     if (section.output != undefined && getCfi == true) {
+        //       Indicator.close()
+        //     } 
+        //   },1000)   
+        // } catch (e) {
+        //   throw e
+        // }
 
+        try {
+          if (section.output != undefined) {
+            Indicator.close()
+          } 
+        } catch (e) {
+          throw e
+        }
+        
         // 开始处理限制章节阅读，先进入页面的时候先拿到目录长度
         _this.book.loaded.navigation.then(toc => {
           // 计算出比例
@@ -350,7 +375,8 @@ export default {
         let ReadPercentage = sessionStorage.AllowReadPercentage;
         // 对章节进行限制阅读并弹出窗口
         if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
-          _this.rendition.display(_this.currPageCfi - 0.1)
+          _this.rendition.display(_this.currPageCfi)
+          _this.RecommendationFlag = true
         } 
       });
 
@@ -374,10 +400,10 @@ export default {
         _this.book = new ePub(_epubUrl);
 
         _this.rendition = _this.book.renderTo("ePubArea", {
-          width: "100vw",
-          height: "600",
-          flow: "scrolled",
-          manager: "continuous",
+          width: window.innerwidth,
+          height: window.innerHeight
+          // flow: "scrolled",
+          // manager: "continuous",
           // spread: "always"
         });
 
@@ -407,7 +433,14 @@ export default {
         // 通过locations保存cfi
         .then(locations => {
           // console.log(_this.book.locations.save(),'通过key()拿到cfi')
-          localStorage.setItem(_this.book.key(), _this.book.locations.save());
+          let storageCfi = _this.book.key()
+
+          if (!storageCfi) {
+            localStorage.setItem(storageCfi, _this.book.locations.save());
+          } else {
+            localStorage.removeItem(storageCfi)
+            localStorage.setItem(storageCfi, _this.book.locations.save());
+          }
         })
 
         _this.listenSectionRenditions()
@@ -417,9 +450,6 @@ export default {
         // });
 
         _this.rendition.themes.default({
-          "div > p": {
-            "padding-bottom": "1rem"
-          },
           "div.center": {
             width: "100% !important",
             display: "flex !important",
@@ -467,22 +497,31 @@ export default {
             
           },
           body:{
-            
+            "text-indent": "0 !important;"
           },
           div: {
             "line-height": "2.5rem !important;"
+          },
+          "div.pic":{
+            
+          },
+          "div.cover":{
+            "width":"100%",
+            "display":"flex",
+            "justify-content":"center",
+            "align-items":"center"
           },
           a: {
             color: "RGBA(51, 51, 51, 1) !important;",
             "text-decoration": "none;"
           },
           img: {
-            width: "98% !important;",
-            height:"100% !important;"
+            'max-width': "98% !important;"
           }
         });
 
         _this.book.loaded.metadata.then(function(meta) {
+          console.log(meta,'meta')
           _this.bookTitle = meta.title;
         });
 
@@ -528,6 +567,7 @@ export default {
                   let getSpan = LiList[i].getElementsByTagName('span')[1]
                   
                   if (!getSpan) {
+                    
                     LiList[i].appendChild(liLock).innerHTML = '<img src="http://124.193.177.45:50695/epub/lock.svg" alt="">'
                   } else {
                     return
@@ -661,13 +701,20 @@ export default {
 <style lang="less">
 .mint-indicator {
   z-index: 70;
+  // width:100vw;
+  // height: 100vh;
+  // position: fixed;
+  // top: 0;
+  // left: 0;
+  // z-index: 60;
+  // background:rgba(0,0,0,.3);
   .mint-indicator-mask {
-    z-index: 70;
+    z-index:60;
   }
 }
 div#ePubArea {
   width: 100%;
-  height: 100%;
+
   box-shadow: 0 0 4px #ccc;
   
   background: #f7f7f7;
@@ -678,20 +725,6 @@ div#ePubArea {
     height: 100% !important;
   }
 }
-// @media only screen
-//   and (min-device-width : 320px)
-//   and (max-device-width : 667px) {
-//     #ePubArea {
-//       height: 96.5%;
-//     }
-//     #ePubArea iframe {
-//       pointer-events: none;
-//     }
-//     .arrow {
-//       position: inherit;
-//       display: none;
-//     }
-// }
 div.epub-index-wrap {
   div#Recommendation_wrap {
     width: 100vw;
@@ -806,21 +839,31 @@ div.epub-index-wrap {
     ul {
       position: relative;
       z-index: 70;
-      height: inherit;
+      height: 60px;
+      line-height: 60px;
       display: flex;
       flex-direction: row;
       justify-content: space-around;
       align-items: center;
       flex: 1;
       font-size: 25px;
+      li {
+        height: inherit;
+        line-height: inherit;
+      }
       li:nth-child(1) {
-        flex: 0.3;
+        flex: 0.1;
+        margin-left: 5px;
         i.iconfont {
           font-size: 20px;
         }
       }
-      li:nth-child(2).bookTitle {
+      li:nth-child(2).bookTitle { 
+        flex:0.8;
+        overflow: hidden;
         font-size: 18px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
       li.searchAnimateA {
         transform: translateX(-650%) !important;
@@ -833,8 +876,8 @@ div.epub-index-wrap {
         transform: translateX(0) !important;
         transition: all 0.3s ease-out;
       }
-      li:nth-child(4) {
-        padding-right: 0.3rem;
+      li:nth-child(3) {
+        flex: 0.2;
       }
     }
   }

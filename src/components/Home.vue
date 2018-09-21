@@ -45,9 +45,9 @@ export default {
     return {
 			epubDataFlag:false,
 			epubData:{
-				url:'http://aqrv2.kingchannels.cn/files/encrypted/f35/76556149e2884f1fac736253b5eef121_0_907_encrypted.epub.txt.web.epub',
-				PackageBaseUrl:'http://aqrv2.kingchannels.cn/files/encrypted/f35/76556149e2884f1fac736253b5eef121_0_907_encrypted_epub',
-				realKey:'XE!#oJ9#Fp!FNcWO',
+				url:'http://218.249.32.238/files/encrypted/2a1/3cc7eafe79734cb295cb52eabcb4735f_0_10980_encrypted.epub.txt.web.epub',
+				PackageBaseUrl:'http://218.249.32.238/files/encrypted/2a1/3cc7eafe79734cb295cb52eabcb4735f_0_10980_encrypted_epub',
+				realKey:'&(k$GEy4^(^2*(tX',
 				AllowReadPercentage:0.2
 			},
       selected: '书架'
