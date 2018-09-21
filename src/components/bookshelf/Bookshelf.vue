@@ -418,6 +418,13 @@ export default {
         .then(locations => {
           // console.log(_this.book.locations.save(),'通过key()拿到cfi')
           let storageCfi = _this.book.key()
+
+          if (!storageCfi) {
+            localStorage.setItem(storageCfi, _this.book.locations.save());
+          } else {
+            localStorage.removeItem(storageCfi)
+            localStorage.setItem(storageCfi, _this.book.locations.save());
+          }
         })
 
         _this.listenSectionRenditions()
@@ -588,7 +595,6 @@ export default {
               nextToc(v);
               return list;
             }
-
             _this.tocList = handleTocList(getToc.toc);
             resolve(getToc.length);
           });
