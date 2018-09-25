@@ -344,7 +344,7 @@ export default {
         for (let i = 0; i < _this.tocList.length; i++) {
           if (_this.currPage <= 100 && locationChanged.href == _this.tocList[_this.limit].href && sessionStorage.AllowReadPercentage != 1) {
            _this.RecommendationFlag = true
-           _this.preventDefault = true
+           _this.preventPaging = true
            _this.rendition.display(_this.tocList[_this.limit-1].href)
            return 
           }
@@ -590,9 +590,6 @@ export default {
 
       _this.ifHiddenFlag = true;
       _this.ifMaskHidden = false;
-
-      console.log(href,'文件名')
-      console.log(key,'文件key')
       if (key <= _this.limit - 1 && ReadPercentage != 1) {
         _this.preventPaging = false
         _this.rendition.display(href);
@@ -607,23 +604,17 @@ export default {
      * @author 李啸竹
      */
     ePubNext(e) {
-      return new Promise((resolve, rejcet) => {
-        let _this = this;
-        let ePubNextDom = document.querySelector('#ePubNext')
-        // let limit = sessionStorage.AllowReadPercentage * _this.book.navigation.length
+      let _this = this;
         try {
           _this.HiddenFlag = false;
           if(_this.preventPaging){
-            console.log('走这里')
-            e.preventDefault()
+            e.preventDefault();            
           } else {
-            console.log('123')
             _this.rendition.next()
           }
         } catch (e) {
           console.log(e.message);
         }
-      });
     },
     /**
      * 上一页
