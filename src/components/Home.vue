@@ -48,7 +48,7 @@ export default {
 				url:'http://218.249.32.238/files/encrypted/2a1/3cc7eafe79734cb295cb52eabcb4735f_0_10980_encrypted.epub.txt.web.epub',
 				PackageBaseUrl:'http://218.249.32.238/files/encrypted/2a1/3cc7eafe79734cb295cb52eabcb4735f_0_10980_encrypted_epub',
 				realKey:'&(k$GEy4^(^2*(tX',
-				AllowReadPercentage:0.2
+				AllowReadPercentage:0.1
 			},
       selected: '书架'
     }

@@ -322,9 +322,7 @@ export default {
       let _this = this
 
       _this.rendition.on("rendered", function(section) {
-        
         let doc = document.querySelectorAll("iframe");
-        // console.log(section,'section')
         for (let i = 0; i < doc.length; i++) {
           let imgs = doc[i].contentWindow.document.getElementsByTagName("body")[0].querySelectorAll("img");
           for (let j = 0; j < imgs.length; j++) {
@@ -335,38 +333,30 @@ export default {
         if (section.output != undefined) {
           Indicator.close()
         } 
-        
-        // _this.book.locations.generate().then(cfi => {
-        //   console.log(cfi,'1111')
-        // })
-        
-        // 获得限制比例
-        _this.limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage
-        // console.log(_this.limit,'limit')
-        // // 获得当前书籍的试读比例
-        let ReadPercentage = sessionStorage.AllowReadPercentage;
-        // // 对章节进行限制阅读并弹出窗口
-        console.log(_this.book.locations)
-        if (_this.currPage >= _this.limit - 4 && ReadPercentage != 1) {
-          // _this.rendition.display(_this.currPageCfi)
-          _this.RecommendationFlag = true
-          _this.preventPaging = true
-        } else {
-          _this.preventPaging = false
-        }
       });
 
-      _this.rendition.on('relocated', function(location){
-        let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
-        let percentage = Math.floor(percent * 100);
-        // let limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage
-        // console.log(_this.book.locations,'locations')
-        // console.log(location,'location')
-        // 获得进得条的数值
-        _this.currPage = percentage
-        // console.log(_this.currPage,'_this.currPage')
+      _this.rendition.on('locationChanged',function(locationChanged){
+        let nextClick = document.getElementById("ePubNext")
 
+        _this.currPage = Math.floor(locationChanged.percentage * 100)
+        _this.limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage;
+
+        for (let i = 0; i < _this.tocList.length; i++) {
+          if (_this.currPage <= 100 && locationChanged.href == _this.tocList[_this.limit].href && sessionStorage.AllowReadPercentage != 1) {
+           _this.RecommendationFlag = true
+           _this.preventDefault = true
+           _this.rendition.display(_this.tocList[_this.limit-1].href)
+           return 
+          }
+        }
       })
+      // _this.rendition.on('relocated', function(location){
+        // let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
+        // let percentage = Math.floor(percent * 100);
+        // // 获得进得条的数值
+        // _this.currPage = percentage
+
+      // })
     },
     /**
      * 添加目录显示隐藏事件
@@ -390,7 +380,7 @@ export default {
 
         // 默认开启loading
         Indicator.open({
-          text: "Loading",
+          text: "Loading", 
           spinnerType: "fading-circle"
         });
         
@@ -520,7 +510,7 @@ export default {
         // resolve();
       });
     },
-    async ifClickHidden() {
+    ifClickHidden() {
       let _ePubPrev, _ePubNext;
 
       _ePubNext = document.getElementById("ePubNext");
@@ -534,7 +524,7 @@ export default {
         this.ifMaskHidden = false;
       }
 
-      await this.readyReader();
+      this.readyReader();
     },
     readyReader() {
       let _this = this;
@@ -624,8 +614,10 @@ export default {
         try {
           _this.HiddenFlag = false;
           if(_this.preventPaging){
+            console.log('走这里')
             e.preventDefault()
           } else {
+            console.log('123')
             _this.rendition.next()
           }
         } catch (e) {
