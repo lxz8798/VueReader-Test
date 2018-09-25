@@ -27,9 +27,9 @@
     </div>
 
     <div id="touch-wrap">
-      <v-touch class="l" @tap="ePubPrev($event)" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)"></v-touch>
+      <v-touch id="ePubPrev" class="l" @tap="ePubPrev($event)" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)"></v-touch>
       <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
-      <v-touch class="r" @tap="ePubNext($event)" @swiperight="ePubPrev($event)" @swipeleft="ePubNext($event)"></v-touch>
+      <v-touch id="ePubNext" class="r" @tap="ePubNext($event)" @swiperight="ePubPrev($event)" @swipeleft="ePubNext($event)"></v-touch>
     </div>
 
     <div id="ePubArea"></div>
@@ -43,7 +43,7 @@
         <!-- <span>历史</span> -->
       </div>
       <ul id="toc">
-        <li v-for="(item,index) in tocList" :title="item.label" @click="gotoDisplay(item.href,index)" class="isLimitB">
+        <li v-for="(item,index) in tocList" :title="item.label" @click="gotoDisplay($event,item.href,index)" class="isLimitB">
           <span>{{item.label}}</span>
         </li>
       </ul>
@@ -97,7 +97,7 @@
          v-if="ifMaskHidden">
     </div>
 
-    <div id="Recommendation_wrap" v-if="RecommendationFlag">
+    <div id="Recommendation_wrap" v-if="RecommendationFlag" @click="RecommendationFlag = false">
       <ul>
         <li class="rqcode">
           <slot name="RecommendQRCode"><img src="http://124.193.177.45:50695/kezhiRQcode.jpg" alt="二维码地址"></slot>
@@ -142,15 +142,16 @@ export default {
       HiddenFlag: false,
       HAndFFlag: false,
       liLock:false,
+      preventPaging:false,
       bookTitle: "我的书架",
       seetingTitle: "字体大小",
       bgTitle: "背景色",
       RecommendationTitle: "下载客户端,体验全书阅读",
       bgStyle: null,
       goPayUrl:'http://www.keledge.com/static/public/guidance.html',
+      limit:0,
       currPage: 0,
       currPageCfi:'',
-      totalPageNum:0,
       displayed: "",
       decryptAfterToU8: [],
       epubText: "",
@@ -175,9 +176,10 @@ export default {
     },
     currPage:function(e){
       let _this = this;
-      let cfi = _this.book.locations.cfiFromPercentage(_this.currPage/100);
-      console.log(cfi)
-      _this.rendition.display(cfi)
+      // let cfi = _this.book.locations.cfiFromPercentage(_this.currPage / 100);
+      // let cfi = _this.book.locations.percentageFromCfi(_this.currPage / 100);
+      // console.log(cfi)
+      // _this.rendition.display(cfi)
     }
   },
   methods: {
@@ -319,56 +321,51 @@ export default {
 
       let _this = this
 
-      _this.displayed.then(() => {
-        let currentLocation = _this.rendition.currentLocation();
-        _this.currPage = _this.book.locations.percentageFromCfi(currentLocation.start.cfi)
-      })
-
       _this.rendition.on("rendered", function(section) {
         
         let doc = document.querySelectorAll("iframe");
-      
+        // console.log(section,'section')
         for (let i = 0; i < doc.length; i++) {
           let imgs = doc[i].contentWindow.document.getElementsByTagName("body")[0].querySelectorAll("img");
           for (let j = 0; j < imgs.length; j++) {
             imgs[j].src = imgs[j].dataset.src;
           }
         }
-
+      
         if (section.output != undefined) {
           Indicator.close()
         } 
         
-        // 开始处理限制章节阅读，先进入页面的时候先拿到目录长度
-        _this.book.loaded.navigation.then(toc => {
-          // 计算出比例
-          let limit = toc.length * ReadPercentage
-
-          if (!localStorage.limit) {
-            localStorage.limit = Math.floor(limit + 4)
-          } else {
-            localStorage.removeItem('limit')
-            localStorage.limit = Math.floor(limit + 4)
-          }
-        })
+        // _this.book.locations.generate().then(cfi => {
+        //   console.log(cfi,'1111')
+        // })
+        
         // 获得限制比例
-        _this.totalPageNum = localStorage.limit; 
-        // 获得限制比例的cfi
-        _this.currPageCfi = _this.book.locations.cfiFromPercentage(_this.totalPageNum / 100)
-        // 获得当前书籍的试读比例
+        _this.limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage
+        // console.log(_this.limit,'limit')
+        // // 获得当前书籍的试读比例
         let ReadPercentage = sessionStorage.AllowReadPercentage;
-        // 对章节进行限制阅读并弹出窗口
-        if (_this.currPage >= _this.totalPageNum && ReadPercentage != 1) {
+        // // 对章节进行限制阅读并弹出窗口
+        console.log(_this.book.locations)
+        if (_this.currPage >= _this.limit - 4 && ReadPercentage != 1) {
           // _this.rendition.display(_this.currPageCfi)
           _this.RecommendationFlag = true
-        } 
+          _this.preventPaging = true
+        } else {
+          _this.preventPaging = false
+        }
       });
 
       _this.rendition.on('relocated', function(location){
         let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
         let percentage = Math.floor(percent * 100);
+        // let limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage
+        // console.log(_this.book.locations,'locations')
+        // console.log(location,'location')
         // 获得进得条的数值
         _this.currPage = percentage
+        // console.log(_this.currPage,'_this.currPage')
+
       })
     },
     /**
@@ -401,37 +398,31 @@ export default {
 
         // 在ready里面获取cfi
         _this.book.ready.then(() => {
+          return _this.book.locations.generate();
           // Load in stored locations from json or local storage
-          var key = _this.book.key();
-          var stored = localStorage.getItem(key);
+          // var key = _this.book.key();
+          // var stored = localStorage.getItem(key);
 
-          if (stored) {
-            return _this.book.locations.load(stored);
-          } else {
-            // Or generate the locations on the fly
-            // Can pass an option number of chars to break sections by
-            // default is 150 chars
-            return _this.book.locations.generate();
-          }
+          // if (stored) {
+          //   return _this.book.locations.load(stored);
+          // } else {
+          //   return _this.book.locations.generate();
+          // }
         })
         // 通过locations保存cfi
         .then(locations => {
           // console.log(_this.book.locations.save(),'通过key()拿到cfi')
-          let storageCfi = _this.book.key()
+          // let storageCfi = _this.book.key()
 
-          if (!storageCfi) {
-            localStorage.setItem(storageCfi, _this.book.locations.save());
-          } else {
-            localStorage.removeItem(storageCfi)
-            localStorage.setItem(storageCfi, _this.book.locations.save());
-          }
+          // if (!storageCfi) {
+          //   localStorage.setItem(storageCfi, _this.book.locations.save());
+          // } else {
+          //   localStorage.removeItem(storageCfi)
+          //   localStorage.setItem(storageCfi, _this.book.locations.save());
+          // }
         })
 
         _this.listenSectionRenditions()
-
-        // 拿到precent
-        // _this.rendition.on("relocated", function(locations) {
-        // });
 
         _this.rendition.themes.default({
           "div.center": {
@@ -552,15 +543,14 @@ export default {
         try {
           // 加载时的处理，添加目录
           _this.book.loaded.navigation.then(getToc => {
-            let limit = localStorage.limit
             let tocUl = document.getElementById('toc')
             let LiList = tocUl.getElementsByTagName('li')
-            
+            _this.limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage
             _this.$nextTick(() => {
               for (let i = 0; i < LiList.length; i++) {
                 let liLock = document.createElement('span')
                 
-                if (i >= limit) {
+                if (i >= _this.limit) {
 
                   let getSpan = LiList[i].getElementsByTagName('span')[1]
                   
@@ -603,23 +593,23 @@ export default {
         }
       });
     },
-    gotoDisplay(href, key) {
+    gotoDisplay(e,href, key) {
       let _this = this
       let ReadPercentage = sessionStorage.AllowReadPercentage;
-      let stored = _this.book.key();
-      let cfi = JSON.parse(localStorage.getItem(stored));
       let liActive = document.querySelectorAll('.isLimitB');
-      console.log(href)
-      if (key <= _this.totalPageNum && ReadPercentage != 1) {
-        _this.ifHiddenFlag = true;
-        _this.ifMaskHidden = false;
-        _this.RecommendationFlag = false;
+
+      _this.ifHiddenFlag = true;
+      _this.ifMaskHidden = false;
+
+      console.log(href,'文件名')
+      console.log(key,'文件key')
+      if (key <= _this.limit - 1 && ReadPercentage != 1) {
+        _this.preventPaging = false
         _this.rendition.display(href);
       } else {
-        _this.ifHiddenFlag = true;
-        _this.ifMaskHidden = false;
-        _this.RecommendationFlag = true;
-        _this.rendition.display(_this.totalPageNum);
+        _this.RecommendationFlag = true
+        _this.preventPaging = true
+        e.preventDefault()
       }
     },
     /**
@@ -629,9 +619,15 @@ export default {
     ePubNext(e) {
       return new Promise((resolve, rejcet) => {
         let _this = this;
+        let ePubNextDom = document.querySelector('#ePubNext')
+        // let limit = sessionStorage.AllowReadPercentage * _this.book.navigation.length
         try {
           _this.HiddenFlag = false;
-          _this.rendition.next();
+          if(_this.preventPaging){
+            e.preventDefault()
+          } else {
+            _this.rendition.next()
+          }
         } catch (e) {
           console.log(e.message);
         }
@@ -646,6 +642,7 @@ export default {
       return new Promise((resolve, rejcet) => {
         try {
           _this.HiddenFlag = false;
+          _this.preventPaging = false;
           _this.rendition.prev();
           resolve();
         } catch (e) {
