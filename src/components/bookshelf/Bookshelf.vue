@@ -336,11 +336,16 @@ export default {
       });
 
       _this.rendition.on('locationChanged',function(locationChanged){
+        
         let nextClick = document.getElementById("ePubNext")
 
-        _this.currPage = Math.floor(locationChanged.percentage * 100)
-        _this.limit = _this.book.navigation.length * sessionStorage.AllowReadPercentage;
-
+        _this.currPage = Math.floor(locationChanged.percentage * 100);
+        _this.limit = Math.floor(_this.book.navigation.length * sessionStorage.AllowReadPercentage);
+        
+        // console.log(_this.limit,'_this.limit')
+        // console.log(_this.tocList,'_this.tocList')
+        // console.log(_this.tocList[_this.limit-1].href,'_this.tocList[_this.limit-1].href')
+        
         for (let i = 0; i < _this.tocList.length; i++) {
           if (_this.currPage <= 100 && locationChanged.href == _this.tocList[_this.limit].href && sessionStorage.AllowReadPercentage != 1) {
            _this.RecommendationFlag = true
@@ -388,6 +393,7 @@ export default {
 
         // 在ready里面获取cfi
         _this.book.ready.then(() => {
+          _this.readyReader();
           return _this.book.locations.generate();
           // Load in stored locations from json or local storage
           // var key = _this.book.key();
@@ -540,7 +546,7 @@ export default {
               for (let i = 0; i < LiList.length; i++) {
                 let liLock = document.createElement('span')
                 
-                if (i >= _this.limit) {
+                if (i >= _this.limit - 1) {
 
                   let getSpan = LiList[i].getElementsByTagName('span')[1]
                   
