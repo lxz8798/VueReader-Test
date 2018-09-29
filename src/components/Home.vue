@@ -3,7 +3,7 @@
 		<mt-tab-container v-model="selected" :swipeable="false" :value="selected">
 			<mt-tab-container-item id="书架">
 				<!-- <mt-header fixed :title="selected" class="book_shelf_header"></mt-header> -->
-				<Bookshelf class="tab-container" :epub-data="epubData" v-if="epubDataFlag ? false : true"></Bookshelf>
+				<Bookshelf class="tab-container" :epub-data="epubData"></Bookshelf>
 				<!-- <epub></epub> -->
 			</mt-tab-container-item>
 		</mt-tab-container>
@@ -45,9 +45,9 @@ export default {
     return {
 			epubDataFlag:false,
 			epubData:{
-				url:'http://218.249.32.238/files/encrypted/1ec/06c664d19e824d938bdb4b47a5fa3773_0_10694_encrypted.epub.txt.web.epub',
-				PackageBaseUrl:'http://218.249.32.238/files/encrypted/1ec/06c664d19e824d938bdb4b47a5fa3773_0_10694_encrypted_epub',
-				realKey:'FVzcea1prATKE!pi',
+				url:'http://218.249.32.238/files/encrypted/194/51381d9578474282bfd46f089195d0c3_0_1095902_encrypted.epub.txt.web.epub',
+				PackageBaseUrl:'http://218.249.32.238/files/encrypted/194/51381d9578474282bfd46f089195d0c3_0_1095902_encrypted_epub',
+				realKey:'mJ74PAn(fN$9mqZ)',
 				AllowReadPercentage:0.1
 			},
       selected: '书架'
