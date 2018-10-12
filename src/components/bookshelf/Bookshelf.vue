@@ -690,7 +690,7 @@ export default {
                 if (_this.preventPaging) {
                     _this.RecommendationFlag = true
                     setTimeout(() => {
-                        this.hideMencFlag = true
+                        _this.hideMencFlag = true
                     }, 500);
                 } else {
                     _this.rendition.next()

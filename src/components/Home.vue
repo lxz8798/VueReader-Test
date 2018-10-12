@@ -45,9 +45,9 @@ export default {
     return {
 			epubDataFlag:false,
 			epubData:{
-				url:'http://218.249.32.238/files/encrypted/194/51381d9578474282bfd46f089195d0c3_0_1095902_encrypted.epub.txt.web.epub',
-				PackageBaseUrl:'http://218.249.32.238/files/encrypted/194/51381d9578474282bfd46f089195d0c3_0_1095902_encrypted_epub',
-				realKey:'mJ74PAn(fN$9mqZ)',
+				url:'http://218.249.32.238/files/encrypted/30f/61d657a6dc0b46078d62f71abcdaabf7_0_29912_encrypted.epub.txt.web.epub',
+				PackageBaseUrl:'http://218.249.32.238/files/encrypted/30f/61d657a6dc0b46078d62f71abcdaabf7_0_29912_encrypted_epub',
+				realKey:'@EH4nA4_0i$Tdz(0',
 				AllowReadPercentage:0.1
 			},
       selected: '书架'
