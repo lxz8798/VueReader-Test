@@ -6,6 +6,12 @@
     </div> -->
 
     <!-- <mt-header fixed :title="selected" id="my_header"></mt-header> -->
+    <!-- 书籍引导操作 -->
+    <div class='guide-box' v-if="showGuideBox" @click="closeGuideBox">
+        <div class='guide-l'><img class='mb3' src="../../assets/guide/hander_click_left.png" alt="">点击、滑动此区域，上翻一页</div>
+        <div class='guide-c'><img src="../../assets/guide/hander_click.png" alt="">　　点击此区域，唤醒菜单栏</div>
+        <div class='guide-r'><img class='mb3' src="../../assets/guide/hander_click_right.png" alt="">点击、滑动此区域，下翻一页</div>
+    </div>
     <div class="header_wrap" :class="HAndFFlag ? 'headerHiddenB' : 'headerHiddenA'">
       <ul>
         <li>
@@ -25,12 +31,12 @@
       </span>
     </div>
 
-    <div id="touch-wrap">
-      <v-touch id="ePubPrev" class="l" @tap="ePubPrev($event)" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)"></v-touch>
+    <v-touch id="touch-wrap" @swipeleft="ePubNext($event)" @swiperight="ePubPrev($event)">
+      <v-touch id="ePubPrev" class="l" @tap="ePubPrev($event)"></v-touch>
       <v-touch class="c" id="touch-center" @tap="topHidden()"></v-touch>
-      <v-touch id="ePubNext" class="r" @tap="ePubNext($event)" @swiperight="ePubPrev($event)" @swipeleft="ePubNext($event)"></v-touch>
-    </div>
-
+      <v-touch id="ePubNext" class="r" @tap="ePubNext($event)"></v-touch>
+    </v-touch>
+    <div class='chapter-name'>{{chapterName}}</div>
     <div id="ePubArea"></div>
 
     <!-- <div id="curr_page_number" v-model="currentSectionIndex">{{currentSectionIndex}}</div> -->
@@ -41,8 +47,11 @@
         <!-- <span>历史</span> -->
       </div>
       <ul id="toc">
-        <li v-for="(item,index) in tocList" :key="index" :title="item.label" @click="gotoDisplay($event,item.href,index)" class="isLimitB">
-          <span>{{item.label}}</span>
+          <!-- 点击高亮目录 -->
+        <!-- <li v-for="(item,index) in sectionLibList" :key="index" :class="{'readable':!item.sign? true:false,'selected':index == 0}" @click="gotoDisplay($event,item)" class="isLimitB toc-item"> -->
+        <li v-for="(item,index) in sectionLibList" :key="index" :class="{'readable':!item.sign? true:false}" @click="gotoDisplay($event,item)" class="isLimitB toc-item">
+            <!--  :title="item.label" -->
+          <span>{{item.Title}}</span>
         </li>
       </ul>
     </div>
@@ -54,13 +63,14 @@
       </div> -->
       <ul>
         <li><i class="iconfont epub-sort" @click="ifClickHidden()"></i></li>
-        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev($event)"></i></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubPrev($event,false)"></i></li>
         <li class="range">
           <mt-range v-model="currPage">
-            <div slot="end" class="currEndPage">{{currPage + '%'}}</div>
+            <div v-if="currPageFlag" slot="end" class="currEndPage">{{currPage + '%'}}</div>
+            <div v-if="!currPageFlag" slot="end" class="currEndPage"><span></span></div>
           </mt-range>
         </li>
-        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext($event)"></i></li>
+        <li><i class="iconfont epub-sanjiaojiantoushang" @click="ePubNext($event,false)"></i></li>
         <li><i class="iconfont epub-shezhi" @click="setBGFun()"></i></li>
         <li class="setting_wrap"></li>
       </ul>
@@ -78,12 +88,12 @@
       </div>
       <div class="bg_set">
         <ul>
-          <li>{{bgTitle}}</li>
-          <li @click="setBG(1)"></li>
-          <li @click="setBG(2)"></li>
-          <li @click="setBG(3)"></li>
-          <li @click="setBG(4)"></li>
-          <li @click="setBG(5)">
+          <li class='bg-item'>{{bgTitle}}</li>
+          <li @click="setBG(1)" class='bg-item selected'></li>
+          <li @click="setBG(2)" class='bg-item'></li>
+          <li @click="setBG(3)" class='bg-item'></li>
+          <li @click="setBG(4)" class='bg-item'></li>
+          <li @click="setBG(5)" class='bg-item'>
             <i class="iconfont epub-moonbyueliang"></i>
           </li>
         </ul>
@@ -92,18 +102,19 @@
 
     <div id="mask_wrap" @click="ifClickHidden()" v-if="ifMaskHidden">
     </div>
-
-    <div id="Recommendation_wrap" v-if="RecommendationFlag" @click="hideMenc()">
+    <!-- 暂时隐藏比例弹窗 -->
+    <!-- <div id="Recommendation_wrap" v-if="RecommendationFlag">
       <ul>
         <li class="rqcode">
-          <slot name="RecommendQRCode"><img src="http://124.193.177.45:50695/kezhiRQcode.jpg" alt="二维码地址"></slot>
+          <slot name="RecommendQRCode"><img class='code-img' src="http://124.193.177.45:50695/kezhiRQcode.jpg" alt="二维码地址"></slot>
+          <span class="close-rqcode" @click="hideMenc()"><img class="close-rqcode" src="../../assets/guide/close.png" @click="hideMenc()" alt=""/></span>
         </li>
         <li class="title">
           {{RecommendationTitle}}
         </li>
         <li class="RecommendationButton" @click="goPay()">确定</li>
       </ul>
-    </div>
+    </div> -->
 
   </div>
 </template>
@@ -147,6 +158,7 @@ export default {
             goPayUrl: 'http://www.keledge.com/static/public/guidance.html',
             limit: 0,
             currPage: 0,
+            currPageFlag:false,
             currPageCfi: '',
             displayed: '',
             decryptAfterToU8: [],
@@ -154,10 +166,28 @@ export default {
             count: 18,
             defaultFont: 18,
 
-            hideMencFlag: false
+            hideMencFlag: false,
+
+            isprobation: false,
+            allParentIndex: 0,
+            allreadableIndex: 0,
+            allreadableArr: [],
+            cparentIndex: 0,
+            childrenIndex: 0,
+            tocList: [],
+            suffix:'',
+            sectionLibList:[],
+            isHtml:false,
+            hrefHeader:'',
+            canRead: true,
+            canClickNext: false,
+            showGuideBox: sessionStorage.showGuideBox=='yes'?false:true,
+            startTime: 0,
+            currHref: null, //存贮当前页对应的目录，做高亮显示,
+            chapterName: null
         }
     },
-    async created() {
+    async mounted() {
         await this.getEpub()
         await this.openEpub()
         await this.listenSectionRenditions()
@@ -180,8 +210,85 @@ export default {
             // _this.rendition.display(cfi)
         }
     },
+    destroyed() {
+        sessionStorage.removeItem("cPage")
+    },
     methods: {
+        // 计算试读比例+++++++++++++++++++++++++++++++++++++++++++++++
+        readableNum(data) {
+            var indexNum = null,otherData,computeData,readableData,onReadableData,flag = true
+            data.forEach((item, index) => {
+                if (item.href.indexOf('toc') > -1 && flag) {
+                    flag = false
+                    indexNum = index
+                }
+            })
+            if (!indexNum) {
+                data.forEach((item, index) => {
+                    if (item.subitems.length && flag) {
+                        flag = false
+                        indexNum = index
+                    }
+                })
+            }
+            // 除去开头前言目录等  不加入试读比例计算
+            otherData = this.setCatalogue(data.slice(0, indexNum), true)
+            // 除去开头前言目录等 得到新数据
+            computeData = data.slice(indexNum, data.length)
+            readableData = this.setCatalogue(computeData.slice(0,Math.ceil(computeData.length * this.epubData.AllowReadPercentage)),true)
+            readableData.forEach(item => {
+                this.allreadableArr.push(item.href.split('#')[0])
+            })
+            this.allreadableIndex = indexNum + this.unique(this.allreadableArr).length - 1
+            onReadableData = this.setCatalogue(
+                computeData.slice(
+                    Math.ceil(computeData.length * this.epubData.AllowReadPercentage),
+                    computeData.length
+                ),
+                false
+            )
+            this.sectionLibList = otherData.concat(readableData, onReadableData)
+        },
+        // 递归处理目录
+        setCatalogue(val, sign) {
+            let flag = 0,
+                List = [],
+                _this = this
+            function next(val, flag, sign) {
+                for (let i = 0; i < val.length; i++) {
+                    if(val[i].label.replace(/\s+/g, '')!=""){
+                      List.push({
+                          Title: val[i].label,
+                          href: val[i].href,
+                          id: val[i].id,
+                          length: flag ? flag : 0,
+                          sign: sign
+                      })
+                    }
+                    // console.log(_this.epub.spine.get(val[i].href))
+                    if (val[i].subitems.length) {
+                        next(val[i].subitems, flag + 1, sign)
+                    }
+                }
+            }
+            next(val, flag, sign)
+            return List
+        },
+        // 数组去重
+        unique(arr) {
+            var res = []
+            var json = {}
+            for (var i = 0; i < arr.length; i++) {
+                if (!json[arr[i]]) {
+                    res.push(arr[i])
+                    json[arr[i]] = 1
+                }
+            }
+            return res
+        },
+        // ++++++++++++++++++++++++++++++++++++++++++++++
         hideMenc(){
+            console.log();
             if(this.hideMencFlag){
                 this.RecommendationFlag = false
                 this.hideMencFlag = false
@@ -315,6 +422,7 @@ export default {
                                 sessionStorage.AllowReadPercentage =
                                     _this.epubData.AllowReadPercentage
                             }
+                            sessionStorage.defaultBaseUrl = '/static/img/book-open.svg'
                             resolve(_this.epubData)
                         }
                     } catch (error) {
@@ -367,34 +475,64 @@ export default {
                 }
             })
 
-            _this.rendition.on('locationChanged', function(locationChanged) {
-                console.log(locationChanged)
-                let nextClick = document.getElementById('ePubNext')
-
-                _this.currPage = Math.floor(locationChanged.percentage * 100)
-                _this.limit = Math.floor(
-                    _this.book.navigation.length * sessionStorage.AllowReadPercentage
-                )
-
-                // console.log(_this.limit,'_this.limit')
-                // console.log(_this.tocList,'_this.tocList')
-                // console.log(_this.tocList[_this.limit-1].href.split('#')[0],'_this.tocList[_this.limit-1].href')
-
-                for (let i = 0; i < _this.tocList.length; i++) {
-                    if (
-                        _this.currPage <= 100 &&
-                        locationChanged.href == _this.tocList[_this.limit].href.split('#')[0] &&
-                        sessionStorage.AllowReadPercentage != 1
-                    ) {
-                        _this.RecommendationFlag = true
-                        _this.hideMencFlag = true
-                        _this.preventPaging = true
-
-                        // _this.rendition.prev()
-                        return
+            this.rendition.on('locationChanged', res => {
+                console.log(res,'res==');
+                // this.currHref = res.id;
+                let href = res.href;
+                this.canClickNext = true;
+                //兼容部分资源href不一样 只有一个 /  res.href
+                if(res.href.indexOf("/")>-1 && !this.hrefHeader){
+                    this.hrefHeader = res.href.split('/')[0] + '/'
+                }
+                if (res.index > this.allreadableIndex && this.isprobation) {
+                    _this.RecommendationFlag = true
+                    _this.hideMencFlag = true
+                    _this.preventPaging = true
+                    _this.canRead = false;
+                    return 
+                }else{
+                    _this.canRead = true;
+                }
+                this.cparentIndex = res.index
+                sessionStorage.setItem('cPage', JSON.stringify(res))
+                _this.currPage = Math.floor(res.percentage * 100)
+                // 通过监听locationChange，获取当章节名称
+                for(let i=0;i<this.sectionLibList.length;i++){
+                    if(this.sectionLibList[i].href.indexOf(href)!=-1){
+                        this.chapterName = this.sectionLibList[i].Title
+                        return false;
                     }
                 }
             })
+
+
+
+            // _this.rendition.on('locationChanged', function(locationChanged) {
+            //     console.log(locationChanged,_this.limit)
+               
+            //     let nextClick = document.getElementById('ePubNext')
+            //     _this.currPage = Math.floor(locationChanged.percentage * 100)
+            //     _this.limit = Math.floor(
+            //         _this.book.navigation.length * sessionStorage.AllowReadPercentage
+            //     )
+            //     // console.log(_this.limit,'_this.limit')
+            //     // console.log(_this.tocList,'_this.tocList')
+            //     // console.log(_this.tocList[_this.limit-1].href.split('#')[0],'_this.tocList[_this.limit-1].href')
+            //     for (let i = 0; i < _this.tocList.length; i++) {
+            //         if (
+            //             _this.currPage <= 100 &&
+            //             locationChanged.href == _this.tocList[_this.limit].href.split('#')[0] &&
+            //             sessionStorage.AllowReadPercentage != 1
+            //         ) {
+            //             _this.RecommendationFlag = true
+            //             _this.hideMencFlag = true
+            //             _this.preventPaging = true
+            //             // _this.rendition.prev()
+            //             return
+            //         }
+            //     }
+            //     sessionStorage.setItem("cPage",JSON.stringify(locationChanged))
+            // })
             // _this.rendition.on('relocated', function(location){
             // let percent = _this.book.locations.percentageFromCfi(location.start.cfi);
             // let percentage = Math.floor(percent * 100);
@@ -408,6 +546,9 @@ export default {
          * 李啸竹
          */
         openEpub() {
+            let cPage = sessionStorage.getItem('cPage')
+                ? JSON.parse(sessionStorage.getItem('cPage'))
+                : {}
             let _this = this
             return new Promise((resolve, reject) => {
                 var _epubUrl = sessionStorage.resourceUrl
@@ -415,7 +556,7 @@ export default {
 
                 _this.rendition = _this.book.renderTo('ePubArea', {
                     width: window.innerwidth,
-                    height: window.innerHeight
+                    height: window.innerHeight - 26
                     // flow: "scrolled",
                     // manager: "continuous",
                     // spread: "always"
@@ -431,34 +572,57 @@ export default {
 
                 // 在ready里面获取cfi
                 _this.book.ready.then(() => {
-                        _this.readyReader()
                         return _this.book.locations.generate()
-                        // Load in stored locations from json or local storage
-                        // var key = _this.book.key();
-                        // var stored = localStorage.getItem(key);
-
-                        // if (stored) {
-                        //   return _this.book.locations.load(stored);
-                        // } else {
-                        //   return _this.book.locations.generate();
-                        // }
                     })
                     // 通过locations保存cfi
                     .then(locations => {
                         // console.log(_this.book.locations.save(),'通过key()拿到cfi')
                         _this.book.locations.save()
-                        // let storageCfi = _this.book.key()
-                        // if (!storageCfi) {
-                        //   localStorage.setItem(storageCfi, _this.book.locations.save());
-                        // } else {
-                        //   localStorage.removeItem(storageCfi)
-                        //   localStorage.setItem(storageCfi, _this.book.locations.save());
-                        // }
                     }).then(()=>{
-                      
+                        if(sessionStorage.getItem("cPage")){
+                            _this.currPage = Math.floor(_this.book.locations.percentageFromCfi(JSON.parse(sessionStorage.getItem("cPage")).start)*100)
+                            _this.currPageFlag = true
+                        }
                     })
-                
-                _this.rendition.display()
+                    // +++++++++++++++++++++++++++++++++++++++++目录
+
+                    this.book.loaded.navigation.then(getToc => {
+                        if(!getToc.toc.length){
+                            return
+                        }
+                        this.suffix = getToc.toc[0].href.split('.')[1]
+                        this.tocList = getToc.toc
+                        if (this.epubData.AllowReadPercentage == 1) {
+                            this.sectionLibList = this.setCatalogue(getToc.toc,true)
+                        } else {
+                            this.readableNum(getToc.toc)
+                            this.isprobation = true
+                            if (this.suffix == 'html') {
+                                this.isHtml = true
+                            }
+                        }
+                        let arr = []
+                        this.sectionLibList.forEach(item => {
+                            arr.push(item.href.split('#')[0])
+                        })
+                        this.allParentIndex = this.unique(arr).length - 1
+                    })
+                    .then(() => {
+                        if (cPage.href) {
+                        //  && (cPage.percentage > 0 || this.isHtml)    百分比
+                        //   console.log(cPage)
+                            if (this.isHtml) {
+                                this.rendition.display(cPage.href)
+                            } else {
+                                this.rendition.display(cPage.start)
+                            }
+                            this.cparentIndex = cPage.index
+                        } else {
+                            this.rendition.display()
+                        }
+                    })
+                    // ++++++++++++++++++++++++++++++++++++++++++++++
+                    
                 _this.listenSectionRenditions()
 
                 _this.rendition.themes.default({
@@ -470,14 +634,6 @@ export default {
                     //     '-ms-user-select':'none',  /*IE10*/
                     //     'user-select':'none',
                     // },
-                    // 'div.center': {
-                        // width: '100% !important',
-                        // display: 'flex !important',
-                        // margin: '2rem 0 !important',
-                        // 'justify-content': 'center !important',
-                        // 'align-items': 'center !important',
-                        // 'flex-direction': 'column !important'
-                    // },
                     h1: {
                         'font-size': '22px',
                         color: '#333 !important',
@@ -487,7 +643,6 @@ export default {
                     },
                     h2: {
                         'font-size': '20px',
-                        // color: 'RGBA(234, 84, 4, 1)',
                         color: '#333 !important',
                         'text-align': 'left !important;',
                         'margin-top': '2rem !important',
@@ -495,7 +650,6 @@ export default {
                     },
                     h3: {
                         'font-size': '18px',
-                        // color: 'RGBA(234, 84, 4, 1)',
                         color: '#333 !important',
                         'text-align': 'left !important;',
                         'margin-top': '2rem !important',
@@ -504,7 +658,6 @@ export default {
                     h4: {
                         'margin-top': '0 !important',
                         'font-size': '16px',
-                        // color: 'RGBA(234, 84, 4, 1)',
                         color: '#333 !important',
                         'text-align': 'left !important;',
                         'text-indent': '0'
@@ -532,12 +685,10 @@ export default {
                     },
                     html: {},
                     body: {
-                        'text-indent': '0 !important;'
+                        'text-indent': '0 !important;',
                     },
                     div: {
-                        // 'line-height': '2.5rem !important;'
-                        'line-height': '1.5 !important',  //L
-                        // 'margin':'0 !important'    //L
+                        'line-height': '1.5 !important'  //L
                     },
                     'div.pic': {},
                     'div.cover': {
@@ -552,10 +703,12 @@ export default {
                         'line-height': '1.5 !important'   //L
                     },
                     img: {
-                        // 'max-width': '98% !important;'
                         'max-width': '100% !important', //L
                         'object-fit': 'contain !important',//L
-                        'height': 'auto !important'//L
+                        'height': 'auto !important',//L
+                        'margin-left': '0 !important',// w
+                        'margin-rgiht': '0 !important',// w
+                        'margin-height': (window.innerHeight - 26)+'!important'// w 处理图片长度太长断屏
                     }
                 })
 
@@ -597,114 +750,75 @@ export default {
                 this.ifHiddenFlag = true
                 this.ifMaskHidden = false
             }
-
-            this.readyReader()
         },
-        readyReader() {
+        gotoDisplay(event,val) {
+            this.HAndFFlag = false;
+            this.HiddenFlag = false;
             let _this = this
-            return new Promise((resolve, reject) => {
-                // 阅读时的处理
-                try {
-                    // 加载时的处理，添加目录
-                    _this.book.loaded.navigation.then(getToc => {
-                        let tocUl = document.getElementById('toc')
-                        let LiList = tocUl.getElementsByTagName('li')
-                        _this.limit =
-                            _this.book.navigation.length *
-                            sessionStorage.AllowReadPercentage
-                        _this.$nextTick(() => {
-                            for (let i = 0; i < LiList.length; i++) {
-                                let liLock = document.createElement('span')
-
-                                if (i >= _this.limit - 1) {
-                                    let getSpan = LiList[
-                                        i
-                                    ].getElementsByTagName('span')[1]
-
-                                    if (!getSpan) {
-                                        LiList[i].appendChild(
-                                            liLock
-                                        ).innerHTML =
-                                            '<img src="http://124.193.177.45:50695/epub/lock.svg" alt="">'
-                                    } else {
-                                        return
-                                    }
-
-                                    LiList[i].style.color = '#cecece'
-                                }
-                            }
-                        })
-
-                        // 处理目录
-                        function handleTocList(v) {
-                            var list = []
-                            function nextToc(v) {
-                                for (let i = 0; i < v.length; i++) {
-                                    list.push({
-                                        label: v[i].label,
-                                        id: v[i].id,
-                                        href: v[i].href,
-                                        length: v[i].subitems.length
-                                    })
-                                    if (v[i].subitems.length) {
-                                        nextToc(v[i].subitems)
-                                    }
-                                }
-                            }
-                            nextToc(v)
-                            return list
-                        }
-                        _this.tocList = handleTocList(getToc.toc)
-                        resolve(getToc.length)
-                    })
-                } catch (e) {
-                    console.log(e.message)
-                }
-            })
-        },
-        gotoDisplay(e, href, key) {
-            let _this = this
-            let ReadPercentage = sessionStorage.AllowReadPercentage
-            let liActive = document.querySelectorAll('.isLimitB')
-
             _this.ifHiddenFlag = true
             _this.ifMaskHidden = false
-            if (key <= _this.limit - 1 && ReadPercentage != 1) {
+            if (val.sign) {
+                // 点击高亮目录
+                // let currentDom = event.currentTarget;
+                // let selectedFlag = currentDom.classList.contains('selected');
+                if(selectedFlag){
+                    return;
+                }else{
+                    document.querySelector('.toc-item.selected').classList.remove('selected');
+                    currentDom.classList.add('selected');
+                }
                 _this.preventPaging = false
-                _this.rendition.display(href)
+                _this.rendition.display(val.href.indexOf('/')>-1?val.href:this.hrefHeader +val.href)
             } else {
                 _this.RecommendationFlag = true
                 _this.hideMencFlag = true
                 _this.preventPaging = true
-                e.preventDefault()
             }
         },
         /**
          * 下一页
          * @author 李啸竹
          */
-        ePubNext(e) {
+        ePubNext(e,flag=true) {
+            console.log(123);
+            // return;
+            let myDate = new Date();
+            let nowTime = myDate.getTime();
+            let mistiming = nowTime - this.startTime
+            this.startTime = nowTime;
+            if(mistiming<=180){
+                return;
+            }
+            if(flag){
+                this.HAndFFlag = false;
+                this.HiddenFlag = false;
+            }
+            this.canClickNext = false;//重置向下点击为false，防止暴力狂点击
+            setTimeout(()=>{
+                this.canClickNext = true;
+            },1000);
             let _this = this
-            try {
-                _this.HiddenFlag = false
-                if (_this.preventPaging) {
-                    _this.RecommendationFlag = true
-                    setTimeout(() => {
-                        _this.hideMencFlag = true
-                    }, 500);
-                } else {
-                    _this.rendition.next()
-                    e.preventDefault()
-                }
-            } catch (e) {
-                console.log(e.message)
+            _this.HiddenFlag = false
+            // console.log(_this.canRead,'==');
+            // console.log(_this.preventPaging,'==preventPaging');
+            if (_this.preventPaging && !_this.canRead) {
+                console.log('显示二维码')
+                _this.RecommendationFlag = true
+                this.hideMencFlag = true
+            } else {
+                _this.rendition.next()
+                e.preventDefault()
             }
         },
         /**
          * 上一页
          * @author 李啸竹
          */
-        ePubPrev(e) {
+        ePubPrev(e,flag=true) {
+            if(flag){
+                this.HAndFFlag = false;
+                this.HiddenFlag = false;
+            }
             let _this = this
             return new Promise((resolve, rejcet) => {
                 try {
@@ -731,6 +845,12 @@ export default {
         setBG(num) {
             let _this = this
             let changeBG = document.getElementById('ePubArea')
+            let liDom = document.querySelector('li.selected');
+            let clickLiDom = document.querySelectorAll('li.bg-item')[num];
+            if(liDom != clickLiDom){
+                liDom.classList.remove('selected');
+                clickLiDom.classList.add('selected');
+            }
             switch (num) {
                 case 1:
                     changeBG.style.background = '#F7F7F7'
@@ -753,6 +873,10 @@ export default {
                     changeBG.style.transition = 'all 0.3s ease-in'
                     break
             }
+        },
+        closeGuideBox(){
+            sessionStorage.showGuideBox = 'yes';
+            this.showGuideBox = false;
         }
     }
 }
@@ -760,6 +884,18 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
+@-webkit-keyframes spin {
+    0%   {
+        -webkit-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
 .mint-indicator {
     z-index: 70;
     // width:100vw;
@@ -772,6 +908,67 @@ export default {
     .mint-indicator-mask {
         z-index: 60;
     }
+}
+.guide-box{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    text-align: center;
+    background: rgba(0,0,0,0.7);
+    color: #ffffff;
+    font-size: 0.3rem;
+    font-family: cursive;
+    div{
+        img{
+            width: 10vw;
+            // margin-bottom: 8vh;
+            margin-bottom: 3vh;
+        }
+        img.mb3{
+            width: 11vw;
+        }
+    }
+    div.guide-l {
+        width: 25vw;
+        height: inherit;
+        writing-mode: tb-rl;
+        -webkit-writing-mode: vertical-rl;
+        writing-mode: vertical-rl;
+        line-height: 25vw;
+    }
+    div.guide-c {
+        width: 50vw;
+        height: 100%;
+        writing-mode: tb-rl;
+        -webkit-writing-mode: vertical-rl;
+        writing-mode: vertical-rl;
+        line-height: 50vw;
+        border-left: 1px dashed #ccc;
+        border-right: 1px dashed #ccc;
+    }
+    div.guide-r {
+        width: 25vw;
+        height: inherit;
+        writing-mode: tb-rl;
+        -webkit-writing-mode: vertical-rl;
+        writing-mode: vertical-rl;
+        line-height: 25vw;
+    }
+}
+div.chapter-name{
+    height: 26px;
+    line-height: 26px;
+    position: relative;
+    top: 1px;
+    z-index: 60;
+    background: #fff;
+    text-indent: 15px;
 }
 div#ePubArea {
     width: 100%;
@@ -820,9 +1017,18 @@ div.epub-index-wrap {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                img {
+                position: relative;
+                img.code-img {
                     width: 3.5rem;
                     height: 3.5rem;
+                }
+                span.close-rqcode{
+                    position: absolute;
+                    top: -0.7rem;
+                    right: 0.3rem;
+                    img{
+                        width: 0.4rem;
+                    }
                 }
             }
             li.title {
@@ -1024,7 +1230,7 @@ div.epub-index-wrap {
                     border: none;
                 }
                 li:nth-child(2) {
-                    border: 1px solid RGBA(64, 71, 79, 1);
+                    border: 1px solid RGBA(153, 153, 153, 1);
                     background: white;
                 }
                 li:nth-child(3) {
@@ -1046,6 +1252,9 @@ div.epub-index-wrap {
                     align-items: center;
                     border: 1px solid RGBA(64, 71, 79, 1);
                     background: RGBA(64, 71, 79, 1);
+                }
+                li.selected {
+                    border: 1px solid #000;
                 }
             }
         }
@@ -1122,6 +1331,17 @@ div.epub-index-wrap {
                         position: absolute;
                         top: 40%;
                         left: 48%;
+                        span{
+                            display: inline-block;
+                            width: 10px;
+                            height: 10px;
+                            -webkit-animation: spin 2s linear infinite;
+                            animation: spin 2s linear infinite;
+                            background-image: url('../../assets/basic/loading.png');
+                            background-repeat: no-repeat;
+                            background-size: contain;
+                            background-position: center;
+                        }
                     }
                     div.mt-range-content {
                         width: inherit;
@@ -1259,15 +1479,33 @@ div.epub-index-wrap {
                 width: 64vw;
                 padding: 3vw;
                 height: 1rem;
-                line-height: 1rem;
+                // line-height: 1rem;
                 display: inline-block;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-                ul {
-                    width: inherit;
-                    display: inline-block;
-                }
+                position: relative;
+                box-sizing: border-box;
+                // ul {
+                //     width: inherit;
+                //     display: inline-block;
+                // }
+            }
+            .readable{
+                // color: #cecece !important;
+            }
+            .readable::before{
+                content: '';
+                background-image: url('http://124.193.177.45:50695/epub/lock.svg');
+                background-position: left center;
+                background-repeat: no-repeat;
+                background-size: cover;
+                width: 14px;
+                height: 14px;
+                position: absolute;
+                top: 50%;
+                margin-top: -10px;
+                right: 0;
             }
             li {
                 span:nth-child(2) {
@@ -1281,7 +1519,7 @@ div.epub-index-wrap {
                     }
                 }
             }
-            li:hover {
+            li.selected {
                 color: #2053e4;
             }
         }
@@ -1296,15 +1534,17 @@ div.epub-index-wrap {
         align-items: center;
         z-index: 60;
         div.l {
-            width: 35vw;
+            // width: 35vw;
+            width: 25vw;
             height: inherit;
         }
         div.c {
-            width: 30vw;
+            width: 50vw;
             height: 100%;
         }
         div.r {
-            width: 35vw;
+            // width: 35vw;
+            width: 25vw;
             height: inherit;
         }
     }
